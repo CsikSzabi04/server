@@ -1,0 +1,53 @@
+/* MindCore 3D + Residents styles.
+   Kept in a SEPARATE file (imported by the feature components) so it never
+   collides with concurrent edits to hud.css. */
+
+/* ── 3D mind core ──────────────────────────────────────────────────────────── */
+.reactor-3d {
+  position: relative;
+}
+.mindcore-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 88%;
+  height: 88%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+.mindcore-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+  /* The canvas paints an opaque deep-space background (avoids the transparent +
+     additive "white box" artifact). Feather its edges so the square blends
+     seamlessly into the HUD background. */
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 56%, transparent 78%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 56%, transparent 78%);
+}
+.reactor-3d .reactor-frame {
+  position: relative;
+  z-index: 2;
+}
+.reactor-3d .reactor-status {
+  z-index: 3;
+}
+
+/* ── pixel residents ───────────────────────────────────────────────────────── */
+.residents-canvas {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 150px;
+  pointer-events: none;
+  z-index: 50; /* float above the HUD; pointer-events:none keeps chat usable */
+  image-rendering: pixelated;
+}
+@media (max-width: 920px) {
+  .residents-canvas {
+    height: 116px;
+  }
+}

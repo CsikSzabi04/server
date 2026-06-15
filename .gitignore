@@ -1,0 +1,20 @@
+# ─── dependencies & build output (server + web) ──────────────────────────────
+**/node_modules/
+**/dist/
+**/build/
+web/.vite/
+.vercel/
+
+# ─── secrets — NEVER commit real keys ─────────────────────────────────────────
+**/.env
+**/.env.local
+**/.env.*.local
+
+# ─── large local binaries — Ollama install + installer (never to git) ─────────
+PublicFreeAI/
+
+# ─── logs & OS junk ───────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
