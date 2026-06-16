@@ -225,7 +225,8 @@ export default function Residents({ state, enabled }: Props) {
 
         if (a.bubble && nowS > a.bubble.until) a.bubble = null;
 
-        const pose = a.action.pose(Math.min(1, a.elapsed / a.action.dur));
+        const prog = Math.min(1, a.elapsed / a.action.dur);
+        const pose = a.action.pose(prog);
 
         // soft glow under the feet
         ctx.save();
@@ -236,6 +237,7 @@ export default function Residents({ state, enabled }: Props) {
         ctx.restore();
 
         drawCharacter(ctx, a.def, pose, a.x, groundY, S, a.facing);
+        a.action.fx?.(ctx, a.x, groundY, S, a.facing, prog);
 
         if (a.bubble) drawBubble(ctx, a.bubble.text, a.x, groundY - 16 * S);
       }
