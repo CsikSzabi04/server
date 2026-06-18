@@ -1,5 +1,5 @@
 import type { UIMessage } from '../types';
-import LiveText from './LiveText';
+import MessageContent from './MessageContent';
 
 interface Props {
   message: UIMessage;
@@ -17,9 +17,22 @@ export default function ChatMessage({ message }: Props) {
 
   return (
     <div className={`msg msg-auri${message.error ? ' msg-error' : ''}`}>
-      <div className="msg-tag">{message.error ? '!! AURI' : 'AURI'}</div>
+      <div className="msg-tag">
+        {message.error ? '!! AURI' : 'AURI'}
+        {message.source && (
+          <span className={`msg-src msg-src--${message.source}`}>
+            {message.source === 'brain'
+              ? '◈ brain'
+              : message.source === 'web'
+                ? '🌐 web'
+                : message.source === 'brain-model'
+                  ? '◈ brain+model'
+                  : 'model'}
+          </span>
+        )}
+      </div>
       <div className="msg-body">
-        <LiveText text={message.content} streaming={Boolean(message.streaming)} />
+        <MessageContent text={message.content} streaming={Boolean(message.streaming)} />
       </div>
     </div>
   );

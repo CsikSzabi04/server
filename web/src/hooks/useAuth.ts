@@ -35,12 +35,12 @@ export function useAuth(): AuthApi {
     ready,
     configured: isSupabaseConfigured(),
     async signIn(email, password) {
-      if (!supabase) return 'Supabase nincs konfigurálva.';
+      if (!supabase) return 'Supabase is not configured.';
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       return error?.message ?? null;
     },
     async signUp(email, password) {
-      if (!supabase) return 'Supabase nincs konfigurálva.';
+      if (!supabase) return 'Supabase is not configured.';
       const { error } = await supabase.auth.signUp({ email, password });
       return error?.message ?? null;
     },

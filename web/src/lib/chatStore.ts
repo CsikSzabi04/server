@@ -38,7 +38,7 @@ const lsSet = (v: LocalConversation[]) => {
   }
 };
 
-const titleOf = (s: string) => s.trim().replace(/\s+/g, ' ').slice(0, 60) || 'Új beszélgetés';
+const titleOf = (s: string) => s.trim().replace(/\s+/g, ' ').slice(0, 60) || 'New chat';
 
 export async function listConversations(userId: string | null): Promise<ConversationMeta[]> {
   if (userId && supabase) {
@@ -51,7 +51,7 @@ export async function listConversations(userId: string | null): Promise<Conversa
     if (error || !data) return [];
     return data.map((d: any) => ({
       id: d.id,
-      title: d.title ?? 'Beszélgetés',
+      title: d.title ?? 'Conversation',
       updatedAt: d.updated_at,
       pinned: !!d.pinned,
       keywords: d.keywords ?? [],

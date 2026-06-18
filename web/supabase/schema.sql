@@ -75,3 +75,6 @@ create policy "own memories" on public.memories
 create index if not exists messages_conversation_idx on public.messages (conversation_id, created_at);
 create index if not exists conversations_user_idx on public.conversations (user_id, updated_at desc);
 create index if not exists memories_user_idx on public.memories (user_id, created_at desc);
+-- Faster BRAIN retrieval: fetch/order by kind + weight, and surface pinned first.
+create index if not exists memories_user_kind_idx on public.memories (user_id, kind, weight desc);
+create index if not exists memories_user_pinned_idx on public.memories (user_id, pinned) where pinned;

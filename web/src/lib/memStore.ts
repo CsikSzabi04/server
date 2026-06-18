@@ -80,7 +80,7 @@ export async function listMemories(userId: string | null): Promise<Memory[]> {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .limit(500);
+      .limit(10000);
     if (error || !data) return [];
     return data.map(mapMem);
   }
@@ -107,7 +107,7 @@ export async function addMemory(userId: string | null, mem: Memory): Promise<Mem
   const all = lsGet<Memory[]>(LS_MEM, []);
   const m: Memory = { ...mem, id: crypto.randomUUID(), created_at: new Date().toISOString() };
   all.unshift(m);
-  lsSet(LS_MEM, all.slice(0, 500));
+  lsSet(LS_MEM, all.slice(0, 5000));
   return m;
 }
 

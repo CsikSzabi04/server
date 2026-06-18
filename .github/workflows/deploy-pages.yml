@@ -25,6 +25,11 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+      # Auto-enable Pages on first run so the deploy job doesn't 404 with
+      # "Ensure GitHub Pages has been enabled". (Needs pages: write — set above.)
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/setup-node@v4
         with:
           node-version: 20

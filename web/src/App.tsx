@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import HudBackground from './components/HudBackground';
 import ScanlineOverlay from './components/ScanlineOverlay';
 import MindCore from './components/MindCore';
@@ -12,7 +12,10 @@ import VoiceToggle from './components/VoiceToggle';
 import AuthPanel from './components/AuthPanel';
 import ConversationSidebar from './components/ConversationSidebar';
 import BrainCard from './components/BrainCard';
-import MemoryView from './components/MemoryView';
+// MemoryView + CodeProjects are heavy modals — lazy-load so they only download when
+// opened (smaller startup bundle). Their code.css is eager-imported in main.tsx.
+const MemoryView = lazy(() => import('./components/MemoryView'));
+const CodeProjects = lazy(() => import('./components/CodeProjects'));
 import { useAuth } from './hooks/useAuth';
 import { useMemory } from './hooks/useMemory';
 import type { AuriState } from './lib/auriState';
@@ -30,12 +33,28 @@ import {
   setPinned,
 } from './lib/chatStore';
 import type { UIMessage } from './types';
+import { useBrainChat, localAnswerEnabled, setLocalAnswerEnabled } from './brain-bridge/brainChat';
+import { webSearchEnabled, setWebSearchEnabled, searchWeb, searchWebDeep, composeWebAnswer } from './brain-bridge/askPipeline';
+import { recordAnswer, alwaysLearn } from './autolearn';
 
 let idCounter = 0;
 const newId = () => `m${++idCounter}`;
 
 const GREETING =
-  'Rendszer online. Auri készenlétben — kérdezz bármit. (Ez most DEMO mód; a valódi modell bekötése a README-ben.)';
+  'System online. Auri on standby — ask me anything. (This is DEMO mode; wire up the real model per the README.)';
+
+// Programmer-oriented persona, added to every model request so answers lean technical:
+// complete runnable code, exact commands, idiomatic + secure, and the full file(s) when
+// asked to build something. (The local brain is already code-first for programming
+// questions via recipes/snippets — this steers the model path the same way.)
+const PROGRAMMER_SYSTEM =
+  'You are Auri, a programming-focused AI assistant. Lean technical and practical. For a code ' +
+  'question, give a short explanation then COMPLETE, runnable code (imports, error handling, a brief ' +
+  'usage note). Prefer concrete examples, exact install/run commands, and idiomatic, secure code ' +
+  'across Python, Node.js, React, JavaScript, TypeScript, Java, SQL, HTML, CSS and Tailwind. When ' +
+  'asked to build something (a page, component, API, script), return the full file(s) plus the steps ' +
+  "to run it, and cite official docs when useful. For non-code questions, answer helpfully but " +
+  "concisely. Reply in the user's language.";
 
 const greetingMessages = (): UIMessage[] => [{ id: newId(), role: 'assistant', content: GREETING }];
 
@@ -46,16 +65,22 @@ export default function App() {
   const [latency, setLatency] = useState(0);
   const [residentsOn, setResidentsOn] = useState(true);
   const [core3D, setCore3D] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationMeta[]>([]);
   const [currentConvId, setCurrentConvId] = useState<string | null>(null);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [brainHover, setBrainHover] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const convIdRef = useRef<string | null>(null);
 
   const auth = useAuth();
   const memory = useMemory(auth.user?.id ?? null);
+  // BRAIN (AI-3): feeds the local "literal brain" learner + the opt-in arbiter.
+  const brainChat = useBrainChat();
+  const [brainOn, setBrainOn] = useState(localAnswerEnabled());
+  const [webOn, setWebOn] = useState(webSearchEnabled());
 
   const setConv = useCallback((id: string | null) => {
     convIdRef.current = id;
@@ -149,9 +174,14 @@ export default function App() {
       const uid = auth.user?.id ?? null;
       const userMsg: UIMessage = { id: newId(), role: 'user', content: text };
       const auriId = newId();
-      // Inject the BRAIN: persona + what Auri remembers that's relevant now.
+      // Inject the BRAIN: persona + what Auri remembers that's relevant now, PLUS the
+      // hybrid H1 grounding block (the brain's relevant knowledge) so the model answers
+      // grounded in our brain — empty when the brain has nothing relevant.
+      const brainCtx = brainChat.groundContext(text, memory.memories);
       const history: ChatMessage[] = [
         { role: 'system', content: memory.systemMessage(text) },
+        { role: 'system', content: PROGRAMMER_SYSTEM },
+        ...(brainCtx ? [{ role: 'system' as const, content: brainCtx }] : []),
         ...[...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
       ];
 
@@ -168,64 +198,137 @@ export default function App() {
         void refreshConversations();
       })();
 
-      const ctrl = new AbortController();
-      abortRef.current = ctrl;
-      let created = false;
-      let assistantText = '';
+      // Render a local/web reply with a word-by-word typewriter (like the model path).
+      // The total time is capped (~2.2s) so long code answers still arrive snappily.
+      const finishLocal = (content: string, source: 'brain' | 'web') => {
+        blip('recv');
+        setState('speaking');
+        setMessages((prev) => [
+          ...prev,
+          { id: auriId, role: 'assistant', content: '', streaming: true, source },
+        ]);
+        const tokens = content.match(/\s+|\S+/g) ?? [content];
+        const wordDelay = Math.max(2, Math.min(12, Math.round(2200 / Math.max(1, tokens.length))));
+        let acc = '';
+        let i = 0;
+        const finalize = () => {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === auriId ? { ...m, content, streaming: false } : m)),
+          );
+          setState('idle');
+          voiceFlush();
+          if (convIdRef.current) {
+            void saveMessage(uid, convIdRef.current, 'assistant', content).then(() => refreshConversations());
+          }
+          void memory.ingest(text, content);
+          brainChat.observeTurn(text, content);
+          recordAnswer(source); // hit-rate metric → /brain "getting smarter" curve
+        };
+        const tick = () => {
+          if (i >= tokens.length) return finalize();
+          const tok = tokens[i++];
+          acc += tok;
+          voiceFeed(tok);
+          setMessages((prev) => prev.map((m) => (m.id === auriId ? { ...m, content: acc } : m)));
+          window.setTimeout(tick, /^\s+$/.test(tok) ? Math.max(1, wordDelay >> 1) : wordDelay);
+        };
+        tick();
+      };
 
-      void streamChat(
-        history,
-        {
-          onDelta: (delta) => {
-            assistantText += delta;
-            voiceFeed(delta);
-            if (!created) {
-              created = true;
-              setState('speaking');
-              blip('recv');
-              setMessages((prev) => [
-                ...prev,
-                { id: auriId, role: 'assistant', content: delta, streaming: true },
-              ]);
-            } else {
+      // The model path (Ollama → Groq → Gemini), streamed.
+      const startModel = () => {
+        const ctrl = new AbortController();
+        abortRef.current = ctrl;
+        let created = false;
+        let assistantText = '';
+        void streamChat(
+          history,
+          {
+            onDelta: (delta) => {
+              assistantText += delta;
+              voiceFeed(delta);
+              if (!created) {
+                created = true;
+                setState('speaking');
+                blip('recv');
+                setMessages((prev) => [
+                  ...prev,
+                  // 'brain-model' when the brain grounded the model (H1/H3), else plain model.
+                  { id: auriId, role: 'assistant', content: delta, streaming: true, source: brainCtx ? 'brain-model' : 'model' },
+                ]);
+              } else {
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === auriId ? { ...m, content: m.content + delta } : m)),
+                );
+              }
+            },
+            onDone: ({ usage, latencyMs }) => {
+              voiceFlush();
+              setMessages((prev) => prev.map((m) => (m.id === auriId ? { ...m, streaming: false } : m)));
+              if (usage) setTotalTokens((t) => t + usage.total_tokens);
+              setLatency(latencyMs);
+              setState('idle');
+              if (convIdRef.current && assistantText.trim()) {
+                void saveMessage(uid, convIdRef.current, 'assistant', assistantText).then(() =>
+                  refreshConversations(),
+                );
+              }
+              if (assistantText.trim()) {
+                void memory.ingest(text, assistantText);
+                brainChat.distill(text, assistantText); // H2: learn the model's answer → offline next time
+                recordAnswer('model'); // hit-rate metric → /brain "getting smarter" curve
+              }
+            },
+            onError: (msg) => {
+              blip('error');
+              voiceCancel();
               setMessages((prev) =>
-                prev.map((m) => (m.id === auriId ? { ...m, content: m.content + delta } : m)),
+                created
+                  ? prev.map((m) =>
+                      m.id === auriId
+                        ? { ...m, content: `${m.content}\n\n${msg}`, streaming: false, error: true }
+                        : m,
+                    )
+                  : [...prev, { id: auriId, role: 'assistant', content: msg, error: true }],
               );
-            }
+              setState('error');
+              window.setTimeout(() => setState((s) => (s === 'error' ? 'idle' : s)), 2800);
+            },
           },
-          onDone: ({ usage, latencyMs }) => {
-            voiceFlush();
-            setMessages((prev) => prev.map((m) => (m.id === auriId ? { ...m, streaming: false } : m)));
-            if (usage) setTotalTokens((t) => t + usage.total_tokens);
-            setLatency(latencyMs);
-            setState('idle');
-            if (convIdRef.current && assistantText.trim()) {
-              void saveMessage(uid, convIdRef.current, 'assistant', assistantText).then(() =>
-                refreshConversations(),
-              );
-            }
-            if (assistantText.trim()) void memory.ingest(text, assistantText);
-          },
-          onError: (msg) => {
-            blip('error');
-            voiceCancel();
-            setMessages((prev) =>
-              created
-                ? prev.map((m) =>
-                    m.id === auriId
-                      ? { ...m, content: `${m.content}\n\n${msg}`, streaming: false, error: true }
-                      : m,
-                  )
-                : [...prev, { id: auriId, role: 'assistant', content: msg, error: true }],
-            );
-            setState('error');
-            window.setTimeout(() => setState((s) => (s === 'error' ? 'idle' : s)), 2800);
-          },
-        },
-        ctrl.signal,
-      );
+          ctrl.signal,
+        );
+      };
+
+      // Always-learn from the web in the BACKGROUND (opt-in via the 🌐 WEB toggle):
+      // every turn searches + feeds the brain so it keeps growing — even when answered
+      // from the brain. Fire-and-forget; rate-limited + cached + PII-redacted by AI-4.
+      if (webSearchEnabled()) {
+        void alwaysLearn(text, { search: searchWeb, ingest: brainChat.learnWebHits });
+      }
+
+      // 1) BRAIN first — offline, key-free.
+      const brainReply = brainChat.localAnswer(text, memory.memories);
+      if (brainReply) {
+        finishLocal(brainReply, 'brain');
+        return;
+      }
+
+      // 2) WEB search (opt-in) when the brain has nothing to say.
+      if (webSearchEnabled()) {
+        void (async () => {
+          const { hits, pages } = await searchWebDeep(text); // deep: also fetch page text
+          if (hits.length) {
+            brainChat.learnWebHits(text, hits, pages); // store web knowledge + page essence
+            finishLocal(composeWebAnswer(text, hits), 'web');
+          } else startModel();
+        })();
+        return;
+      }
+
+      // 3) MODEL fallback.
+      startModel();
     },
-    [messages, busy, auth.user, memory, setConv, refreshConversations],
+    [messages, busy, auth.user, memory, brainChat, setConv, refreshConversations],
   );
 
   const onTypingChange = useCallback((typing: boolean) => {
@@ -248,6 +351,10 @@ export default function App() {
         conversations={conversations}
         currentId={currentConvId}
         onNew={newChat}
+        onOpenCode={() => {
+          setCodeOpen(true);
+          setArchiveOpen(false);
+        }}
         onOpen={openConversation}
         onRename={onRename}
         onDelete={onDelete}
@@ -260,7 +367,7 @@ export default function App() {
             className="archive-toggle"
             onClick={() => setArchiveOpen((v) => !v)}
             aria-pressed={archiveOpen}
-            title="Előzmények"
+            title="History"
           >
             ☰
           </button>
@@ -272,23 +379,57 @@ export default function App() {
         <div className="brand-status" data-state={state}>
           {getMode() === 'mock' ? 'DEMO // MOCK CORE' : `LIVE LINK // ${getEndpointLabel()}`}
         </div>
-        <div className="hud-toggles">
+        <button
+          className="menu-toggle"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-expanded={menuOpen}
+          aria-label="Menu"
+        >
+          ☰
+        </button>
+        <div className="hud-toggles" data-open={menuOpen}>
           <button
             className="sound-toggle"
             onClick={newChat}
-            title="Új beszélgetés"
+            title="New chat"
           >
             <span aria-hidden="true">＋</span>
-            <span>ÚJ</span>
+            <span>NEW</span>
           </button>
           <button
             className="sound-toggle"
             onClick={() => setCore3D((v) => !v)}
             aria-pressed={core3D}
-            title="3D mag ki/be (teljesítmény)"
+            title="3D core on/off (performance)"
           >
             <span aria-hidden="true">◉</span>
             <span>{core3D ? '3D' : '2D'}</span>
+          </button>
+          <button
+            className="sound-toggle"
+            onClick={() => {
+              const next = !brainOn;
+              setLocalAnswerEnabled(next);
+              setBrainOn(next);
+            }}
+            aria-pressed={brainOn}
+            title="Answer source: local learned brain (offline, no key) vs. always the model"
+          >
+            <span aria-hidden="true">◈</span>
+            <span>{brainOn ? 'BRAIN' : 'MODEL'}</span>
+          </button>
+          <button
+            className="sound-toggle"
+            onClick={() => {
+              const next = !webOn;
+              setWebSearchEnabled(next);
+              setWebOn(next);
+            }}
+            aria-pressed={webOn}
+            title="Web search when the local brain has no answer (keyless DuckDuckGo)"
+          >
+            <span aria-hidden="true">🌐</span>
+            <span>{webOn ? 'WEB' : 'OFF'}</span>
           </button>
           <SoundToggle />
           <VoiceToggle />
@@ -296,10 +437,10 @@ export default function App() {
             className="sound-toggle"
             onClick={() => setResidentsOn((v) => !v)}
             aria-pressed={residentsOn}
-            title="Pixel-lakók ki/be"
+            title="Pixel residents on/off"
           >
             <span aria-hidden="true">👾</span>
-            <span>{residentsOn ? 'LAKÓK' : 'OFF'}</span>
+            <span>{residentsOn ? 'CREW' : 'OFF'}</span>
           </button>
           <AuthPanel auth={auth} />
         </div>
@@ -342,7 +483,16 @@ export default function App() {
 
       <Residents state={state} enabled={residentsOn} />
 
-      {memoryOpen && <MemoryView memory={memory} onClose={() => setMemoryOpen(false)} />}
+      {memoryOpen && (
+        <Suspense fallback={null}>
+          <MemoryView memory={memory} onClose={() => setMemoryOpen(false)} />
+        </Suspense>
+      )}
+      {codeOpen && (
+        <Suspense fallback={null}>
+          <CodeProjects onClose={() => setCodeOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

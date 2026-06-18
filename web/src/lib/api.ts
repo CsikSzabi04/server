@@ -3,6 +3,9 @@
 //   - LIVE  (VITE_API_URL set): real fetch, supports SSE streaming OR plain JSON.
 // The UI only ever sees a stream of text deltas, so it doesn't care which mode.
 import { pickMockReply } from './mockResponses';
+import { getPrefs, getCustomModel } from './modelStore';
+import { forcedModelId } from './aiModels';
+import { byoStream } from './byo';
 
 export type Role = 'system' | 'user' | 'assistant';
 
@@ -23,6 +26,18 @@ export interface StreamCallbacks {
   onDone: (info: { usage?: ChatUsage; latencyMs: number }) => void;
   onError: (message: string) => void;
 }
+
+export interface StreamOpts {
+  temperature?: number;
+  maxTokens?: number;
+  /** Reuse a cached reply for an identical request (default: true in live mode). */
+  cache?: boolean;
+}
+
+// Small client-side cache: identical request -> instant replay (no round-trip).
+const replyCache = new Map<string, { reply: string; usage?: ChatUsage }>();
+const cacheKey = (messages: ChatMessage[], opts?: StreamOpts) =>
+  JSON.stringify({ m: messages, t: opts?.temperature ?? 0.7, k: opts?.maxTokens ?? 1024 });
 
 const ENV_URL = (import.meta.env.VITE_API_URL as string | undefined)?.trim() || '';
 const ENV_KEY = (import.meta.env.VITE_API_KEY as string | undefined)?.trim() || '';
@@ -55,8 +70,66 @@ export async function streamChat(
   messages: ChatMessage[],
   cb: StreamCallbacks,
   signal?: AbortSignal,
+  opts?: StreamOpts,
 ): Promise<void> {
-  return getMode() === 'mock' ? mockStream(messages, cb, signal) : liveStream(messages, cb, signal);
+  // Apply the user's persisted model / mode choice (lib/modelStore).
+  const prefs = getPrefs();
+  if (prefs.mode === 'agent') {
+    messages = [
+      {
+        role: 'system',
+        content:
+          'Operate in AGENT mode: be proactive and thorough. Break the task into clear steps, ' +
+          'reason explicitly, and finish with concrete next actions.',
+      },
+      ...messages,
+    ];
+  }
+  // BYO: call the user's OWN provider directly — the key never leaves the device.
+  const custom = getCustomModel(prefs.selectedId);
+  if (custom) return byoStream(custom, messages, cb, signal);
+
+  if (getMode() === 'mock') return mockStream(messages, cb, signal);
+
+  const useCache = opts?.cache !== false;
+  const key = useCache ? cacheKey(messages, opts) : '';
+
+  // Cache hit -> replay instantly, word by word so the UI still animates.
+  if (useCache) {
+    const hit = replyCache.get(key);
+    if (hit) {
+      const started = performance.now();
+      cb.onStart?.();
+      for (const tok of hit.reply.match(/\s+|\S+/g) ?? [hit.reply]) {
+        if (signal?.aborted) return;
+        cb.onDelta(tok);
+      }
+      cb.onDone({ usage: hit.usage, latencyMs: Math.round(performance.now() - started) });
+      return;
+    }
+  }
+
+  // Wrap callbacks to capture the full reply for the cache on success.
+  let full = '';
+  const wrapped: StreamCallbacks = {
+    onStart: cb.onStart,
+    onDelta: (t) => {
+      full += t;
+      cb.onDelta(t);
+    },
+    onDone: (info) => {
+      if (useCache && full.trim()) {
+        replyCache.set(key, { reply: full, usage: info.usage });
+        if (replyCache.size > 24) {
+          const oldest = replyCache.keys().next().value;
+          if (oldest) replyCache.delete(oldest);
+        }
+      }
+      cb.onDone(info);
+    },
+    onError: cb.onError,
+  };
+  return liveStream(messages, wrapped, signal, opts);
 }
 
 // ── MOCK ─────────────────────────────────────────────────────────────────────
@@ -89,7 +162,12 @@ async function mockStream(messages: ChatMessage[], cb: StreamCallbacks, signal?:
 }
 
 // ── LIVE ─────────────────────────────────────────────────────────────────────
-async function liveStream(messages: ChatMessage[], cb: StreamCallbacks, signal?: AbortSignal) {
+async function liveStream(
+  messages: ChatMessage[],
+  cb: StreamCallbacks,
+  signal?: AbortSignal,
+  opts?: StreamOpts,
+) {
   const started = performance.now();
   cb.onStart?.();
 
@@ -103,7 +181,14 @@ async function liveStream(messages: ChatMessage[], cb: StreamCallbacks, signal?:
     res = await fetch(ENV_URL, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ messages, stream: true, temperature: 0.7, max_tokens: 1024 }),
+      body: JSON.stringify({
+        messages,
+        // Only Ollama selections force a model; otherwise the server chain decides.
+        model: forcedModelId(getPrefs().selectedId),
+        stream: true,
+        temperature: opts?.temperature ?? 0.7,
+        max_tokens: opts?.maxTokens ?? 1024,
+      }),
       signal,
     });
   } catch (e) {
@@ -175,9 +260,9 @@ async function liveStream(messages: ChatMessage[], cb: StreamCallbacks, signal?:
   const tokens = reply.match(/\s+|\S+/g) ?? [reply];
   for (const tok of tokens) {
     cb.onDelta(tok);
-    // small delay only if not aborted
+    // small delay only if not aborted (kept minimal so the reply lands fast)
     try {
-      await sleep(/^\s+$/.test(tok) ? 8 : 18, signal);
+      await sleep(/^\s+$/.test(tok) ? 2 : 6, signal);
     } catch {
       return;
     }

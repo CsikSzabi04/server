@@ -97,6 +97,142 @@ function auriDevProxy(backendUrl: string, backendKey: string, fb: Fallbacks): Pl
   return {
     name: 'auri-dev-proxy',
     configureServer(server) {
+      // Same-origin availability probe for the model picker (dev mirror of api/models.ts).
+      server.middlewares.use('/api/models', async (_req, res) => {
+        let ollamaUp = false;
+        let models: string[] = [];
+        try {
+          const h = await fetch(`${backendUrl}/health`, { signal: AbortSignal.timeout(3000) });
+          ollamaUp = h.ok && ((await h.json()) as { status?: string }).status === 'ok';
+        } catch {
+          ollamaUp = false;
+        }
+        if (ollamaUp) {
+          try {
+            const m = await fetch(`${backendUrl}/v1/models`, {
+              headers: backendKey ? { authorization: `Bearer ${backendKey}` } : {},
+              signal: AbortSignal.timeout(4000),
+            });
+            if (m.ok) {
+              const j = (await m.json()) as { models?: { name?: string }[] };
+              models = (j.models ?? []).map((x) => x.name ?? '').filter(Boolean);
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+        res.statusCode = 200;
+        res.setHeader('content-type', 'application/json');
+        res.setHeader('cache-control', 'no-store');
+        res.end(JSON.stringify({ ollamaUp, models }));
+      });
+
+      // Web search (dev mirror of api/search.ts) — keyless DuckDuckGo HTML.
+      server.middlewares.use('/api/search', async (req, res) => {
+        const sendJson = (obj: unknown) => {
+          res.statusCode = 200;
+          res.setHeader('content-type', 'application/json');
+          res.setHeader('cache-control', 'no-store');
+          res.end(JSON.stringify(obj));
+        };
+        if (req.method !== 'POST') return sendJson({ results: [] });
+        const chunks: Buffer[] = [];
+        for await (const c of req) chunks.push(c as Buffer);
+        let query = '';
+        let pagesWanted = 0;
+        try {
+          const parsed = JSON.parse(Buffer.concat(chunks).toString('utf8')) as { query?: unknown; pages?: unknown };
+          query = String(parsed.query ?? '');
+          pagesWanted = Math.max(0, Math.min(3, Number(parsed.pages) || 0));
+        } catch {
+          query = '';
+        }
+        if (!query.trim()) return sendJson({ results: [], pages: [] });
+        const clean = (s: string) =>
+          s
+            .replace(/<[^>]+>/g, '')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#x27;/g, "'")
+            .replace(/&#39;/g, "'")
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        const realUrl = (href: string) => {
+          const m = href.match(/[?&]uddg=([^&]+)/);
+          if (m) {
+            try {
+              return decodeURIComponent(m[1]);
+            } catch {
+              return '';
+            }
+          }
+          if (href.startsWith('//')) return `https:${href}`;
+          return href.startsWith('http') ? href : '';
+        };
+        const htmlToText = (html: string) =>
+          clean(
+            html
+              .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+              .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+              .replace(/<head[\s\S]*?<\/head>/gi, ' ')
+              .replace(/<!--[\s\S]*?-->/g, ' ')
+              .replace(/<(nav|footer|header|aside|form)[\s\S]*?<\/\1>/gi, ' '),
+          );
+        const fetchPageText = async (url: string): Promise<string> => {
+          try {
+            const r = await fetch(url, {
+              headers: { 'user-agent': 'Mozilla/5.0 (compatible; AuriBrain/1)' },
+              signal: AbortSignal.timeout(7000),
+            });
+            if (!r.ok) return '';
+            const ct = r.headers.get('content-type') ?? '';
+            if (!/text\/html|text\/plain|xml/i.test(ct)) return '';
+            return htmlToText(await r.text()).slice(0, 4000);
+          } catch {
+            return '';
+          }
+        };
+        try {
+          const r = await fetch('https://html.duckduckgo.com/html/', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/x-www-form-urlencoded',
+              'user-agent': 'Mozilla/5.0 (compatible; AuriBrain/1)',
+            },
+            body: `q=${encodeURIComponent(query.slice(0, 256))}`,
+            signal: AbortSignal.timeout(9000),
+          });
+          if (!r.ok) return sendJson({ results: [] });
+          const html = await r.text();
+          const snippets: string[] = [];
+          const snipRe = /<a[^>]*class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+          let sm: RegExpExecArray | null;
+          while ((sm = snipRe.exec(html))) snippets.push(clean(sm[1]));
+          const results: { title: string; url: string; snippet: string }[] = [];
+          const linkRe = /<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
+          let m: RegExpExecArray | null;
+          let i = 0;
+          while ((m = linkRe.exec(html)) && results.length < 6) {
+            const url = realUrl(m[1]);
+            const title = clean(m[2]);
+            if (url && title) results.push({ title, url, snippet: snippets[i] ?? '' });
+            i++;
+          }
+          let pages: string[] = [];
+          if (pagesWanted > 0 && results.length) {
+            pages = (
+              await Promise.all(results.slice(0, pagesWanted).map((h) => fetchPageText(h.url)))
+            ).filter((t) => t.length > 80);
+          }
+          sendJson({ results, pages });
+        } catch (e) {
+          sendJson({ results: [], error: (e as Error).message });
+        }
+      });
+
       server.middlewares.use('/api/chat', async (req, res) => {
         if (req.method !== 'POST') {
           res.statusCode = 405;
@@ -244,6 +380,9 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), auriDevProxy(backendUrl, backendKey, fb)],
     base: './',
     server: { port: 5173 },
+    // Note: no manualChunks for the seed corpus — AI-1 dynamic-imports it in
+    // seedCorpus, so Vite already lazy-splits it (and defers it past first paint),
+    // which halves the startup bundle. A manualChunks split would be redundant.
     build: { outDir: 'dist', sourcemap: false },
   };
 });

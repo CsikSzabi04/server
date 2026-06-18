@@ -1,0 +1,552 @@
+/* Code workspace overlay — matches the AuriGPT HUD palette (see hud.css :root).
+   Reuses .auth-overlay for the backdrop; everything else is scoped to .code-*. */
+
+.code-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(2, 6, 12, 0.96);
+  backdrop-filter: blur(2px);
+}
+.code-modal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at 50% 0%, #0a1626 0%, #06101a 60%, #04090f 100%);
+  overflow: hidden;
+}
+
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(31, 229, 255, 0.18);
+}
+.code-head .auth-title {
+  text-align: left;
+}
+
+.code-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ── left column: project list + new ─────────────────────────────────────── */
+.code-projects {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-right: 1px solid rgba(31, 229, 255, 0.18);
+  min-height: 0;
+}
+.code-new {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.code-kind {
+  cursor: pointer;
+}
+.code-create {
+  padding: 8px;
+  font-size: 0.72rem;
+}
+.code-proj-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.code-proj {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 9px;
+  border: 1px solid rgba(31, 229, 255, 0.16);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.code-proj:hover {
+  border-color: rgba(31, 229, 255, 0.45);
+}
+.code-proj--active {
+  border-color: var(--accent);
+  background: rgba(31, 229, 255, 0.08);
+}
+.code-proj-main {
+  min-width: 0;
+}
+.code-proj-name {
+  color: #d6f7ff;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.code-proj-meta {
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.66rem;
+  margin-top: 2px;
+}
+.code-proj-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.code-proj-actions button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.code-proj-actions button:hover {
+  color: var(--accent);
+}
+
+/* ── right column: file tabs + editor ────────────────────────────────────── */
+.code-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.code-placeholder {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+}
+.code-files {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 8px 0;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(31, 229, 255, 0.18);
+}
+.code-file-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(31, 229, 255, 0.16);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+.code-file-tab:hover {
+  color: #d6f7ff;
+}
+.code-file-tab--active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(31, 229, 255, 0.08);
+}
+.code-file-x {
+  opacity: 0.6;
+  font-size: 0.66rem;
+}
+.code-file-x:hover {
+  opacity: 1;
+  color: var(--red);
+}
+.code-file-add {
+  background: none;
+  border: 1px dashed rgba(31, 229, 255, 0.3);
+  border-radius: 4px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 5px 9px;
+  flex-shrink: 0;
+}
+.code-file-add:hover {
+  border-color: var(--accent);
+}
+.code-area {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  background: #04090f;
+  border: none;
+  outline: none;
+  color: #d6f7ff;
+  font-family: 'Share Tech Mono', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  padding: 14px 16px;
+  tab-size: 2;
+  white-space: pre;
+  overflow: auto;
+}
+.code-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(31, 229, 255, 0.18);
+}
+.code-hint {
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.code-dl {
+  padding: 8px 14px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+/* ── right column: Auri chat (shapes the code) ───────────────────────────── */
+.code-chat {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid rgba(31, 229, 255, 0.18);
+  background: rgba(4, 9, 15, 0.5);
+}
+.code-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(31, 229, 255, 0.18);
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+}
+.code-chat-ctx {
+  color: var(--muted);
+  letter-spacing: 0;
+  font-size: 0.68rem;
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.code-chat-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  min-height: 0;
+}
+.code-chat-hint {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+.code-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.code-msg-role {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.code-msg--user .code-msg-role {
+  color: var(--cyan2);
+}
+.code-msg--assistant .code-msg-role {
+  color: var(--accent);
+}
+.code-msg-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #d6f7ff;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(31, 229, 255, 0.14);
+  border-radius: 5px;
+  padding: 8px 10px;
+}
+.code-msg--user .code-msg-text {
+  background: rgba(31, 229, 255, 0.06);
+}
+.code-apply {
+  align-self: flex-start;
+  background: var(--accent);
+  color: #04141a;
+  border: none;
+  border-radius: 3px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.code-apply:hover {
+  box-shadow: 0 0 14px var(--glow);
+}
+
+/* code block + diff inside an assistant reply */
+.code-block {
+  border: 1px solid rgba(31, 229, 255, 0.18);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.code-block-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  background: rgba(31, 229, 255, 0.06);
+  border-bottom: 1px solid rgba(31, 229, 255, 0.14);
+}
+.code-block-lang {
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.code-block-acts {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.code-block-btn {
+  background: none;
+  border: 1px solid rgba(31, 229, 255, 0.3);
+  border-radius: 3px;
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.66rem;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.code-block-btn:hover {
+  border-color: var(--accent);
+}
+.code-block-acts .code-apply {
+  align-self: auto;
+}
+.code-block-pre {
+  margin: 0;
+  max-height: 240px;
+  overflow: auto;
+  padding: 8px 10px;
+  background: #04090f;
+  color: #d6f7ff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+.code-diff {
+  max-height: 280px;
+  overflow: auto;
+  background: #04090f;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+.code-diff-line {
+  display: flex;
+  gap: 6px;
+  padding: 0 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.code-diff-sign {
+  width: 0.8em;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.code-diff--same {
+  color: #7fa6b8;
+}
+.code-diff--add {
+  color: #7dffb0;
+  background: rgba(40, 200, 120, 0.1);
+}
+.code-diff--del {
+  color: #ff9aa2;
+  background: rgba(255, 77, 77, 0.1);
+}
+
+.code-chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(31, 229, 255, 0.18);
+}
+.code-chat-input {
+  flex: 1;
+  resize: none;
+  height: 58px;
+  font-family: inherit;
+  font-size: 0.82rem;
+}
+.code-chat-send {
+  align-self: stretch;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+/* ── sidebar launcher button (in ARCHIVE, above NEW CHAT) ─────────────────── */
+.archive-code {
+  background: rgba(31, 229, 255, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(31, 229, 255, 0.4);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  padding: 9px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.archive-code:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 16px var(--glow);
+}
+/* Chat answer source badge (next to the AURI tag): brain vs. model. */
+.msg-src {
+  margin-left: 8px;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.msg-src--brain {
+  color: var(--gold);
+}
+.msg-src--model {
+  color: var(--muted);
+}
+.msg-src--web {
+  color: hsl(320 75% 68%);
+}
+
+/* Assistant reply: prose + formatted, copy-able code blocks (programmer answers). */
+.msg-prose {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.msg-code {
+  margin: 8px 0;
+  border: 1px solid rgba(31, 229, 255, 0.22);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #04090f;
+}
+.msg-code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  background: rgba(31, 229, 255, 0.06);
+  border-bottom: 1px solid rgba(31, 229, 255, 0.14);
+}
+.msg-code-lang {
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.msg-code-copy {
+  background: none;
+  border: 1px solid rgba(31, 229, 255, 0.3);
+  border-radius: 3px;
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.64rem;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.msg-code-copy:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--glow);
+}
+.msg-code-pre {
+  margin: 0;
+  max-height: 420px;
+  overflow: auto;
+  padding: 10px 12px;
+  color: #d6f7ff;
+  font-family: 'Share Tech Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* CODE + BRAIN sit side by side, above NEW CHAT. */
+.archive-tools {
+  display: flex;
+  gap: 8px;
+}
+.archive-tools .archive-code {
+  flex: 1;
+  text-align: center;
+}
+/* BRAIN gets the HUD's gold "mind" accent so it's distinct from CODE. */
+.archive-brain {
+  color: var(--gold);
+  border-color: rgba(255, 157, 47, 0.45);
+  background: rgba(255, 157, 47, 0.08);
+}
+.archive-brain:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(255, 157, 47, 0.55);
+}
+
+/* ── small screens: stack the two columns ────────────────────────────────── */
+@media (max-width: 920px) {
+  .code-body {
+    flex-direction: column;
+  }
+  .code-projects,
+  .code-chat {
+    width: 100%;
+    border-right: none;
+    border-left: none;
+    border-bottom: 1px solid rgba(31, 229, 255, 0.18);
+    max-height: 34%;
+  }
+  .code-chat {
+    border-bottom: none;
+    border-top: 1px solid rgba(31, 229, 255, 0.18);
+  }
+}

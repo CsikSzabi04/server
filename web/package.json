@@ -8,12 +8,16 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "ingest:brain": "node scripts/ingest-programming.mjs",
+    "ingest:general": "node scripts/ingest-general.mjs"
   },
   "dependencies": {
+    "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
     "@react-three/postprocessing": "^2.19.1",
     "@supabase/supabase-js": "^2.108.2",
+    "@tensorflow/tfjs": "^4.22.0",
     "postprocessing": "^6.39.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -25,6 +29,9 @@
     "@types/three": "^0.169.0",
     "@vercel/node": "^3.2.24",
     "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5.7.2",
     "vite": "^5.4.11"
   }

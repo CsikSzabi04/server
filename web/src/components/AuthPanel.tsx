@@ -21,17 +21,17 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
       <button
         className="sound-toggle"
         onClick={() => void auth.signOut()}
-        title={`Kilépés (${auth.user.email ?? ''})`}
+        title={`Sign out (${auth.user.email ?? ''})`}
       >
         <span aria-hidden="true">⏻</span>
-        <span>KILÉP</span>
+        <span>OUT</span>
       </button>
     );
   }
 
   const submit = async () => {
     if (!email || !password) {
-      setErr('Add meg az e-mailt és a jelszót.');
+      setErr('Enter your email and password.');
       return;
     }
     setBusy(true);
@@ -42,7 +42,7 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
     if (e) {
       setErr(e);
     } else if (mode === 'up') {
-      setInfo('Fiók létrehozva. Ha kéri, erősítsd meg az e-mailben kapott linket, majd lépj be.');
+      setInfo('Account created. If prompted, confirm the link sent to your email, then sign in.');
       setMode('in');
     } else {
       setOpen(false);
@@ -54,11 +54,11 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
   const modal = (
     <div className="auth-overlay" onClick={() => setOpen(false)}>
       <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="auth-title">{mode === 'in' ? 'BEJELENTKEZÉS' : 'REGISZTRÁCIÓ'}</div>
+        <div className="auth-title">{mode === 'in' ? 'SIGN IN' : 'SIGN UP'}</div>
         <input
           className="auth-input"
           type="email"
-          placeholder="e-mail"
+          placeholder="email"
           autoComplete="email"
           autoFocus
           value={email}
@@ -67,7 +67,7 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
         <input
           className="auth-input"
           type="password"
-          placeholder="jelszó (min. 6 karakter)"
+          placeholder="password (min. 6 characters)"
           autoComplete={mode === 'in' ? 'current-password' : 'new-password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -76,7 +76,7 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
         {err && <div className="auth-err">{err}</div>}
         {info && <div className="auth-info">{info}</div>}
         <button className="auth-submit" disabled={busy} onClick={() => void submit()}>
-          {busy ? '…' : mode === 'in' ? 'Belépés' : 'Fiók létrehozása'}
+          {busy ? '…' : mode === 'in' ? 'Sign in' : 'Create account'}
         </button>
         <button
           className="auth-switch"
@@ -86,9 +86,9 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
             setInfo(null);
           }}
         >
-          {mode === 'in' ? 'Nincs fiókod? Regisztrálj' : 'Van fiókod? Lépj be'}
+          {mode === 'in' ? 'No account? Sign up' : 'Have an account? Sign in'}
         </button>
-        <button className="auth-close" onClick={() => setOpen(false)} aria-label="Bezárás">
+        <button className="auth-close" onClick={() => setOpen(false)} aria-label="Close">
           ✕
         </button>
       </div>
@@ -97,9 +97,9 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
 
   return (
     <>
-      <button className="sound-toggle" onClick={() => setOpen(true)} title="Bejelentkezés / Regisztráció">
+      <button className="sound-toggle" onClick={() => setOpen(true)} title="Sign in / Sign up">
         <span aria-hidden="true">👤</span>
-        <span>BELÉP</span>
+        <span>IN</span>
       </button>
       {open && createPortal(modal, document.body)}
     </>

@@ -30,9 +30,35 @@ interface Completion {
 }
 
 // Keep Auri's persona consistent across all providers (matches the server's).
-const DEFAULT_SYSTEM =
-  'Te Auri vagy, egy gyors és segítőkész AI-asszisztens. Válaszolj magyarul, tömören, ' +
-  'barátságosan és lényegre törően. Ha a felhasználó más nyelven ír, azon a nyelven válaszolj.';
+const DEFAULT_SYSTEM = `You are Auri — a sharp, fast, and genuinely helpful AI assistant.
+
+How you answer:
+- Reply in the user's language; default to English. Be concise, but never so
+  short that the answer becomes wrong or unusable. Correctness first, brevity second.
+- Read the question for INTENT, then give the most direct useful answer.
+
+Use your memory (this is what makes you smart):
+- The sections "What you know about the user" and "Relevant earlier info" below are
+  REAL facts, preferences and document excerpts retrieved from your long-term memory
+  about THIS specific user. Trust them and actively use them.
+- Always ground your answer in that context when it is relevant. Prefer the user's
+  own documents and stated facts over generic knowledge; if they conflict, follow the
+  document/fact and briefly say so.
+- For questions about an uploaded document, answer FROM the provided excerpts. If the
+  excerpts don't contain the answer, say what's missing — never invent it.
+- Connect the dots: combine several memory items + the user's preferences + the current
+  question into one tailored answer, not a generic one.
+
+Keep learning (get better every turn):
+- Notice durable new facts, names, goals, preferences and corrections, and apply them
+  to every following reply in this conversation.
+- If the user corrects you, accept it instantly and stick to the corrected version.
+- If something important is ambiguous or missing, ask ONE short clarifying question
+  instead of guessing.
+
+Honesty:
+- Never fabricate. If memory doesn't cover it or you're unsure, say so plainly and
+  offer the best next step.`;
 
 function withSystem(messages: Msg[]): Msg[] {
   return messages.some((m) => m.role === 'system')
@@ -40,10 +66,11 @@ function withSystem(messages: Msg[]): Msg[] {
     : [{ role: 'system', content: DEFAULT_SYSTEM }, ...messages];
 }
 
-// Is the local Ollama server reachable AND ready (your PC on)? Fast 3s probe.
+// Is the local Ollama server reachable AND ready (your PC on)? Fast probe so a
+// sleeping PC doesn't stall the fallback to the hosted APIs.
 async function localHealthy(base: string): Promise<boolean> {
   try {
-    const r = await fetch(`${base}/health`, { signal: AbortSignal.timeout(3000) });
+    const r = await fetch(`${base}/health`, { signal: AbortSignal.timeout(1500) });
     if (!r.ok) return false;
     const j = (await r.json()) as { status?: string };
     return j.status === 'ok';
@@ -141,6 +168,147 @@ async function callGemini(messages: Msg[], o: Opts): Promise<Completion | null> 
   }
 }
 
+// ── Streaming variants: forward the provider's tokens to the browser as SSE ──
+// Frontend (api.ts) parses `data: {"delta": "..."}` events, an optional
+// `data: {"usage": {...}}`, then `data: [DONE]`. Each returns true once it has
+// committed to streaming (response started); false if unavailable before then,
+// so the caller can try the next provider.
+function beginSse(res: VercelResponse, source: string): void {
+  res.status(200);
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.setHeader('X-Auri-Source', source);
+}
+
+async function pipeSse(
+  body: ReadableStream<Uint8Array>,
+  res: VercelResponse,
+  pick: (obj: any) => { delta?: string; usage?: Usage },
+): Promise<void> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let sep: number;
+      while ((sep = buffer.indexOf('\n\n')) >= 0) {
+        const evt = buffer.slice(0, sep);
+        buffer = buffer.slice(sep + 2);
+        for (const line of evt.split('\n')) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const data = trimmed.slice(5).trim();
+          if (!data || data === '[DONE]') continue;
+          try {
+            const { delta, usage } = pick(JSON.parse(data));
+            if (delta) res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+            if (usage) res.write(`data: ${JSON.stringify({ usage })}\n\n`);
+          } catch {
+            /* ignore partial / non-JSON keep-alives */
+          }
+        }
+      }
+    }
+  } catch {
+    /* upstream stream broke — close out cleanly below */
+  }
+  res.write('data: [DONE]\n\n');
+  res.end();
+}
+
+async function streamGroq(messages: Msg[], o: Opts, res: VercelResponse): Promise<boolean> {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return false;
+  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  let r: Response;
+  try {
+    r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model,
+        messages: withSystem(messages),
+        temperature: o.temperature ?? 0.7,
+        max_tokens: o.maxTokens ?? 1024,
+        stream: true,
+        stream_options: { include_usage: true },
+      }),
+      signal: AbortSignal.timeout(60_000),
+    });
+  } catch {
+    return false;
+  }
+  if (!r.ok || !r.body) return false;
+
+  beginSse(res, 'groq');
+  await pipeSse(r.body, res, (obj) => {
+    const delta = obj.choices?.[0]?.delta?.content;
+    const u = obj.usage;
+    return {
+      delta: typeof delta === 'string' ? delta : undefined,
+      usage: u
+        ? {
+            prompt_tokens: u.prompt_tokens ?? 0,
+            completion_tokens: u.completion_tokens ?? 0,
+            total_tokens: u.total_tokens ?? 0,
+          }
+        : undefined,
+    };
+  });
+  return true;
+}
+
+async function streamGemini(messages: Msg[], o: Opts, res: VercelResponse): Promise<boolean> {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return false;
+  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const sys = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n') || DEFAULT_SYSTEM;
+  const contents = messages
+    .filter((m) => m.role !== 'system')
+    .map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+  let r: Response;
+  try {
+    r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: sys }] },
+          contents,
+          generationConfig: { temperature: o.temperature ?? 0.7, maxOutputTokens: o.maxTokens ?? 1024 },
+        }),
+        signal: AbortSignal.timeout(60_000),
+      },
+    );
+  } catch {
+    return false;
+  }
+  if (!r.ok || !r.body) return false;
+
+  beginSse(res, 'gemini');
+  await pipeSse(r.body, res, (obj) => {
+    const delta = (obj.candidates?.[0]?.content?.parts ?? []).map((p: any) => p.text ?? '').join('');
+    const um = obj.usageMetadata;
+    return {
+      delta: delta || undefined,
+      usage: um
+        ? {
+            prompt_tokens: um.promptTokenCount ?? 0,
+            completion_tokens: um.candidatesTokenCount ?? 0,
+            total_tokens: um.totalTokenCount ?? 0,
+          }
+        : undefined,
+    };
+  });
+  return true;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'method_not_allowed' });
@@ -225,6 +393,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
   // ── 2) FALLBACK: Groq, then Gemini ─────────────────────────────────────────
   if (res.headersSent) return;
+
+  // Streaming clients: forward real SSE so the text appears token-by-token
+  // instead of waiting for the whole reply. Each helper only commits once its
+  // upstream responds OK, so we can still try the next provider before then.
+  if (wantsStream) {
+    if (await streamGroq(messages, opts, res)) return;
+    if (res.headersSent) return;
+    if (await streamGemini(messages, opts, res)) return;
+    if (res.headersSent) return;
+    res.status(503).json({
+      error: 'no_backend',
+      message: 'Local server offline and no fallback API configured/available.',
+    });
+    return;
+  }
+
+  // Non-streaming clients (e.g. the document summariser): plain JSON.
   const viaGroq = await callGroq(messages, opts);
   const result = viaGroq ?? (await callGemini(messages, opts));
   if (result) {

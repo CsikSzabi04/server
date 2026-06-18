@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   Responsive layout — mobile-first overrides layered ON TOP of hud.css.
+   Tailwind runs with preflight OFF, so the HUD visuals are untouched; this file
+   only re-flows the layout for phone / tablet / desktop (and uses @apply so it
+   is genuinely Tailwind-powered). Imported AFTER hud.css so these rules win.
+   ============================================================================= */
+
+/* Hamburger menu button — hidden on desktop, shown on mobile to hold the
+   header toggles in a dropdown. */
+.menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(31, 229, 255, 0.3);
+  color: var(--accent);
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 5px 11px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.menu-toggle:hover {
+  box-shadow: 0 0 12px var(--glow);
+  border-color: var(--accent);
+}
+
+/* ── Tablet & small laptops: 3 columns don't fit → drop to 2, hide telemetry ── */
+@media (max-width: 1100px) {
+  .hud-main {
+    grid-template-columns: minmax(180px, 0.95fr) minmax(0, 2fr);
+    gap: 16px;
+    padding: 4px 18px 18px;
+  }
+  .side-widgets {
+    @apply hidden;
+  }
+  .reactor {
+    width: min(34vh, 260px);
+  }
+}
+
+/* ── Phone: single-column stack (reactor on top, chat fills, decor hidden) ──── */
+@media (max-width: 768px) {
+  .hud-main {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2px 10px 10px;
+  }
+  .reactor-stage {
+    flex: 0 0 auto;
+  }
+  .reactor {
+    width: min(30vh, 190px);
+  }
+  .chat-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  /* hide decorative / overlapping layers so the chat stays fully usable */
+  .side-widgets,
+  .corner-hud,
+  .residents-canvas {
+    @apply hidden;
+  }
+
+  /* compact header; the action toggles collapse into a ☰ dropdown */
+  .hud-header {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .brand {
+    font-size: 1rem;
+    gap: 7px;
+  }
+  .brand-status {
+    @apply hidden;
+  }
+  .menu-toggle {
+    display: inline-flex;
+  }
+  .hud-toggles {
+    position: absolute;
+    top: calc(100% - 2px);
+    right: 8px;
+    z-index: 30;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    min-width: 172px;
+    padding: 10px;
+    background: rgba(5, 12, 20, 0.97);
+    border: 1px solid rgba(31, 229, 255, 0.35);
+    border-radius: 6px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
+    display: none;
+  }
+  .hud-toggles[data-open='true'] {
+    display: flex;
+  }
+  .hud-toggles .sound-toggle,
+  .hud-toggles .archive-toggle {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+  }
+}
+
+/* ── Very small phones ── */
+@media (max-width: 420px) {
+  .reactor {
+    width: min(26vh, 150px);
+  }
+  .brand-name {
+    font-size: 0.95rem;
+  }
+  .hud-main {
+    padding: 2px 8px 8px;
+  }
+}
+
+/* ── Keep modals / sidebars inside the viewport on any device ── */
+@media (max-width: 560px) {
+  .auth-modal {
+    width: min(94vw, 360px);
+  }
+  .mem-modal {
+    width: min(94vw, 420px);
+    max-height: 86vh;
+  }
+  .archive {
+    width: min(86vw, 290px);
+  }
+  .brain-card {
+    width: min(86vw, 232px);
+  }
+}
+
+/* ── Landscape phones (short height): shrink the core, hide residents ── */
+@media (max-height: 520px) and (max-width: 900px) {
+  .reactor {
+    width: min(42vh, 150px);
+  }
+  .residents-canvas {
+    @apply hidden;
+  }
+}

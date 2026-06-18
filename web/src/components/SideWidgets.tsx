@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSysmon } from '../hooks/useSysmon';
 
 interface Props {
   tokens: number;
@@ -14,18 +15,16 @@ function fmtUptime(sec: number): string {
   return [h, m, s].map((n) => String(n).padStart(2, '0')).join(':');
 }
 
-// Side monitoring widgets: uptime, tokens, latency, a fake load gauge, and a
-// waveform that comes alive while Auri is "speaking".
+// Side monitoring widgets — REAL telemetry now: render load/FPS + JS-heap memory,
+// the machine's CPU/RAM/GPU/resolution (RIG), plus session uptime, AI token count
+// and API latency. The VOX waveform comes alive while Auri is "speaking".
 export default function SideWidgets({ tokens, latencyMs, speaking, mode }: Props) {
   const start = useRef(Date.now());
   const [uptime, setUptime] = useState(0);
-  const [load, setLoad] = useState(42);
+  const { stat, live } = useSysmon();
 
   useEffect(() => {
-    const id = window.setInterval(() => {
-      setUptime((Date.now() - start.current) / 1000);
-      setLoad((l) => Math.max(18, Math.min(96, l + (Math.random() - 0.5) * 18)));
-    }, 1000);
+    const id = window.setInterval(() => setUptime((Date.now() - start.current) / 1000), 1000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -51,9 +50,22 @@ export default function SideWidgets({ tokens, latencyMs, speaking, mode }: Props
       <div className="widget">
         <div className="widget-title">CORE LOAD</div>
         <div className="gauge">
-          <div className="gauge-fill" style={{ width: `${load}%` }} />
+          <div className="gauge-fill" style={{ width: `${live.loadPct}%` }} />
         </div>
-        <div className="widget-sub mono">{Math.round(load)}% // {mode}</div>
+        <div className="widget-sub mono">
+          {live.fps || '—'} FPS · {live.memPct != null ? `${live.memPct}% MEM` : mode}
+        </div>
+      </div>
+
+      <div className="widget">
+        <div className="widget-title">RIG</div>
+        <div className="widget-sub mono">
+          {stat.cores}C{stat.memGB ? ` / ${stat.memGB}G` : ''} · {stat.dpr}× · {stat.screen}
+        </div>
+        <div className="widget-sub mono" style={{ opacity: 0.7 }} title={stat.gpu}>
+          {stat.gpu}
+          {live.battery != null ? ` · BAT ${live.battery}%${live.charging ? '⚡' : ''}` : ''}
+        </div>
       </div>
 
       <div className="widget widget-wave">

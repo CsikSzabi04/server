@@ -18,7 +18,7 @@ export default function VoiceToggle() {
     <button
       className="sound-toggle voice-toggle"
       onClick={toggle}
-      title={on ? 'AuriGPT hangja: BE — kattints a némításhoz' : 'AuriGPT hangja: KI — kattints a bekapcsoláshoz'}
+      title={on ? 'AuriGPT voice: ON — click to mute' : 'AuriGPT voice: OFF — click to enable'}
       aria-pressed={on}
     >
       <span className="sound-glyph">{on ? '🗣️' : '🔈'}</span>

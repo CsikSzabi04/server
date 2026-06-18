@@ -7,6 +7,7 @@ interface Props {
   conversations: ConversationMeta[];
   currentId: string | null;
   onNew: () => void;
+  onOpenCode: () => void;
   onOpen: (id: string) => void;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
@@ -17,10 +18,10 @@ function relTime(iso: string): string {
   const t = new Date(iso).getTime();
   if (!t) return '';
   const s = Math.floor((Date.now() - t) / 1000);
-  if (s < 60) return 'most';
-  if (s < 3600) return `${Math.floor(s / 60)} perce`;
-  if (s < 86400) return `${Math.floor(s / 3600)} órája`;
-  return `${Math.floor(s / 86400)} napja`;
+  if (s < 60) return 'now';
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
 }
 
 export default function ConversationSidebar({
@@ -29,6 +30,7 @@ export default function ConversationSidebar({
   conversations,
   currentId,
   onNew,
+  onOpenCode,
   onOpen,
   onRename,
   onDelete,
@@ -48,25 +50,40 @@ export default function ConversationSidebar({
   return (
     <aside className={`archive${open ? ' archive--open' : ''}`} aria-hidden={!open}>
       <div className="archive-head">
-        <span className="archive-title">ARCHÍVUM</span>
-        <button className="archive-x" onClick={onClose} aria-label="Bezárás">
+        <span className="archive-title">ARCHIVE</span>
+        <button className="archive-x" onClick={onClose} aria-label="Close">
           ✕
         </button>
       </div>
 
+      <div className="archive-tools">
+        <button className="archive-code" onClick={onOpenCode}>
+          {'</>'} CODE
+        </button>
+        <button
+          className="archive-code archive-brain"
+          onClick={() => {
+            onClose();
+            window.location.hash = 'brain';
+          }}
+        >
+          ◈ BRAIN
+        </button>
+      </div>
+
       <button className="archive-new" onClick={onNew}>
-        ＋ ÚJ CHAT
+        ＋ NEW CHAT
       </button>
 
       <input
         className="archive-search"
-        placeholder="keresés…"
+        placeholder="search…"
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
 
       <div className="archive-list">
-        {list.length === 0 && <div className="archive-empty">Nincs beszélgetés még.</div>}
+        {list.length === 0 && <div className="archive-empty">No conversations yet.</div>}
         {list.map((c) => (
           <div
             key={c.id}
@@ -85,24 +102,24 @@ export default function ConversationSidebar({
             </div>
             <div className="archive-actions" onClick={(e) => e.stopPropagation()}>
               <button
-                title={c.pinned ? 'Rögzítés feloldása' : 'Rögzítés felülre'}
+                title={c.pinned ? 'Unpin' : 'Pin to top'}
                 onClick={() => onPin(c.id, !c.pinned)}
               >
                 {c.pinned ? '★' : '☆'}
               </button>
               <button
-                title="Átnevezés"
+                title="Rename"
                 onClick={() => {
-                  const t = window.prompt('Új cím:', c.title);
+                  const t = window.prompt('New title:', c.title);
                   if (t && t.trim()) onRename(c.id, t.trim());
                 }}
               >
                 ✎
               </button>
               <button
-                title="Törlés"
+                title="Delete"
                 onClick={() => {
-                  if (window.confirm('Törlöd ezt a beszélgetést?')) onDelete(c.id);
+                  if (window.confirm('Delete this conversation?')) onDelete(c.id);
                 }}
               >
                 ✕

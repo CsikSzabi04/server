@@ -16,7 +16,7 @@ export default function BrainCard({
   const keywords = memory.memories
     .filter((m) => m.kind === 'keyword')
     .sort((a, b) => b.weight - a.weight);
-  const fullness = Math.min(100, Math.round((memory.memories.length / 60) * 100));
+  const fullness = Math.min(100, Math.round((memory.memories.length / 6000) * 100));
   const recent = facts.slice(0, 3);
 
   return (
@@ -24,12 +24,12 @@ export default function BrainCard({
       <div className="brain-card-title">BRAIN</div>
 
       <div className="brain-row">
-        <span>Felhasználó</span>
-        <b>{p.name || 'ismeretlen'}</b>
+        <span>User</span>
+        <b>{p.name || 'unknown'}</b>
       </div>
       {p.language && (
         <div className="brain-row">
-          <span>Nyelv</span>
+          <span>Language</span>
           <b>{p.language}</b>
         </div>
       )}
@@ -41,18 +41,18 @@ export default function BrainCard({
         </div>
         <div>
           <b>{facts.length}</b>
-          <span>tény</span>
+          <span>facts</span>
         </div>
         <div>
           <b>{keywords.length}</b>
-          <span>kulcsszó</span>
+          <span>keywords</span>
         </div>
       </div>
 
       <div className="brain-bar">
         <div className="brain-bar-fill" style={{ width: `${fullness}%` }} />
       </div>
-      <div className="brain-bar-label">memória {fullness}%</div>
+      <div className="brain-bar-label">memory {fullness}%</div>
 
       {keywords.length > 0 && (
         <div className="brain-chips">
@@ -70,7 +70,7 @@ export default function BrainCard({
 
       {recent.length > 0 && (
         <div className="brain-recent">
-          <div className="brain-recent-h">Legutóbb tanult</div>
+          <div className="brain-recent-h">Recently learned</div>
           {recent.map((r) => (
             <div key={r.id ?? r.content} className="brain-recent-item">
               • {r.content.length > 64 ? `${r.content.slice(0, 64)}…` : r.content}
@@ -80,7 +80,7 @@ export default function BrainCard({
       )}
 
       <button className="brain-open" onClick={onOpen}>
-        MEMÓRIA MEGNYITÁSA
+        OPEN MEMORY
       </button>
     </div>
   );

@@ -15,7 +15,7 @@ export default function SoundToggle() {
     <button
       className="sound-toggle"
       onClick={toggle}
-      title={muted ? 'Hangeffektek bekapcsolása' : 'Hangeffektek némítása'}
+      title={muted ? 'Enable sound effects' : 'Mute sound effects'}
       aria-pressed={!muted}
     >
       <span className="sound-glyph">{muted ? '🔇' : '🔊'}</span>

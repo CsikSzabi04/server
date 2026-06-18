@@ -1,46 +1,24 @@
-import { useEffect, useState } from 'react';
 import type { AuriState } from '../lib/auriState';
-import { hex } from '../lib/ui';
+import { useSysmon } from '../hooks/useSysmon';
 
 interface Props {
   state: AuriState;
   mode: string;
 }
 
-interface Telemetry {
-  sys: string;
-  lat: string;
-  rgba: number;
-  mem: number;
-  uplink: boolean;
-}
-
-function gen(): Telemetry {
-  return {
-    sys: hex(Math.floor(Math.random() * 255)),
-    lat: (46 + Math.random()).toFixed(2),
-    rgba: Math.floor(1000 + Math.random() * 8999),
-    mem: Math.floor(38 + Math.random() * 56),
-    uplink: Math.random() > 0.06,
-  };
-}
-
-// Decorative corner telemetry that periodically refreshes/flickers to sell the
-// "live system" feel. Purely cosmetic except for `state`/`mode`.
+// Corner telemetry — now REAL, machine-dependent data (CPU cores, RAM, GPU,
+// JS-heap memory, render load/FPS, ping latency, connection, resolution, HTTPS,
+// timezone). All read client-side; nothing leaves the browser. See lib/sysmon.
 export default function CornerHud({ state, mode }: Props) {
-  const [t, setT] = useState<Telemetry>(gen);
-
-  useEffect(() => {
-    const id = window.setInterval(() => setT(gen()), 1500);
-    return () => window.clearInterval(id);
-  }, []);
+  const { stat, live } = useSysmon();
+  const tz = stat.timezone.split('/').pop() ?? stat.timezone;
 
   return (
     <div className="corner-hud" aria-hidden="true">
       <div className="corner tl">
         <span className="brk">⌜</span>
         <div className="corner-lines">
-          <span>SYS 0x{t.sys}</span>
+          <span>SYS {stat.cores}C{stat.memGB ? ` / ${stat.memGB}G` : ''}</span>
           <span>CORE {state.toUpperCase()}</span>
           <span>SRC {mode}</span>
         </div>
@@ -48,9 +26,11 @@ export default function CornerHud({ state, mode }: Props) {
 
       <div className="corner tr">
         <div className="corner-lines right">
-          <span>LAT {t.lat}°</span>
-          <span className={t.uplink ? 'ok' : 'bad'}>UPLINK {t.uplink ? '●' : '○'}</span>
-          <span>RGBA {t.rgba}</span>
+          <span>PING {live.latencyMs != null ? `${live.latencyMs}ms` : '—'}</span>
+          <span className={live.online ? 'ok' : 'bad'}>
+            LINK {live.online ? live.netType.toUpperCase() : 'OFFLINE'} {live.online ? '●' : '○'}
+          </span>
+          <span>RES {stat.screen}</span>
         </div>
         <span className="brk">⌝</span>
       </div>
@@ -58,17 +38,17 @@ export default function CornerHud({ state, mode }: Props) {
       <div className="corner bl">
         <span className="brk">⌞</span>
         <div className="corner-lines">
-          <span>MEM {t.mem}%</span>
-          <span>BUS ▰▰▰▱▱</span>
+          <span>MEM {live.memPct != null ? `${live.memPct}%` : '—'}</span>
+          <span>LOAD {live.loadPct}%</span>
           <span>v1.0 // AURI</span>
         </div>
       </div>
 
       <div className="corner br">
         <div className="corner-lines right">
-          <span>SCAN ▱▰▱▰▱</span>
-          <span>GEO 47.49 / 19.04</span>
-          <span>SECURE ✓</span>
+          <span>FPS {live.fps || '—'}</span>
+          <span>TZ {tz}</span>
+          <span className={stat.secure ? 'ok' : 'bad'}>SECURE {stat.secure ? '✓' : '✗'}</span>
         </div>
         <span className="brk">⌟</span>
       </div>
