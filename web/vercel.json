@@ -9,6 +9,9 @@
     },
     "api/tts.ts": {
       "maxDuration": 60
+    },
+    "api/search.ts": {
+      "maxDuration": 30
     }
   }
 }
