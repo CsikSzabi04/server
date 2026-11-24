@@ -1,0 +1,17 @@
+# AURI-CANARY-bbb7e7a4-a514-5a6e-ad63-25d70aae5000
+id: py-l1-h-0029
+level: 1
+lang: py
+topics: [x.algo, x.ds]
+title_hu: Szigetek száma
+prompt_hu: |
+  Írj `szigetek(terkep: list[str]) -> int` függvényt. A térkép egyforma hosszú sorokból áll: '#' szárazföld, '.'
+  víz. Hány sziget van, ha a vízszintesen vagy függőlegesen szomszédos szárazföld-mezők ugyanahhoz a szigethez
+  tartoznak (az átlósak nem)?
+signature: "def szigetek(terkep: list[str]) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: islands
+rating: 1200

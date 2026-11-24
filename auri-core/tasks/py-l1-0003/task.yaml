@@ -1,0 +1,20 @@
+id: py-l1-0003
+level: 1
+lang: py
+topics: [py.collections, x.algo]
+title_hu: Leggyakoribb szavak
+prompt_hu: |
+  Írj `top_words(text: str, k: int) -> list[tuple[str, int]]` függvényt, amely a szöveg `k` leggyakoribb szavát
+  adja vissza `(szó, darabszám)` párokként.
+  - Szó: betűk (`str.isalpha()`) leghosszabb összefüggő sorozata; minden más karakter elválasztja a szavakat.
+  - A szavakat kisbetűsítve (`str.lower()`) számold.
+  - Sorrend: darabszám szerint csökkenő; egyenlő darabszámnál a szó szerint növekvő (a Python alapértelmezett szövegrendezése).
+  - Ha kevesebb különböző szó van, mint `k`, mindet add vissza; `k == 0` esetén üres listát.
+  - Negatív `k`-ra dobj `ValueError`-t.
+signature: "def top_words(text: str, k: int) -> list[tuple[str, int]]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: practice
+family: word-count
+rating: 1200

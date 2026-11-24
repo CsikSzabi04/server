@@ -1,0 +1,16 @@
+# AURI-CANARY-87ec13c6-605e-5216-a596-0d7d683425d9
+id: py-l1-0031
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Magánhangzók
+prompt_hu: |
+  Írj `maganhangzok(s: str) -> int` függvényt, amely megszámolja a magyar magánhangzókat (a á e é i í o ó ö ő u
+  ú ü ű), kis- és nagybetűtől függetlenül.
+signature: "def maganhangzok(s: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: char-count
+rating: 1200

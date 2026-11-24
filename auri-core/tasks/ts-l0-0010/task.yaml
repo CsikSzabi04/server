@@ -1,0 +1,16 @@
+# AURI-CANARY-4bf3ed7f-410b-5d7c-bf25-c920496aeacd
+id: ts-l0-0010
+level: 0
+lang: ts
+topics: [ts.basics]
+title_hu: Átlag
+prompt_hu: |
+  Írj `atlag(xs: number[]): number | null` függvényt: a számtani közép két tizedesre kerekítve (`Math.round(x *
+  100) / 100`); üres tömbre `null`.
+signature: "export function atlag(xs: number[]): number | null"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: mean
+rating: 1000

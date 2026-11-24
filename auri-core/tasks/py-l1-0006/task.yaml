@@ -1,0 +1,16 @@
+# AURI-CANARY-6c60b367-61f8-57a7-a28d-4d0193edce34
+id: py-l1-0006
+level: 1
+lang: py
+topics: [py.strings, x.algo]
+title_hu: Római szám írása
+prompt_hu: |
+  Írj `romai_szam(n: int) -> str` függvényt, amely 1 ≤ n ≤ 3999 számot a szokásos legrövidebb római alakban adja
+  vissza (kivonásos írásmóddal: IV, IX, XL, XC, CD, CM). Tartományon kívül dobj `ValueError`-t.
+signature: "def romai_szam(n: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: roman
+rating: 1200

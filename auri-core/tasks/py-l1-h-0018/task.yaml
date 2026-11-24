@@ -1,0 +1,16 @@
+# AURI-CANARY-7cbd345c-f908-554a-94ad-a8efe0595472
+id: py-l1-h-0018
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Pangramma
+prompt_hu: |
+  Írj `pangramma(s: str) -> bool` függvényt: igaz, ha a szövegben az angol ábécé mind a 26 betűje (a–z)
+  előfordul legalább egyszer, kis- és nagybetűtől függetlenül. A többi karakter nem számít.
+signature: "def pangramma(s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: pangram
+rating: 1200

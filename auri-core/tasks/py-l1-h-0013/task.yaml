@@ -1,0 +1,17 @@
+# AURI-CANARY-4031638c-818e-5560-bb7c-5b852e19d921
+id: py-l1-h-0013
+level: 1
+lang: py
+topics: [py.collections, x.algo, py.errors]
+title_hu: Intervallumok összevonása
+prompt_hu: |
+  Írj `intervallumok(iv: list[list[int]]) -> list[list[int]]` függvényt: a zárt [eleje, vége] intervallumokat
+  (tetszőleges sorrendben) összevonja; az átfedő vagy érintkező (pl. [1, 2] és [2, 3]) intervallumokból egy
+  lesz. Az eredmény eleje szerint növekvő. Ha valamelyiknél eleje > vége, dobj `ValueError`-t.
+signature: "def intervallumok(iv: list[list[int]]) -> list[list[int]]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: intervals
+rating: 1200

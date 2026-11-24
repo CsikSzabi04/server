@@ -1,0 +1,13 @@
+{
+ "id": "E5-02",
+ "title": "Jegyzetkereső",
+ "lang": "py",
+ "acceptance": [
+  "index.py: szavak és epit a leírt módon",
+  "kereso.py: keres ÉS-kapcsolattal",
+  "a tesztek zöldek"
+ ],
+ "limits": {
+  "wall_s": 60
+ }
+}

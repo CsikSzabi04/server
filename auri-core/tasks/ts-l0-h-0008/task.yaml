@@ -1,0 +1,16 @@
+# AURI-CANARY-c560baf0-0154-5cd6-91c7-441a723aa2fa
+id: ts-l0-h-0008
+level: 0
+lang: ts
+topics: [ts.basics]
+title_hu: Teljes négyzet
+prompt_hu: |
+  Írj `teljesNegyzet(n: number): boolean` függvényt: igaz, ha n egy egész szám négyzete (a 0 is az). Negatív
+  n-re hamis.
+signature: "export function teljesNegyzet(n: number): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: square
+rating: 1000

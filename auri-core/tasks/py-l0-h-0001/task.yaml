@@ -1,0 +1,16 @@
+# AURI-CANARY-3be1190c-5458-5d2c-8b59-a1d5433055c0
+id: py-l0-h-0001
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Páratlan elemek összege
+prompt_hu: |
+  Írj `paratlan_osszeg(xs: list[int]) -> int` függvényt, amely a lista páratlan elemeinek összegét adja vissza
+  (a negatív páratlan számok is számítanak). Üres listára 0.
+signature: "def paratlan_osszeg(xs: list[int]) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: sum-odd
+rating: 1000

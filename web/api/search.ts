@@ -5,6 +5,8 @@
 //
 // (Optional upgrade later: set SEARCH_API=brave|tavily + the key, server-side only.)
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+// Caller identification, rate limits, origin check + SSRF-safe fetching (SECURITY.md §8).
+import { guard, safeFetch } from './_guard.js';
 
 interface WebHit {
   title: string;
@@ -57,11 +59,12 @@ function htmlToText(html: string): string {
 /** Best-effort: fetch a result page and return cleaned text (never throws). */
 async function fetchPageText(url: string): Promise<string> {
   try {
-    const r = await fetch(url, {
+    // SSRF guard: public http(s) hosts only, every redirect hop re-checked.
+    const r = await safeFetch(url, {
       headers: { 'user-agent': 'Mozilla/5.0 (compatible; AuriBrain/1)' },
       signal: AbortSignal.timeout(7000),
     });
-    if (!r.ok) return '';
+    if (!r || !r.ok) return '';
     const ct = r.headers.get('content-type') ?? '';
     if (!/text\/html|text\/plain|xml/i.test(ct)) return '';
     return htmlToText(await r.text()).slice(0, 4000);
@@ -102,11 +105,11 @@ async function ddgSearch(query: string, max = 6): Promise<WebHit[]> {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
+  // POST only, own origin, caller identified, within rate limits — else already answered.
+  if (!(await guard(req, res, 'search'))) return;
+
   const body = (req.body && typeof req.body === 'object' ? req.body : {}) as Record<string, unknown>;
-  const query =
-    (typeof body.query === 'string' && body.query) ||
-    (typeof body.q === 'string' && body.q) ||
-    (typeof req.query?.q === 'string' ? req.query.q : '');
+  const query = (typeof body.query === 'string' && body.query) || (typeof body.q === 'string' && body.q) || '';
 
   if (!query || typeof query !== 'string') {
     res.status(400).json({ error: 'query required' });
@@ -126,6 +129,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     res.status(200).json({ results, pages });
   } catch (e) {
     // Never hard-fail the chat: return empty so the pipeline falls back to the model.
-    res.status(200).json({ results: [], pages: [], error: (e as Error).message });
+    // The reason goes to the server log only (no query text), never to the client.
+    console.warn(`[search] failed: ${(e as Error).message}`);
+    res.status(200).json({ results: [], pages: [], error: 'search_failed' });
   }
 }

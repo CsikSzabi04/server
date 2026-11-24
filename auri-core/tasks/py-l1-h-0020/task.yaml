@@ -1,0 +1,16 @@
+# AURI-CANARY-5afdc06c-c900-5603-bcb2-5c528cf717b5
+id: py-l1-h-0020
+level: 1
+lang: py
+topics: [x.algo, py.errors]
+title_hu: Lépcsőn felfelé
+prompt_hu: |
+  Írj `lepcso(n: int) -> int` függvényt: hányféleképpen lehet felmenni egy n fokú lépcsőn, ha egyszerre 1 vagy 2
+  fokot lépünk (n = 0 esetén 1). Negatív n-re dobj `ValueError`-t. n legfeljebb 70.
+signature: "def lepcso(n: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: stairs
+rating: 1200

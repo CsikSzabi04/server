@@ -1,0 +1,19 @@
+# AURI-CANARY-b8387c55-c2d0-50f6-8730-8ee6c84893d2
+id: ts-l1-h-0026
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: CSV-sor felbontása
+prompt_hu: |
+  Írj `csvSor(s: string): string[]` függvényt, amely egy CSV-sort mezőkre bont. A mezőket vessző választja el.
+  Ha egy mező idézőjellel (") kezdődik, a záró idézőjelig tart: benne a vessző sima karakter, a "" pedig
+  egyetlen " karaktert jelent; a záró idézőjel után csak vessző vagy a sor vége jöhet. Idézőjellel nem kezdődő
+  mezőben nem lehet idézőjel. Üres szövegre [""]. Szabálytalan sorra (le nem zárt idézőjel, idézőjel rossz
+  helyen) dobj `RangeError`-t.
+signature: "export function csvSor(s: string): string[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: csv
+rating: 1200

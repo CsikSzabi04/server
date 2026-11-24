@@ -1,0 +1,17 @@
+# AURI-CANARY-f655c0fe-1e8d-5c67-9f7a-ae957f5d4dd9
+id: py-l1-0015
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: camelCase → snake_case
+prompt_hu: |
+  Írj `camel_snake(s: str) -> str` függvényt: a szöveg első karakterét kisbetűsítsd; minden további nagybetű elé
+  tegyél egy `_` jelet, és kisbetűsítsd (pl. "parseForintValue" → "parse_forint_value", "HTTP" → "h_t_t_p").
+  Minden más karakter változatlan.
+signature: "def camel_snake(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: case-convert
+rating: 1200

@@ -1,0 +1,17 @@
+# AURI-CANARY-629c0c9a-1b1c-5238-b07c-b21c22c89e5e
+id: py-l1-0005
+level: 1
+lang: py
+topics: [py.strings, x.algo]
+title_hu: Római szám értéke
+prompt_hu: |
+  Írj `romai_ertek(s: str) -> int` függvényt, amely egy érvényes római szám (I, V, X, L, C, D, M, kivonásos
+  írásmóddal, pl. IV, IX, XL, CM) értékét adja vissza. Kisbetűt is fogadj el. Üres szövegre vagy más karakterre
+  dobj `ValueError`-t.
+signature: "def romai_ertek(s: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: roman
+rating: 1200

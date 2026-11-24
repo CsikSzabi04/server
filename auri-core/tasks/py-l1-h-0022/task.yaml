@@ -1,0 +1,16 @@
+# AURI-CANARY-7c79804c-b658-54e3-b1ae-af97f1a54553
+id: py-l1-h-0022
+level: 1
+lang: py
+topics: [x.algo, py.errors]
+title_hu: Kombinációk száma
+prompt_hu: |
+  Írj `kombinacio(n: int, k: int) -> int` függvényt: n elemből k elem kiválasztásainak száma (binomiális
+  együttható). Ha k < 0 vagy k > n, 0. Negatív n-re dobj `ValueError`-t. Az eredmény kisebb 2^53-nál.
+signature: "def kombinacio(n: int, k: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: binomial
+rating: 1200

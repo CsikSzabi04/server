@@ -1,0 +1,16 @@
+# AURI-CANARY-b2ae44a1-1b79-54d0-9c58-a30741c61832
+id: py-l1-h-0042
+level: 1
+lang: py
+topics: [py.collections]
+title_hu: Módusz
+prompt_hu: |
+  Írj `modusz(xs: list[int]) -> int | None` függvényt: a lista leggyakoribb eleme; ha több elem is
+  ugyanannyiszor fordul elő, közülük a legkisebb. Üres listára `None`.
+signature: "def modusz(xs: list[int]) -> int | None"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: mode
+rating: 1200

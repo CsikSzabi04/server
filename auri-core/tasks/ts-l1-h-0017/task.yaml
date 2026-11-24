@@ -1,0 +1,16 @@
+# AURI-CANARY-344656a8-e848-5362-9093-dbe2051c20ed
+id: ts-l1-h-0017
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: Közös előtag
+prompt_hu: |
+  Írj `kozosElotag(szavak: string[]): string` függvényt: a szavak leghosszabb közös előtagja (a kis- és nagybetű
+  különbözik). Üres tömbre üres szöveg.
+signature: "export function kozosElotag(szavak: string[]): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: prefix
+rating: 1200

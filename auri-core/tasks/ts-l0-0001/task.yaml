@@ -1,0 +1,16 @@
+# AURI-CANARY-f33d6555-8c44-5dd8-bdec-12b36b23816b
+id: ts-l0-0001
+level: 0
+lang: ts
+topics: [ts.basics, ts.collections]
+title_hu: Páros számok
+prompt_hu: |
+  Írj `parosSzamok(xs: number[]): number[]` függvényt, amely a tömb páros elemeit adja vissza az eredeti
+  sorrendben. A 0 és a negatív páros számok is párosak.
+signature: "export function parosSzamok(xs: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: filter
+rating: 1000

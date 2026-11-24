@@ -1,0 +1,17 @@
+# AURI-CANARY-6d139bcb-7db7-57c9-ab7d-93fdba493bea
+id: py-l1-h-0011
+level: 1
+lang: py
+topics: [py.strings, x.algo]
+title_hu: ISBN-10 ellenőrzése
+prompt_hu: |
+  Írj `isbn10_ervenyes(s: str) -> bool` függvényt. A kötőjeleket hagyd figyelmen kívül; ami marad, pontosan 10
+  karakter: az első 9 számjegy, az utolsó számjegy vagy nagy "X" (értéke 10). Érvényes, ha d1…d10 jegyekkel
+  10·d1 + 9·d2 + … + 1·d10 osztható 11-gyel. Minden más hamis.
+signature: "def isbn10_ervenyes(s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: isbn
+rating: 1200

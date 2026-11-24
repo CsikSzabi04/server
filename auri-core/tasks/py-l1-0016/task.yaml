@@ -1,0 +1,17 @@
+# AURI-CANARY-f88066e7-2679-52b2-b839-ca66b8c50f80
+id: py-l1-0016
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: snake_case → camelCase
+prompt_hu: |
+  Írj `snake_camel(s: str) -> str` függvényt: az aláhúzással elválasztott részekből camelCase szöveg; az első
+  rész csupa kisbetű, a többi `str.capitalize()` szerint nagy kezdőbetűs. Az üres részeket (többszörös, kezdő
+  vagy záró aláhúzás) hagyd ki.
+signature: "def snake_camel(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: case-convert
+rating: 1200

@@ -1,0 +1,17 @@
+# AURI-CANARY-ab69ccc2-3c5a-5411-a58b-936f0527fe04
+id: ts-l1-h-0025
+level: 1
+lang: ts
+topics: [ts.basics, ts.errors]
+title_hu: A hét napja
+prompt_hu: |
+  Írj `hetNapja(ev: number, ho: number, nap: number): string` függvényt, amely a (visszafelé is kiterjesztett)
+  Gergely-naptár szerinti dátum napjának magyar nevét adja vissza kisbetűvel: hétfő, kedd, szerda, csütörtök,
+  péntek, szombat, vasárnap. Az ev 1 és 9999 közötti. Nem létező dátumra (pl. február 30.) dobj `RangeError`-t.
+signature: "export function hetNapja(ev: number, ho: number, nap: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: weekday
+rating: 1200

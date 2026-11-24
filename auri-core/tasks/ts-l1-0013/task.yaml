@@ -1,0 +1,17 @@
+# AURI-CANARY-9a5bb87e-fcb4-547e-b1ef-c630df26e604
+id: ts-l1-0013
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: snake_case → camelCase
+prompt_hu: |
+  Írj `snakeCamel(s: string): string` függvényt: az aláhúzással elválasztott részekből camelCase szöveg; az első
+  rész csupa kisbetű, a többi nagy kezdőbetűs (első karakter nagy, a többi kicsi). Az üres részeket (többszörös,
+  kezdő vagy záró aláhúzás) hagyd ki.
+signature: "export function snakeCamel(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: case-convert
+rating: 1200

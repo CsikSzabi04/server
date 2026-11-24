@@ -1,0 +1,17 @@
+# AURI-CANARY-5d51b69d-2bb5-531c-84f8-0c7c39349b19
+id: ts-l1-h-0037
+level: 1
+lang: ts
+topics: [ts.collections]
+title_hu: Egyensúlyi index
+prompt_hu: |
+  Írj `egyensulyIndex(xs: number[]): number` függvényt: a legkisebb olyan i index, amelynél az előtte álló
+  elemek összege egyenlő az utána állókéval (az i. elem egyikbe sem számít; az üres összeg 0). Ha nincs ilyen,
+  -1.
+signature: "export function egyensulyIndex(xs: number[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: pivot
+rating: 1200

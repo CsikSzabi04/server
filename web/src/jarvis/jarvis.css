@@ -1,0 +1,255 @@
+/* AI-3 (BODY) — /jarvis HUD. Prefixed `jv-` so nothing leaks into the main app.
+   Target: the right monitor, 1152×864 (Chrome app window); degrades to any size. */
+.jv-root {
+  --jv-accent: #1fe5ff;
+  --jv-accent-2: #35c8e8;
+  --jv-warn: #ff9d2f;
+  --jv-bad: #ff4d4d;
+  --jv-ok: #4dffa6;
+  --jv-text: #cfeefe;
+  --jv-dim: rgba(207, 238, 254, 0.55);
+  --jv-panel: rgba(6, 18, 30, 0.72);
+  --jv-line: rgba(31, 229, 255, 0.22);
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 10px;
+  padding: 12px 14px;
+  background: radial-gradient(ellipse at 30% 35%, #0a1626 0%, #04070d 70%);
+  color: var(--jv-text);
+  font-family: 'Rajdhani', 'Exo 2', system-ui, sans-serif;
+  font-size: 15px;
+  overflow: hidden;
+}
+.jv-root.state-thinking,
+.jv-root.state-transcribing,
+.jv-root.state-acting { --jv-accent: #ff9d2f; }
+.jv-root.state-offline { --jv-accent: #ff4d4d; }
+.jv-top,
+.jv-main,
+.jv-bottom { position: relative; z-index: 2; min-width: 0; min-height: 0; }
+.jv-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.jv-bg .scanline-overlay { z-index: 1; }
+
+/* top bar */
+.jv-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.jv-brand { display: flex; align-items: center; gap: 8px; font-family: 'Orbitron', sans-serif; letter-spacing: 0.18em; }
+.jv-brand span { color: var(--jv-accent); font-weight: 700; font-size: 1.15rem; }
+.jv-brand i { font-style: normal; color: var(--jv-dim); font-size: 0.8rem; }
+.jv-link { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--jv-dim); }
+.jv-link small { opacity: 0.6; }
+.jv-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--jv-bad); box-shadow: 0 0 8px currentColor; }
+.jv-dot.open { background: var(--jv-ok); color: var(--jv-ok); }
+.jv-dot.connecting { background: var(--jv-warn); color: var(--jv-warn); animation: jv-blink 1s infinite; }
+.jv-who { display: flex; align-items: center; gap: 8px; }
+.jv-badge { padding: 3px 10px; border: 1px solid var(--jv-line); border-radius: 999px; font-size: 0.8rem; letter-spacing: 0.06em; }
+.jv-badge.guest { color: var(--jv-warn); border-color: rgba(255, 157, 47, 0.45); }
+.jv-badge.user { color: var(--jv-ok); border-color: rgba(77, 255, 166, 0.4); }
+
+/* main */
+.jv-main { display: grid; grid-template-columns: minmax(300px, 0.9fr) 1.1fr; gap: 14px; min-height: 0; }
+.jv-left { display: flex; flex-direction: column; gap: 10px; min-height: 0; min-width: 0; }
+.jv-core { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 10px; min-height: 0; }
+.jv-mobile-only { display: none !important; }
+
+/* telemetry strip (AuriGPT side widgets, compacted to 3×2) — top of the left column */
+.jv-tel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 600px; align-self: flex-start; }
+.jv-tel-w {
+  background: rgba(8, 16, 26, 0.55);
+  border: 1px solid var(--jv-line);
+  padding: 6px 10px 7px;
+  min-width: 0;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+.jv-tel-t { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 0.26em; color: var(--jv-dim); margin-bottom: 3px; white-space: nowrap; }
+.jv-tel-t small { letter-spacing: 0.1em; color: var(--jv-accent); font-size: inherit; }
+.jv-tel-v { font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #eafcff; text-shadow: 0 0 10px rgba(31, 229, 255, 0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jv-tel-s { font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--jv-dim); margin-top: 3px; letter-spacing: 0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jv-tel-s.strong { color: var(--jv-text); opacity: 0.85; }
+.jv-tel-g { display: grid; grid-template-columns: 26px 1fr 30px; gap: 6px; align-items: center; margin-top: 3px; font-family: 'Share Tech Mono', monospace; font-size: 0.62rem; color: var(--jv-dim); }
+.jv-tel-g b { font-weight: 400; color: var(--jv-text); text-align: right; }
+.jv-tel-gauge { height: 6px; background: rgba(31, 229, 255, 0.1); border-radius: 2px; overflow: hidden; }
+.jv-tel-fill { height: 100%; background: linear-gradient(90deg, #0fb5c9, var(--jv-accent)); box-shadow: 0 0 10px rgba(31, 229, 255, 0.5); transition: width 0.8s ease; }
+.jv-tel-fill.hot { background: linear-gradient(90deg, var(--jv-warn), var(--jv-bad)); }
+.jv-tel-wave { display: flex; align-items: flex-end; gap: 2px; height: 26px; }
+.jv-tel-wave span { flex: 1; min-height: 2px; background: var(--jv-accent-2); opacity: 0.4; border-radius: 1px; transition: height 90ms linear; }
+.jv-tel-wave.on span { opacity: 0.95; box-shadow: 0 0 6px rgba(31, 229, 255, 0.55); }
+.jv-tel-wave.on.mic span { background: var(--jv-ok); box-shadow: 0 0 6px rgba(77, 255, 166, 0.5); }
+.jv-reactor { transition: transform 70ms linear; will-change: transform; }
+.jv-reactor .reactor { width: min(44vh, 330px); }
+.jv-reactor .reactor-status { display: none; } /* the HUD shows its own Hungarian state label */
+.jv-state { font-family: 'Orbitron', sans-serif; letter-spacing: 0.24em; color: var(--jv-accent); font-size: 1.05rem; text-shadow: 0 0 12px var(--jv-accent); }
+.jv-state small { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.04em; color: var(--jv-dim); text-shadow: none; }
+.jv-muted-tag { color: var(--jv-warn) !important; }
+.jv-prefs-line { color: var(--jv-dim); font-size: 0.85rem; }
+.jv-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.jv-brain-link {
+  background: none;
+  border: none;
+  color: var(--jv-warn);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.3em;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0.75;
+  margin-top: -6px;
+}
+.jv-brain-link:hover { opacity: 1; text-shadow: 0 0 10px var(--jv-warn); }
+.jv-archive-btn { font-size: 1.05rem; line-height: 1; padding: 4px 10px; }
+.jv-mini { margin-left: auto; padding: 1px 8px !important; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: none; }
+
+/* live chat (AuriGPT ChatPanel inside a HUD panel) */
+.jv-chat { display: flex; flex-direction: column; }
+.jv-chat h4 { display: flex; align-items: center; gap: 6px; }
+.jv-chat-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+.jv-chat-body .chat-panel { flex: 1; min-height: 0; padding: 4px 2px; background: transparent; border: none; box-shadow: none; }
+.jv-chat .jv-meta { border-top: 1px solid var(--jv-line); padding-top: 4px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jv-warm { display: flex; gap: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; }
+.jv-warm .loading { color: #aa8cff; animation: jv-blink 1.4s infinite; }
+.jv-warm .bad { color: var(--jv-bad); }
+
+.jv-feed { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.jv-panel { background: var(--jv-panel); border: 1px solid var(--jv-line); border-radius: 10px; padding: 8px 12px; min-height: 0; overflow: hidden; }
+.jv-panel.grow { flex: 1; overflow-y: auto; }
+.jv-panel h4 { margin: 0 0 4px; font-family: 'Share Tech Mono', monospace; font-weight: 400; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--jv-accent); text-transform: uppercase; }
+.jv-panel h4 small { color: var(--jv-dim); letter-spacing: 0.05em; text-transform: none; }
+.jv-said { margin: 0; font-size: 1.1rem; }
+.jv-raw { margin: 2px 0 0; color: var(--jv-dim); font-size: 0.85rem; font-family: 'Share Tech Mono', monospace; }
+.jv-meta { margin: 2px 0 0; color: var(--jv-dim); font-size: 0.75rem; font-family: 'Share Tech Mono', monospace; }
+.jv-reply { margin: 0; font-size: 1.15rem; line-height: 1.35; white-space: pre-wrap; }
+.jv-muted { color: var(--jv-dim); margin: 0; }
+.jv-tools { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: 128px; overflow-y: auto; font-size: 0.85rem; }
+.jv-tools li { display: grid; grid-template-columns: 16px auto 1fr auto; gap: 8px; align-items: baseline; }
+.jv-tools li.ok span { color: var(--jv-ok); }
+.jv-tools li.error span,
+.jv-tools li.denied span { color: var(--jv-bad); }
+.jv-tools li.needs_confirm span { color: var(--jv-warn); }
+.jv-tools em { color: var(--jv-dim); font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jv-tools small { color: var(--jv-dim); font-family: 'Share Tech Mono', monospace; }
+
+/* bottom */
+.jv-bottom { display: grid; grid-template-columns: auto auto 1fr; gap: 14px; align-items: center; }
+.jv-timing,
+.jv-stats { display: flex; gap: 10px; font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; color: var(--jv-dim); white-space: nowrap; }
+.jv-timing .total { color: var(--jv-accent); }
+.jv-stats .ollama { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.jv-err-tag { color: var(--jv-bad); }
+.jv-cmd { display: flex; gap: 8px; }
+.jv-cmd .jv-input { flex: 1; }
+
+/* controls */
+.jv-btn {
+  background: rgba(31, 229, 255, 0.08);
+  color: var(--jv-text);
+  border: 1px solid var(--jv-line);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.jv-btn:hover:not(:disabled) { background: rgba(31, 229, 255, 0.18); border-color: var(--jv-accent); }
+.jv-btn:disabled { opacity: 0.4; cursor: default; }
+.jv-btn.ghost { background: transparent; }
+.jv-btn.on { border-color: var(--jv-warn); color: var(--jv-warn); }
+.jv-btn.big { padding: 10px 22px; font-size: 1.05rem; border-color: var(--jv-accent); user-select: none; touch-action: none; }
+.jv-btn.big:active { background: rgba(31, 229, 255, 0.35); }
+.jv-input {
+  background: rgba(2, 10, 18, 0.8);
+  color: var(--jv-text);
+  border: 1px solid var(--jv-line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: inherit;
+  min-width: 0;
+}
+.jv-input:focus { outline: none; border-color: var(--jv-accent); }
+.jv-input.narrow { flex: 0 0 auto; }
+
+/* overlays */
+.jv-errors { position: fixed; left: 14px; bottom: 64px; z-index: 5; font-size: 0.8rem; color: var(--jv-bad); max-width: 50%; }
+.jv-errors p { margin: 2px 0; background: rgba(40, 0, 0, 0.6); padding: 2px 8px; border-radius: 6px; }
+.jv-proposals { position: fixed; right: 14px; bottom: 64px; z-index: 6; display: grid; gap: 8px; max-width: 420px; }
+.jv-proposal { background: var(--jv-panel); border: 1px solid var(--jv-accent); border-radius: 10px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jv-proposal p { margin: 0; flex-basis: 100%; }
+.jv-token { position: fixed; inset: 30% 18% auto; z-index: 7; background: var(--jv-panel); border: 1px solid var(--jv-warn); border-radius: 12px; padding: 14px 18px; }
+.jv-token form { display: flex; gap: 8px; }
+.jv-token code { color: var(--jv-accent); }
+
+.jv-onboarding {
+  position: fixed;
+  inset: 52px 14px 14px auto;
+  width: min(560px, calc(100% - 28px));
+  z-index: 8;
+  overflow-y: auto;
+  background: rgba(3, 12, 22, 0.94);
+  border: 1px solid var(--jv-accent);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 0 40px rgba(31, 229, 255, 0.15);
+}
+.jv-onboarding-head { position: relative; }
+.jv-onboarding-head h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; letter-spacing: 0.16em; color: var(--jv-accent); }
+.jv-onboarding-head p { margin: 4px 0 0; color: var(--jv-dim); font-size: 0.9rem; }
+.jv-onboarding-head .jv-btn { position: absolute; top: -4px; right: 0; }
+.jv-card { border: 1px solid var(--jv-line); border-radius: 10px; padding: 8px 12px; display: flex; flex-direction: column; gap: 8px; }
+.jv-card.is-active { border-color: var(--jv-accent); box-shadow: 0 0 16px rgba(31, 229, 255, 0.25); }
+.jv-card.is-done header .jv-card-n { background: rgba(77, 255, 166, 0.2); color: var(--jv-ok); }
+.jv-card header { display: flex; align-items: center; gap: 8px; }
+.jv-card h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.jv-card-n { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: rgba(31, 229, 255, 0.15); font-size: 0.8rem; }
+.jv-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.jv-row .jv-input { flex: 1; }
+.jv-chip { background: transparent; color: var(--jv-text); border: 1px solid var(--jv-line); border-radius: 999px; padding: 5px 14px; font: inherit; cursor: pointer; }
+.jv-chip.on { border-color: var(--jv-accent); background: rgba(31, 229, 255, 0.15); color: var(--jv-accent); }
+.jv-voices { display: grid; gap: 6px; }
+.jv-voice { display: flex; gap: 8px; align-items: center; border: 1px solid transparent; border-radius: 8px; padding: 2px 4px; }
+.jv-voice.on { border-color: var(--jv-accent); }
+.jv-chip-plain { flex: 1; text-align: left; background: none; border: none; color: inherit; font: inherit; cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+.jv-chip-plain small { color: var(--jv-dim); }
+.jv-routine { display: grid; gap: 6px; }
+.jv-label { display: grid; gap: 4px; color: var(--jv-dim); font-size: 0.85rem; }
+.jv-check { display: flex; gap: 4px; align-items: center; color: var(--jv-dim); font-size: 0.85rem; }
+.jv-error { color: var(--jv-bad); margin: 0; }
+.jv-ok { color: var(--jv-ok); margin: 0; display: flex; gap: 10px; align-items: center; }
+
+@keyframes jv-blink { 50% { opacity: 0.3; } }
+
+@media (max-height: 700px) {
+  .jv-tel-s { display: none; }
+  .jv-tel-wave { height: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jv-tel-wave span,
+  .jv-tel-fill { transition: none; }
+}
+/* phone / narrow window: one scrolling column — telemetry + reactor on top (core view);
+   once there is a conversation the chat takes the whole page (.jv-chatmode), ◉ goes back */
+@media (max-width: 760px) {
+  .jv-root { padding: 8px 10px; gap: 8px; }
+  .jv-main { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; overscroll-behavior: contain; }
+  .jv-left { flex: none; }
+  .jv-core { flex: none; justify-content: flex-start; gap: 8px; padding-bottom: 4px; }
+  .jv-reactor .reactor { width: min(34vh, 62vw, 260px); }
+  .jv-tel { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
+  .jv-feed { flex: none; }
+  .jv-chat { min-height: 96px; }
+  .jv-tools { max-height: 96px; }
+  .jv-bottom { grid-template-columns: 1fr; gap: 6px; }
+  .jv-stats:not(:has(> :not(.jv-desk-only))) { display: none; }
+  .jv-desk-only { display: none !important; }
+  .jv-mobile-only { display: inline-flex !important; align-items: center; justify-content: center; }
+  .jv-mini-core { padding: 0 8px !important; margin-right: 4px; color: var(--jv-accent); font-size: 0.95rem; line-height: 1.4; }
+  .jv-errors { max-width: calc(100% - 28px); bottom: 58px; }
+
+  .jv-chatmode .jv-left { display: none; }
+  .jv-chatmode .jv-main { overflow: hidden; }
+  .jv-chatmode .jv-feed { flex: 1 1 auto; min-height: 0; }
+  .jv-chatmode .jv-chat { flex: 1 1 auto; min-height: 0; }
+  .jv-chatmode .jv-feed > .jv-panel:not(.jv-chat) { flex: none; max-height: 30%; overflow-y: auto; }
+  .jv-chatmode .jv-tools-empty { display: none; }
+}

@@ -1,0 +1,16 @@
+# AURI-CANARY-71492f46-9258-5953-a3f9-6a2f0bf69eca
+id: py-l0-h-0009
+level: 0
+lang: py
+topics: [py.strings]
+title_hu: Ismétlés elválasztóval
+prompt_hu: |
+  Írj `ismetel(s: str, n: int, sep: str) -> str` függvényt, amely az s szöveget n-szer egymás után fűzi, a
+  példányok közé a sep elválasztót téve. Ha n ≤ 0, üres szöveg.
+signature: "def ismetel(s: str, n: int, sep: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: repeat
+rating: 1000

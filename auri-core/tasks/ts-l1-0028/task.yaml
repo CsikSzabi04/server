@@ -1,0 +1,16 @@
+# AURI-CANARY-f077ffbc-0ac3-5102-9aef-2a5b4adefa5b
+id: ts-l1-0028
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: Magánhangzók
+prompt_hu: |
+  Írj `maganhangzok(s: string): number` függvényt, amely megszámolja a magyar magánhangzókat (a á e é i í o ó ö
+  ő u ú ü ű), kis- és nagybetűtől függetlenül.
+signature: "export function maganhangzok(s: string): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: char-count
+rating: 1200

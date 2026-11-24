@@ -1,0 +1,16 @@
+# AURI-CANARY-71415bf7-1b3e-58ac-835b-263d42d7d00d
+id: ts-l1-0017
+level: 1
+lang: ts
+topics: [ts.collections]
+title_hu: Csoportosítás hossz szerint
+prompt_hu: |
+  Írj `hosszSzerint(szavak: string[]): Record<number, string[]>` függvényt: a kulcs a szó hossza, az érték az
+  ilyen hosszú szavak tömbje az eredeti sorrendben (ismétlődéssel együtt).
+signature: "export function hosszSzerint(szavak: string[]): Record<number, string[]>"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: group-by
+rating: 1200

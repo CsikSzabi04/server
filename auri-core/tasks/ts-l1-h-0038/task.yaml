@@ -1,0 +1,16 @@
+# AURI-CANARY-8134cc76-809e-5388-8b19-6fb88b51c580
+id: ts-l1-h-0038
+level: 1
+lang: ts
+topics: [ts.collections, x.algo]
+title_hu: A többi elem szorzata
+prompt_hu: |
+  Írj `tobbiSzorzata(xs: number[]): number[]` függvényt: az eredmény i. eleme az xs összes többi elemének
+  szorzata (az i. kivételével; az üres szorzat 1). A tömb nullát is tartalmazhat.
+signature: "export function tobbiSzorzata(xs: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: product-except
+rating: 1200

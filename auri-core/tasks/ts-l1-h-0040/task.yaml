@@ -1,0 +1,17 @@
+# AURI-CANARY-69ffcce6-acd4-5f9f-b5a4-da272b68372c
+id: ts-l1-h-0040
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Hexadecimális színkód
+prompt_hu: |
+  Írj `hexSzin(s: string): number[]` függvényt: a "#rrggbb" vagy a rövid "#rgb" alakú színkódot [r, g, b]
+  egészekre (0–255) bontja. A hexadecimális jegyek kis- és nagybetűsek is lehetnek; a rövid alakban minden jegy
+  megduplázódik ("#f80" = "#ff8800"). Más alakra dobj `RangeError`-t.
+signature: "export function hexSzin(s: string): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: hex-color
+rating: 1200

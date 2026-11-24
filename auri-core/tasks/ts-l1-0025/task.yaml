@@ -1,0 +1,16 @@
+# AURI-CANARY-85358d24-0e4a-5816-8d23-2cf60074854d
+id: ts-l1-0025
+level: 1
+lang: ts
+topics: [x.ds, x.algo]
+title_hu: Zárójelek
+prompt_hu: |
+  Írj `zarojelek(s: string): boolean` függvényt: a `()`, `[]`, `{}` zárójelek helyesen párosítottak és egymásba
+  ágyazottak-e. Minden más karaktert hagyj figyelmen kívül.
+signature: "export function zarojelek(s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: brackets
+rating: 1200

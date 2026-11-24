@@ -1,0 +1,16 @@
+# AURI-CANARY-0e97ffe8-0973-5f10-a001-5832a1068249
+id: py-l0-h-0007
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Háromszög-egyenlőtlenség
+prompt_hu: |
+  Írj `haromszog(a: float, b: float, c: float) -> bool` függvényt: igaz, ha a három oldalhosszból (nem elfajuló)
+  háromszög szerkeszthető, vagyis mindhárom pozitív, és bármely kettő összege szigorúan nagyobb a harmadiknál.
+signature: "def haromszog(a: float, b: float, c: float) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: triangle
+rating: 1000

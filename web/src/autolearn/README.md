@@ -47,7 +47,11 @@ AI-1 (`ingestWeb`) ugyanígy használhatja a `processHits`-et a tárolás előtt
 mezőket a `doc`-node súlyozásához / re-fetch-döntéshez. A `WebHit` **strukturálisan kompatibilis** a
 lokális `Hit` típussal — nincs típus-import a brain-bridge-ből, így nincs csatolás.
 
-## Zóna-szabályok (BRAIN_BUILD.md)
+## Zóna-szabályok ([BRAIN_BUILD.md](../../../ideas_for_brain/brain/BRAIN_BUILD.md))
 - Csak ide írok: `web/src/autolearn/**`. Más AI fájljához **nem** nyúlok.
 - Nincs új függőség (azt csak AI-3 telepít). Nincs séma-/routing-/persona-módosítás.
 - Bejelentve a `BRAIN_BUILD.md` státusz-logban (append-only).
+
+> **Áthelyezett tervdokumentumok (2026-11-21):** `ALWAYS_LEARN.md`, `INGEST_WEB.md`,
+> `INTEGRATION.md`, `PROGRAMMING_PERSONA.md`, valamint a `brain-*.md` promptok →
+> [`ideas_for_brain/`](../../../ideas_for_brain/README.md).

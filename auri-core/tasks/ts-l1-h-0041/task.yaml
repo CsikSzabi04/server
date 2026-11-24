@@ -1,0 +1,16 @@
+# AURI-CANARY-db9d8604-4d0e-5c08-a232-71d5e00d9284
+id: ts-l1-h-0041
+level: 1
+lang: ts
+topics: [ts.collections, ts.errors]
+title_hu: Medián
+prompt_hu: |
+  Írj `median(xs: number[]): number` függvényt: a tömb mediánja, vagyis számérték szerinti rendezés után
+  páratlan elemszámnál a középső elem, párosnál a két középső számtani közepe. Üres tömbre dobj `RangeError`-t.
+signature: "export function median(xs: number[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: median
+rating: 1200

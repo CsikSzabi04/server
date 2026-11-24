@@ -1,0 +1,18 @@
+# AURI-CANARY-f2691306-b151-5e76-8b30-ea8b701e81d7
+id: ts-l1-h-0028
+level: 1
+lang: ts
+topics: [x.algo, x.ds]
+title_hu: Legrövidebb út a rácson
+prompt_hu: |
+  Írj `racsUt(racs: string[]): number` függvényt. A rács sorai egyforma hosszú szövegek: '.' szabad mező, '#'
+  fal. Legkevesebb hány lépésben jutunk el a bal felső sarokból a jobb alsóba, ha mindig egy vízszintesen vagy
+  függőlegesen szomszédos szabad mezőre lépünk? Ha nem lehet (vagy a kezdő, illetve a cél mező fal, vagy a rács
+  üres), -1; ha a kezdő mező egyben a cél, 0.
+signature: "export function racsUt(racs: string[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: grid-bfs
+rating: 1200

@@ -2,6 +2,9 @@
 // Programming region. Two uses: (1) input for the optional offline ingest script
 // (AI-3 zone), (2) the runtime "cite the source" database the local brain uses to
 // recommend an official link. No network here — just data.
+import { LANG_SOURCES } from './languages';
+import { DESIGN_SOURCES } from './design';
+import { mentionsTech, normalizeTechQuery } from './techAlias';
 
 export interface SourceLink {
   tech: string;
@@ -20,6 +23,27 @@ export const TECHS = [
   'tailwind',
   'bootstrap',
   'native',
+  // programming-languages pack (seed v17) — each one is a labelled hub in the 3D brain
+  'python',
+  'typescript',
+  'c',
+  'cpp',
+  'csharp',
+  'dotnet',
+  'wpf',
+  'mui',
+  'bash',
+  'linux',
+  'windows',
+  'ios',
+  'golang',
+  'rust',
+  'kotlin',
+  'php',
+  'sql',
+  'vpn',
+  'wps',
+  'design', // seed v18: CSS + visual design pack (UI recipes, tokens, patterns)
 ] as const;
 export type Tech = (typeof TECHS)[number];
 
@@ -33,6 +57,26 @@ export const TECH_LABEL: Record<Tech, string> = {
   tailwind: 'Tailwind CSS',
   bootstrap: 'Bootstrap',
   native: 'Native (mobile)',
+  python: 'Python',
+  typescript: 'TypeScript',
+  c: 'C',
+  cpp: 'C++',
+  csharp: 'C#',
+  dotnet: '.NET 10',
+  wpf: 'WPF (XAML)',
+  mui: 'MUI (Material UI)',
+  bash: 'Bash',
+  linux: 'Linux',
+  windows: 'Windows · PowerShell',
+  ios: 'iOS · Swift',
+  golang: 'Go',
+  rust: 'Rust',
+  kotlin: 'Kotlin',
+  php: 'PHP',
+  sql: 'SQL',
+  vpn: 'VPN',
+  wps: 'WPS Office',
+  design: 'UI · design',
 };
 
 export const SOURCES: SourceLink[] = [
@@ -47,18 +91,21 @@ export const SOURCES: SourceLink[] = [
   { tech: 'native', title: 'React Native Documentation', url: 'https://reactnative.dev/docs/getting-started', topics: ['native', 'reactnative', 'mobile', 'view', 'text', 'component', 'app'] },
   { tech: 'native', title: 'Android Developers', url: 'https://developer.android.com/docs', topics: ['android', 'native', 'mobile', 'activity', 'kotlin'] },
   { tech: 'native', title: 'Apple Developer Documentation', url: 'https://developer.apple.com/documentation/', topics: ['ios', 'native', 'mobile', 'swift', 'apple'] },
+  ...LANG_SOURCES,
+  ...DESIGN_SOURCES,
 ];
 
-/** Best official source for a question (by tech name + topic-keyword overlap). */
-export function findSource(query: string): SourceLink | null {
-  const q = query.toLowerCase();
+/** Best official source for a question (by tech name + topic-keyword overlap); an
+ *  optional `accept` filter skips sources that don't fit the question. */
+export function findSource(query: string, accept?: (s: SourceLink) => boolean): SourceLink | null {
+  const q = normalizeTechQuery(query); // "C#" → csharp, "C++" → cpp, ".NET" → dotnet
   const words: string[] = q.match(/[a-z0-9]{2,}/g) ?? [];
   let best: SourceLink | null = null;
   let bestScore = 0;
   for (const s of SOURCES) {
-    let score = q.includes(s.tech) ? 3 : 0;
+    let score = mentionsTech(q, s.tech) ? 3 : 0; // word start only ("trust" ≠ rust)
     for (const t of s.topics) if (words.includes(t)) score += 2;
-    if (score > bestScore) {
+    if (score > bestScore && (!accept || accept(s))) {
       bestScore = score;
       best = s;
     }

@@ -1,0 +1,17 @@
+# AURI-CANARY-560f1de0-5f80-53de-8269-51bd1f0a47db
+id: ts-l1-0001
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: Palindrom
+prompt_hu: |
+  Írj `palindrom(s: string): boolean` függvényt. Csak a betűket és számjegyeket (Unicode betű vagy számjegy:
+  `/[\p{L}\p{N}]/u`) vedd figyelembe, kis- és nagybetűtől függetlenül (`toLowerCase()`); az ékezetes betű MÁS
+  betű, mint az ékezet nélküli. Az üres szöveg palindrom.
+signature: "export function palindrom(s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: palindrome
+rating: 1200

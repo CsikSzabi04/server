@@ -4,8 +4,10 @@
 // /brain stage readout.
 export type Lang = 'hu' | 'en' | 'de' | 'unknown';
 
+// Accent-free Hungarian words matter most here: accented text already returns 'hu'
+// below, so short ASCII questions like "ki vagy?" must be caught by these.
 const HU_FUNC =
-  /\b(a|az|és|nem|hogy|vagyok|te|én|ő|mi|ti|ők|igen|köszönöm|szia|van|nincs|mit|hol|miért|kérlek|jó)\b/g;
+  /\b(a|az|és|nem|hogy|vagyok|vagy|vagyunk|vannak|te|én|ő|mi|ti|ők|ki|kik|mik|igen|köszönöm|koszi|szia|sziasztok|van|nincs|mit|hol|miért|mikor|milyen|melyik|mennyi|hogyan|kérlek|jó|egy|ez|ezt|azt|de|meg|csak|kell|lehet|tudsz|tudod)\b/g;
 const DE_FUNC = /\b(der|die|das|und|nicht|ich|ist|ein|eine|mit|auch|wie|was|ja|nein|danke|hallo|du|wir|sie|sehr)\b/g;
 const EN_FUNC = /\b(the|and|not|is|are|a|an|i|you|we|they|yes|no|thanks|hello|what|where|why|please|have)\b/g;
 
@@ -29,6 +31,8 @@ export function detectLang(text: string): Lang {
   // and English) falls through to English — the safe default for accent-less ASCII.
   if (hu > 0 && hu > de && hu > en) return 'hu';
   if (de > 0 && de > en) return 'de';
+  // ö/ü + a Hungarian vote at least tying English ("a Föld") → Hungarian, not English.
+  if (hu > 0 && hu >= en && /[öü]/.test(t)) return 'hu';
   if (en > 0) return 'en';
 
   // ö/ü with no other signal leans German (Hungarian-unique accents already matched)

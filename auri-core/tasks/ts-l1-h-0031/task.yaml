@@ -1,0 +1,17 @@
+# AURI-CANARY-ab9d945c-9611-573a-a611-19477961c997
+id: ts-l1-h-0031
+level: 1
+lang: ts
+topics: [ts.collections, ts.errors]
+title_hu: Mátrix forgatása
+prompt_hu: |
+  Írj `matrixForgat(m: number[][]): number[][]` függvényt: a mátrixot 90 fokkal az óramutató járásával
+  megegyezően elforgatva adja vissza. Üres mátrixra üres tömb. Ha a sorok nem egyforma hosszúak, dobj
+  `RangeError`-t.
+signature: "export function matrixForgat(m: number[][]): number[][]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: rotate-matrix
+rating: 1200

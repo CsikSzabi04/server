@@ -1,0 +1,17 @@
+# AURI-CANARY-109efaad-7a66-5032-841f-886c17f01c0d
+id: py-l1-h-0025
+level: 1
+lang: py
+topics: [py.basics, py.errors]
+title_hu: A hét napja
+prompt_hu: |
+  Írj `het_napja(ev: int, ho: int, nap: int) -> str` függvényt, amely a (visszafelé is kiterjesztett)
+  Gergely-naptár szerinti dátum napjának magyar nevét adja vissza kisbetűvel: hétfő, kedd, szerda, csütörtök,
+  péntek, szombat, vasárnap. Az ev 1 és 9999 közötti. Nem létező dátumra (pl. február 30.) dobj `ValueError`-t.
+signature: "def het_napja(ev: int, ho: int, nap: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: weekday
+rating: 1200

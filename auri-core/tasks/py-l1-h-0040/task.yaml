@@ -1,0 +1,17 @@
+# AURI-CANARY-9ea9c482-407f-5ea8-bc8d-ae0f87bd4a84
+id: py-l1-h-0040
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Hexadecimális színkód
+prompt_hu: |
+  Írj `hex_szin(s: str) -> list[int]` függvényt: a "#rrggbb" vagy a rövid "#rgb" alakú színkódot [r, g, b]
+  egészekre (0–255) bontja. A hexadecimális jegyek kis- és nagybetűsek is lehetnek; a rövid alakban minden jegy
+  megduplázódik ("#f80" = "#ff8800"). Más alakra dobj `ValueError`-t.
+signature: "def hex_szin(s: str) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: hex-color
+rating: 1200

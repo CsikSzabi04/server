@@ -1,0 +1,17 @@
+# AURI-CANARY-f0bd89d7-2749-5f0c-adad-a07a7ea32ff4
+id: py-l1-0021
+level: 1
+lang: py
+topics: [py.collections]
+title_hu: Lista forgatása
+prompt_hu: |
+  Írj `forgat(xs: list, k: int) -> list` függvényt: a lista jobbra forgatva k lépéssel (az utolsó elem kerül
+  előre). k lehet negatív (balra forgatás) vagy nagyobb a lista hosszánál. Az eredeti listát NE módosítsd; üres
+  listára üres lista.
+signature: "def forgat(xs: list, k: int) -> list"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: rotate
+rating: 1200

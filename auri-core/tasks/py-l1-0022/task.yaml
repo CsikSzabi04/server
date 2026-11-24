@@ -1,0 +1,16 @@
+# AURI-CANARY-c5e0444b-461a-55fb-84d8-80fa89ead877
+id: py-l1-0022
+level: 1
+lang: py
+topics: [x.algo]
+title_hu: Pascal-háromszög sora
+prompt_hu: |
+  Írj `pascal_sor(n: int) -> list[int]` függvényt: a Pascal-háromszög n. sora (0-tól számozva: 0 → [1], 2 → [1,
+  2, 1]). Negatív n esetén dobj `ValueError`-t.
+signature: "def pascal_sor(n: int) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: pascal
+rating: 1200

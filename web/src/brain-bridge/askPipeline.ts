@@ -8,6 +8,7 @@
 // the hits so the caller can feed them in.
 
 import { prepareQuery, processHits, getCachedHits, setCachedHits, allowRequest } from '../autolearn';
+import { apiAuthHeader } from '../lib/authFetch';
 
 export interface WebHit {
   title: string;
@@ -46,7 +47,7 @@ async function rawSearch(query: string): Promise<WebHit[]> {
   try {
     const res = await fetch(SEARCH_URL, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...(await apiAuthHeader(SEARCH_URL)) },
       body: JSON.stringify({ query }),
       signal: AbortSignal.timeout(13_000),
     });
@@ -78,7 +79,7 @@ async function rawSearchDeep(query: string, pages: number): Promise<{ hits: WebH
   try {
     const res = await fetch(SEARCH_URL, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...(await apiAuthHeader(SEARCH_URL)) },
       body: JSON.stringify({ query, pages }),
       signal: AbortSignal.timeout(16_000),
     });

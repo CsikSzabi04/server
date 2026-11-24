@@ -1,0 +1,16 @@
+# AURI-CANARY-ae11b12d-862c-57f4-af81-d3c99dae5b7a
+id: py-l0-h-0012
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: Közös elemek
+prompt_hu: |
+  Írj `kozos(a: list[int], b: list[int]) -> list[int]` függvényt: az a azon elemei, amelyek b-ben is
+  szerepelnek, az a-beli első előfordulás sorrendjében, ismétlődés nélkül.
+signature: "def kozos(a: list[int], b: list[int]) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: intersect
+rating: 1000

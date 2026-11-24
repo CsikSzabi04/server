@@ -1,0 +1,16 @@
+# AURI-CANARY-abea2614-d391-500c-88f6-c7e6214cd603
+id: ts-l0-0006
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Szavak száma
+prompt_hu: |
+  Írj `szavakSzama(s: string): number` függvényt, amely a whitespace (`/\s+/`) mentén elválasztott, nem üres
+  szavak számát adja vissza.
+signature: "export function szavakSzama(s: string): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: word-count
+rating: 1000

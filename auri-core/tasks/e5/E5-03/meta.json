@@ -1,0 +1,14 @@
+{
+ "id": "E5-03",
+ "title": "Pénztár",
+ "lang": "py",
+ "acceptance": [
+  "ar.py: brutto fél forintra felfelé kerekítve, hibával",
+  "kosar.py: vegosszeg",
+  "nyugta.py: a leírt sorok",
+  "a tesztek zöldek"
+ ],
+ "limits": {
+  "wall_s": 60
+ }
+}

@@ -1,0 +1,16 @@
+# AURI-CANARY-ff0c7573-44a3-5046-9b76-a73a7e0e8c7f
+id: ts-l1-0008
+level: 1
+lang: ts
+topics: [ts.collections, x.algo]
+title_hu: Rendezett listák összefésülése
+prompt_hu: |
+  Írj `osszefesul(a: number[], b: number[]): number[]` függvényt, amely két növekvő tömböt egy növekvő tömbbé
+  fésül össze; az ismétlődések megmaradnak.
+signature: "export function osszefesul(a: number[], b: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: merge
+rating: 1200

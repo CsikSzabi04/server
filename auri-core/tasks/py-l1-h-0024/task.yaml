@@ -1,0 +1,17 @@
+# AURI-CANARY-3380e876-a0bb-5a01-b389-a47c7cc227bb
+id: py-l1-h-0024
+level: 1
+lang: py
+topics: [py.basics, py.errors]
+title_hu: A hónap napjai
+prompt_hu: |
+  Írj `honap_napjai(ev: int, ho: int) -> int` függvényt: hány napos az adott év ho. hónapja (1 = január) a
+  Gergely-naptárban; a február szökőévben 29 napos (szökőév: 4-gyel osztható, kivéve a 100-zal oszthatókat, de a
+  400-zal oszthatók igen). Ha ho nem 1 és 12 közötti, dobj `ValueError`-t.
+signature: "def honap_napjai(ev: int, ho: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: month-days
+rating: 1200

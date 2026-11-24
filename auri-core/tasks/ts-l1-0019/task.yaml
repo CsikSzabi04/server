@@ -1,0 +1,16 @@
+# AURI-CANARY-36faccdf-7890-55d9-9ce0-b99958b109e2
+id: ts-l1-0019
+level: 1
+lang: ts
+topics: [x.algo]
+title_hu: Pascal-háromszög sora
+prompt_hu: |
+  Írj `pascalSor(n: number): number[]` függvényt: a Pascal-háromszög n. sora (0-tól számozva: 0 → [1], 2 → [1,
+  2, 1]). Negatív n esetén dobj `RangeError`-t.
+signature: "export function pascalSor(n: number): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: pascal
+rating: 1200

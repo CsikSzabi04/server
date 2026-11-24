@@ -1,0 +1,16 @@
+# AURI-CANARY-0e0bd4b4-a97e-5c10-9243-874a3884f623
+id: py-l1-0023
+level: 1
+lang: py
+topics: [x.algo]
+title_hu: Prímszám-e
+prompt_hu: |
+  Írj `prim(n: int) -> bool` függvényt, amely eldönti, hogy n prímszám-e. 2-nél kisebb számok (a negatívak is)
+  nem prímek.
+signature: "def prim(n: int) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: prime
+rating: 1200

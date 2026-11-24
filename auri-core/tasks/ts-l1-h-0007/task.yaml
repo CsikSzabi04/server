@@ -1,0 +1,17 @@
+# AURI-CANARY-1a4500b2-6341-5371-b794-a2055a0e04bf
+id: ts-l1-h-0007
+level: 1
+lang: ts
+topics: [ts.collections, ts.errors]
+title_hu: Mozgóátlag
+prompt_hu: |
+  Írj `mozgoAtlag(xs: number[], k: number): number[]` függvényt: minden k hosszú, összefüggő ablak átlaga balról
+  jobbra, két tizedesre kerekítve (`Math.round(x * 100) / 100`). Ha k nagyobb a tömb hosszánál, üres tömb; k < 1
+  esetén dobj `RangeError`-t.
+signature: "export function mozgoAtlag(xs: number[], k: number): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: moving-avg
+rating: 1200

@@ -1,0 +1,17 @@
+# AURI-CANARY-dfee3b81-f60f-5bc7-9787-b895a9abddeb
+id: ts-l1-0014
+level: 1
+lang: ts
+topics: [ts.strings, x.algo]
+title_hu: TAJ-szám ellenőrzése
+prompt_hu: |
+  Írj `tajErvenyes(s: string): boolean` függvényt. Érvényes a TAJ-szám, ha pontosan 9 számjegy, vagy "ddd ddd
+  ddd" alakú (egy-egy szóközzel), és az első 8 számjegy súlyozott összegének (súlyok sorban: 3, 7, 3, 7, 3, 7,
+  3, 7) 10-es maradéka egyenlő a 9. számjeggyel. Minden más esetben `False`.
+signature: "export function tajErvenyes(s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: checksum
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-233404da-e1f6-5ce8-8e49-7d049a346141
+id: ts-l0-0004
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: A legnagyobb elem indexe
+prompt_hu: |
+  Írj `maxIndex(xs: number[]): number` függvényt, amely a legnagyobb elem ELSŐ előfordulásának indexét adja
+  vissza; üres tömbre -1-et.
+signature: "export function maxIndex(xs: number[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: argmax
+rating: 1000

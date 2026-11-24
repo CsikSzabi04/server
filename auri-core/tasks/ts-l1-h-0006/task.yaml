@@ -1,0 +1,17 @@
+# AURI-CANARY-d592ed01-d36c-57d2-8913-36317cd95aff
+id: ts-l1-h-0006
+level: 1
+lang: ts
+topics: [ts.collections, x.algo]
+title_hu: Két elem összege
+prompt_hu: |
+  Írj `ketOsszeg(xs: number[], cel: number): number[] | null` függvényt: olyan [i, j] indexpárt ad vissza (i <
+  j), amelyre xs[i] + xs[j] == cel; ha több ilyen van, a legkisebb j-vel, azon belül a legkisebb i-vel. Ha nincs
+  ilyen pár, `null`.
+signature: "export function ketOsszeg(xs: number[], cel: number): number[] | null"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: two-sum
+rating: 1200

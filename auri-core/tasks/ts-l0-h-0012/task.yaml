@@ -1,0 +1,16 @@
+# AURI-CANARY-23919316-df3f-540d-a8a5-ca3acdcd5244
+id: ts-l0-h-0012
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Közös elemek
+prompt_hu: |
+  Írj `kozos(a: number[], b: number[]): number[]` függvényt: az a azon elemei, amelyek b-ben is szerepelnek, az
+  a-beli első előfordulás sorrendjében, ismétlődés nélkül.
+signature: "export function kozos(a: number[], b: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: intersect
+rating: 1000

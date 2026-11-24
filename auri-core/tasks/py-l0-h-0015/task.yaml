@@ -1,0 +1,16 @@
+# AURI-CANARY-9b2587ba-e5ff-52ae-b375-b80d86780636
+id: py-l0-h-0015
+level: 0
+lang: py
+topics: [py.strings]
+title_hu: Kis- és nagybetű csere
+prompt_hu: |
+  Írj `csere(s: str) -> str` függvényt, amely minden kisbetűt nagybetűre, minden nagybetűt kisbetűre cserél; a
+  többi karakter (számjegy, írásjel, szóköz) változatlan.
+signature: "def csere(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: swapcase
+rating: 1000

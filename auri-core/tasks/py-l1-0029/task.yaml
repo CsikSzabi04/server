@@ -1,0 +1,18 @@
+# AURI-CANARY-d39871a9-abea-50ed-aa5e-c7cd2e5100fb
+id: py-l1-0029
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Telefonszám egységesítése
+prompt_hu: |
+  Írj `telefonszam(s: str) -> str` függvényt, amely egy magyar mobilszámot "+36" + 9 számjegy alakra hoz (pl.
+  "06 30 123 4567" → "+36301234567"). A szóközt, a kötőjelet, a perjelet és a zárójeleket hagyd el; ezután a
+  szám `+36`, `36` vagy `06` előtaggal kezdődjön, és utána pontosan 9 számjegy álljon. Minden más esetben dobj
+  `ValueError`-t.
+signature: "def telefonszam(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: normalize
+rating: 1200

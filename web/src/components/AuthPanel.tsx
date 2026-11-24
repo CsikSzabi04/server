@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { AuthApi } from '../hooks/useAuth';
 
+// Bump when /feltetelek.html or /adatvedelem.html changes materially (their "Hatályos" date).
+const TERMS_VERSION = '2026-11-20';
+
 // Login / signup button + modal. Hidden entirely if Supabase isn't configured.
 // The modal is rendered via a portal to <body> so the HUD's stacking contexts
 // can't cover it (otherwise the chat panel sits on top and steals clicks).
@@ -13,6 +16,8 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [info, setInfo] = useState<string | null>(null);
+  // Sign-up consent: 18+ (model providers' terms) + terms & privacy notice (SECURITY.md §20, H-14).
+  const [consent, setConsent] = useState(false);
 
   if (!auth.configured) return null;
 
@@ -34,10 +39,24 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
       setErr('Enter your email and password.');
       return;
     }
+    if (mode === 'up' && password.length < 10) {
+      setErr('Use a password of at least 10 characters.');
+      return;
+    }
+    if (mode === 'up' && !consent) {
+      setErr('Please confirm you are 18+ and accept the terms and the privacy notice.');
+      return;
+    }
     setBusy(true);
     setErr(null);
     setInfo(null);
-    const e = mode === 'in' ? await auth.signIn(email, password) : await auth.signUp(email, password);
+    // Accountability (GDPR art. 5(2)): keep WHICH terms version was accepted, and WHEN.
+    const consentRecord = {
+      terms_version: TERMS_VERSION,
+      terms_accepted_at: new Date().toISOString(),
+      age_confirmed_18_plus: true,
+    };
+    const e = mode === 'in' ? await auth.signIn(email, password) : await auth.signUp(email, password, consentRecord);
     setBusy(false);
     if (e) {
       setErr(e);
@@ -67,12 +86,28 @@ export default function AuthPanel({ auth }: { auth: AuthApi }) {
         <input
           className="auth-input"
           type="password"
-          placeholder="password (min. 6 characters)"
+          placeholder={mode === 'in' ? 'password' : 'password (min. 10 characters)'}
           autoComplete={mode === 'in' ? 'current-password' : 'new-password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && void submit()}
         />
+        {mode === 'up' && (
+          <label className="auth-consent">
+            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+            <span>
+              Elmúltam 18 éves, és elfogadom a{' '}
+              <a href="/feltetelek.html" target="_blank" rel="noopener">
+                felhasználási feltételeket
+              </a>{' '}
+              és az{' '}
+              <a href="/adatvedelem.html" target="_blank" rel="noopener">
+                adatkezelési tájékoztatót
+              </a>
+              .
+            </span>
+          </label>
+        )}
         {err && <div className="auth-err">{err}</div>}
         {info && <div className="auth-info">{info}</div>}
         <button className="auth-submit" disabled={busy} onClick={() => void submit()}>

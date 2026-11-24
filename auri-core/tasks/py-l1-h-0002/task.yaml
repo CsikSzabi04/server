@@ -1,0 +1,17 @@
+# AURI-CANARY-ce7c4603-dbab-56cc-89af-1bb67f28acae
+id: py-l1-h-0002
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Átváltás b alapú számrendszerbe
+prompt_hu: |
+  Írj `szamrendszer(n: int, b: int) -> str` függvényt: a nemnegatív n alakja b alapú számrendszerben (2 ≤ b ≤
+  36), a 10–35 értékű jegyeket a–z kisbetűkkel jelölve, vezető nullák nélkül (0 → "0"). Negatív n-re vagy
+  érvénytelen b-re dobj `ValueError`-t.
+signature: "def szamrendszer(n: int, b: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: base-out
+rating: 1200

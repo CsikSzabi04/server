@@ -1,0 +1,16 @@
+# AURI-CANARY-b441ad6a-a775-5482-8e0f-43e87d017ee1
+id: py-l1-h-0038
+level: 1
+lang: py
+topics: [py.collections, x.algo]
+title_hu: A többi elem szorzata
+prompt_hu: |
+  Írj `tobbi_szorzata(xs: list[int]) -> list[int]` függvényt: az eredmény i. eleme az xs összes többi elemének
+  szorzata (az i. kivételével; az üres szorzat 1). A lista nullát is tartalmazhat.
+signature: "def tobbi_szorzata(xs: list[int]) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: product-except
+rating: 1200

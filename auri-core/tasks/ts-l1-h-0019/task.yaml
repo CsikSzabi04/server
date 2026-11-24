@@ -1,0 +1,17 @@
+# AURI-CANARY-7d3a29c7-565b-547e-8165-a1a626e49ff7
+id: ts-l1-h-0019
+level: 1
+lang: ts
+topics: [x.algo, ts.errors]
+title_hu: Legkevesebb érme
+prompt_hu: |
+  Írj `minErmek(osszeg: number, cimletek: number[]): number` függvényt: legalább hány érme kell az osszeg pontos
+  kifizetéséhez, ha minden (pozitív) címletből korlátlanul van. Ha nem lehet kifizetni, -1; osszeg = 0 esetén 0.
+  Negatív osszeg esetén dobj `RangeError`-t. Vigyázz: a mohó stratégia nem mindig optimális.
+signature: "export function minErmek(osszeg: number, cimletek: number[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: coin-change
+rating: 1200

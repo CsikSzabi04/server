@@ -1,0 +1,17 @@
+# AURI-CANARY-46234616-18ea-547a-9fca-3314136ba8cf
+id: py-l1-h-0001
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Caesar-eltolás
+prompt_hu: |
+  Írj `caesar(s: str, k: int) -> str` függvényt: az angol ábécé betűit (a–z, A–Z) k hellyel eltolja körbe, a
+  kis- és nagybetűt megtartva; k lehet negatív vagy 26-nál nagyobb is. Minden más karakter (ékezetes betű,
+  számjegy, szóköz, írásjel) változatlan.
+signature: "def caesar(s: str, k: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: caesar
+rating: 1200

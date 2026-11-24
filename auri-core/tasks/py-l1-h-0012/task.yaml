@@ -1,0 +1,18 @@
+# AURI-CANARY-34985e85-6a82-5388-bbed-d878e314cedd
+id: py-l1-h-0012
+level: 1
+lang: py
+topics: [py.strings, x.algo]
+title_hu: Luhn-ellenőrzés
+prompt_hu: |
+  Írj `luhn(s: str) -> bool` függvényt (Luhn-ellenőrzés): a szóközöket hagyd figyelmen kívül; ha ezután más, nem
+  számjegy karakter is van benne, vagy 2-nél kevesebb számjegy marad, hamis. Jobbról a 2., 4., 6., … számjegyet
+  duplázd, és ha a dupla 9-nél nagyobb, vonj le belőle 9-et; a szám érvényes, ha az így kapott jegyek összege
+  osztható 10-zel.
+signature: "def luhn(s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: luhn
+rating: 1200

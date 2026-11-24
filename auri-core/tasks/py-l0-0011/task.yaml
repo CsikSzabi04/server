@@ -1,0 +1,16 @@
+# AURI-CANARY-db84fa3c-a13a-5624-a813-020d0e8fac75
+id: py-l0-0011
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: FizzBuzz
+prompt_hu: |
+  Írj `fizzbuzz(n: int) -> list[str]` függvényt az 1..n számokra: 3-mal osztható → "Fizz", 5-tel → "Buzz",
+  mindkettővel → "FizzBuzz", különben a szám szövegként. n ≤ 0 → üres lista.
+signature: "def fizzbuzz(n: int) -> list[str]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: fizzbuzz
+rating: 1000

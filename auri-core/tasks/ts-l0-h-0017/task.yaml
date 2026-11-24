@@ -1,0 +1,16 @@
+# AURI-CANARY-2240b986-d569-5f06-afce-0a485e38bbb2
+id: ts-l0-h-0017
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Van-e ismétlődés
+prompt_hu: |
+  Írj `vanIsmetlodes(xs: number[]): boolean` függvényt: igaz, ha van olyan érték, amely legalább kétszer
+  szerepel a tömbben.
+signature: "export function vanIsmetlodes(xs: number[]): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: has-dup
+rating: 1000

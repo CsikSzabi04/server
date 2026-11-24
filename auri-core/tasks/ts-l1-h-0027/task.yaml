@@ -1,0 +1,17 @@
+# AURI-CANARY-770b51a3-b3a1-5270-bd9f-4dbc204c81fb
+id: ts-l1-h-0027
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: Ezres tagolás
+prompt_hu: |
+  Írj `ezresTagolas(n: number): string` függvényt: az egész szám számjegyeit jobbról hármas csoportokra tagolja,
+  a csoportok közé egy szóközt téve (pl. 1234567 → "1 234 567"); negatív számnál a mínuszjel elöl marad ("-1
+  234").
+signature: "export function ezresTagolas(n: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: thousands
+rating: 1200

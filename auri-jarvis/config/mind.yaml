@@ -1,0 +1,41 @@
+# auri-jarvis — MIND config (owner: AI-2). Sections read by the Mind: llm, memory, tools.
+# Secrets never live here (→ .env). Spec: jarvis_reboot_to_auri.md 5.5, 5.8, 6.1.
+
+llm:
+  provider: ollama
+  base_url: http://127.0.0.1:11434
+  model: gemma4:e2b          # bench_llm (0.44 s 1st token) + eval_tools 2026-11-21: 96.7 % LLM-only, 100 % end-to-end
+  smart_model: qwen3.5:9b    # "okos mód" only, loaded instead of the main model (RAM)
+  num_predict_smart: 400     # answer budget in smart mode
+  smart_think: false         # MEASURED 2026-11-21: think=true spent all 1200 tokens thinking (237 s, empty answer);
+                             # without it qwen3.5:9b answers right in 27–37 s (Canberra, not Sydney)
+  embed_model: embeddinggemma
+  num_ctx: 8192
+  num_predict_voice: 160     # short answer = fast answer
+  num_predict_text: 400      # typed HUD commands
+  temperature: 0.6
+  think: false               # voice mode (smart mode: see smart_think)
+  keep_alive: -1             # main model stays loaded (KV prefix cache stays hot)
+  max_tool_rounds: 3
+  # Session history (append-only; a rolling window breaks the KV-cache resume, measured):
+  session_idle_s: 300        # a new conversation after 5 min silence → resumes from the warm seed
+  max_session_turns: 12      # then keep only the last `carry_turns` (one re-prefill)
+  carry_turns: 2
+  session_token_budget: 4900 # ≈ 60% of num_ctx
+  connect_timeout_s: 3
+  request_timeout_s: 120
+
+memory:                      # M4 — logged-in users only; a guest stores nothing (spec 5.11)
+  enabled: true
+  db: data/mind/mind.db      # turns, facts (+FTS5, embeddings), profile_proposals — per user id
+  recall_top_k: 5            # relevant memories per turn (+ up to 3 standing preferences)
+  embed_keep_alive: 5m       # embeddinggemma stays loaded only briefly (RAM)
+  dream_idle_s: 600          # dream phase after 10 min of silence …
+  dream_every_s: 1800        # … at most every 30 min
+  dream_min_turns: 3         # needs at least this many new turns
+
+tools:
+  enabled: true              # tool schemas go to the LLM (part of the cached prefix)
+  fastpath: true             # regex + fuzzy commands without the LLM (< 100 ms)
+  dry_run: false             # true = RecordingPlatform: no real app/window/volume effects
+  projects_root: "D:/Projectss"   # project_status allowlist (git repos directly under it)

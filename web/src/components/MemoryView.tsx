@@ -1,6 +1,48 @@
 import { useState, type ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import type { MemoryApi } from '../hooks/useMemory';
+import { storageScope } from '../lib/storageScope';
+import { exportAllMyData, deleteMyAccount } from '../lib/account';
+import { redactSecrets } from '../lib/secrets';
+import type { MemoryExport } from '../lib/memStore';
+import type { Memory, Profile } from '../lib/memory';
+
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024; // an import file is untrusted input (SECURITY.md §10.5)
+
+const KINDS = new Set<Memory['kind']>(['fact', 'keyword', 'doc', 'summary']);
+const str = (v: unknown, max: number): string | undefined =>
+  typeof v === 'string' && v.trim() ? v.slice(0, max) : undefined;
+
+/** Validate an import file (shape, kinds, sizes) and blank any secrets in it — an export
+ *  made before the secret filter existed must not bring passwords back (§10.5, §13.2). */
+function sanitizeImport(raw: unknown): MemoryExport | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  if (!Array.isArray(r.memories) && (!r.profile || typeof r.profile !== 'object')) return null;
+  const p = (r.profile && typeof r.profile === 'object' ? r.profile : {}) as Record<string, unknown>;
+  const profile: Profile = {
+    name: str(p.name, 120),
+    nickname: str(p.nickname, 120),
+    language: str(p.language, 40),
+    tone: str(p.tone, 200),
+    about: p.about !== undefined ? redactSecrets(str(p.about, 2000) ?? '') || undefined : undefined,
+    interests: Array.isArray(p.interests)
+      ? p.interests.filter((x): x is string => typeof x === 'string').slice(0, 50).map((x) => x.slice(0, 80))
+      : undefined,
+  };
+  const memories: Memory[] = (Array.isArray(r.memories) ? r.memories : [])
+    .slice(0, 5000)
+    .filter((m): m is Record<string, unknown> => !!m && typeof m === 'object' && typeof (m as Record<string, unknown>).content === 'string')
+    .map((m) => ({
+      kind: KINDS.has(m.kind as Memory['kind']) ? (m.kind as Memory['kind']) : 'fact',
+      content: redactSecrets(String(m.content).slice(0, 4000)),
+      weight: Math.min(100, Math.max(1, Math.round(Number(m.weight) || 1))),
+      pinned: m.pinned === true,
+      source: str(m.source, 120),
+    }))
+    .filter((m) => m.content.trim().length > 0);
+  return { profile, memories };
+}
 
 // Full memory dashboard: edit the profile, prune facts (pin/delete), browse
 // keywords, and export / import / clear everything. Rendered via a portal.
@@ -16,6 +58,9 @@ export default function MemoryView({ memory, onClose }: { memory: MemoryApi; onC
   const [docBusy, setDocBusy] = useState(false);
   const [docErr, setDocErr] = useState<string | null>(null);
   const [optMsg, setOptMsg] = useState<string | null>(null);
+  const [acctMsg, setAcctMsg] = useState<string | null>(null);
+  const [acctBusy, setAcctBusy] = useState(false);
+  const signedIn = storageScope() !== null;
 
   const facts = memory.memories.filter((m) => m.kind === 'fact' || m.kind === 'summary');
   const keywords = memory.memories.filter((m) => m.kind === 'keyword').sort((a, b) => b.weight - a.weight);
@@ -65,16 +110,63 @@ export default function MemoryView({ memory, onClose }: { memory: MemoryApi; onC
     URL.revokeObjectURL(url);
   };
 
+  // GDPR art. 15 + 20: everything stored for the account (chats included), as JSON.
+  const doExportAll = async () => {
+    setAcctBusy(true);
+    setAcctMsg(null);
+    try {
+      const blob = await exportAllMyData();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `auri-adataim-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setAcctMsg('Letöltve. A fájl az összes adatodat tartalmazza — vigyázz rá.');
+    } catch (err) {
+      setAcctMsg((err as Error).message);
+    } finally {
+      setAcctBusy(false);
+    }
+  };
+
+  // GDPR art. 17: delete the account and ALL of its data (needs typed confirmation).
+  const doDeleteAccount = async () => {
+    const typed = window.prompt(
+      'A fiókod és MINDEN adatod (beszélgetések, memória, profil, BRAIN) véglegesen törlődik. ' +
+        'Ez nem vonható vissza.\n\nA megerősítéshez írd be: TÖRLÉS',
+    );
+    if (typed?.trim().toUpperCase() !== 'TÖRLÉS') return;
+    setAcctBusy(true);
+    setAcctMsg(null);
+    const err = await deleteMyAccount();
+    setAcctBusy(false);
+    if (err) {
+      setAcctMsg(err);
+      return;
+    }
+    window.alert('A fiókodat és minden adatodat töröltük.');
+    window.location.assign('/'); // fresh start: no state of the deleted account stays in memory
+  };
+
   const doImport = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
+    if (f.size > MAX_IMPORT_BYTES) {
+      setOptMsg('Import file too large (max 5 MB)');
+      window.setTimeout(() => setOptMsg(null), 2500);
+      return;
+    }
     const r = new FileReader();
     r.onload = () => {
       try {
-        void memory.importData(JSON.parse(String(r.result)));
+        const clean = sanitizeImport(JSON.parse(String(r.result)));
+        if (clean) void memory.importData(clean);
+        else setOptMsg('Not an Auri memory export');
       } catch {
-        /* bad file */
+        setOptMsg('Unreadable import file');
       }
+      window.setTimeout(() => setOptMsg(null), 2500);
     };
     r.readAsText(f);
   };
@@ -216,6 +308,22 @@ export default function MemoryView({ memory, onClose }: { memory: MemoryApi; onC
               🗑 Delete all
             </button>
           </section>
+
+          {signedIn && (
+            <section className="mem-sec mem-controls">
+              <h4 style={{ width: '100%', margin: 0 }}>Fiók és adatok</h4>
+              <button className="auth-switch" disabled={acctBusy} onClick={() => void doExportAll()}>
+                ⬇ Minden adatom letöltése (JSON)
+              </button>
+              <button className="auth-switch mem-danger" disabled={acctBusy} onClick={() => void doDeleteAccount()}>
+                ⚠ Fiók végleges törlése
+              </button>
+              {acctMsg && <span className="mem-saved">{acctMsg}</span>}
+              <a className="auth-switch" href="/adatvedelem.html" target="_blank" rel="noopener">
+                Adatkezelési tájékoztató
+              </a>
+            </section>
+          )}
         </div>
       </div>
     </div>,

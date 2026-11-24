@@ -1,0 +1,80 @@
+# Auri J.A.R.V.I.S. — VOICE settings (owner: AI-1). Merged by AI-3's config.py with
+# jarvis.yaml + mind.yaml. Secrets never go here (they live in .env).
+
+audio:
+  input_device: auto          # auto | device index | name substring (e.g. "DGM20"); env JARVIS_INPUT_DEVICE wins
+  output_device: default      # default | device index | name substring
+  ring_seconds: 10            # how much recent microphone audio is kept in RAM (never written to disk)
+
+wake:
+  hotkey: "ctrl+alt+space"    # push-to-talk; always works, even while Auri is speaking
+  engine: auto                # auto = engine_order below; or force one: oww | kws | stt
+  engine_order:               # first available wins — chosen by measurement (scripts/bench_wake.py)
+    hey_auri: [oww, stt]      # own trained model when it exists (M5), else STT-wake.
+                              # KWS (English model) measured 2–8 % recall on Hungarian "Auri" → not used.
+    hey_jarvis: [oww, kws]
+  refractory_s: 1.5           # ignore repeated detections of the same utterance
+  command_history_s: 2.5      # listen() also takes audio spoken right after the wake word
+  clap:
+    enabled: true             # double clap → "clap2", triple → "clap3" (spec 5.1)
+    spike_ratio: 7.0
+    min_rms: 0.01             # calibrate: scripts/calibrate_clap.py (quiet DGM20 mic!)
+    min_hf_ratio: 0.35
+    max_decay_ms: 80
+    double_gap_ms: [120, 600]
+  kws:                        # sherpa-onnx open-vocabulary keyword spotter — no training needed
+    model_dir: models/kws/sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01
+    threshold: 0.25
+    score: 1.0
+    # BPE tokens of each spelling (precomputed — no sentencepiece needed at runtime).
+    # Several spellings approximate the Hungarian pronunciation of "Auri".
+    keywords:
+      hey_auri:
+        - "▁HE Y ▁A U RI"      # HEY AURI
+        - "▁HE Y ▁ OW RY"      # HEY OWRY
+        - "▁HE Y ▁ OW RE E"    # HEY OWREE
+        - "▁HE Y ▁OUR I"       # HEY OURI
+        - "▁HE Y ▁A URE E"     # HEY AUREE
+        - "▁HA Y ▁ OW RY"      # HAY OWRY
+      hey_jarvis:
+        - "▁HE Y ▁JA R VI S"   # HEY JARVIS
+  oww:                        # openWakeWord (pre-trained models are CC BY-NC-SA 4.0 — non-commercial)
+    threshold: 0.5
+    melspec: models/oww/melspectrogram.onnx
+    embedding: models/oww/embedding_model.onnx
+    models:
+      hey_jarvis: models/oww/hey_jarvis_v0.1.onnx
+      # hey_auri: models/oww/hey_auri.onnx   ← v2, after training (M5)
+  stt_wake:
+    max_s: 2.5                # transcribe at most the first 2.5 s of an utterance
+
+vad:                          # Silero VAD endpointing (spec 5.2)
+  threshold: 0.5              # speech probability ≥ this = speech
+  neg_threshold: 0.35         # < this = silence (hysteresis between)
+  start_ms: 250               # speech needed to start an utterance
+  end_silence_ms: 700         # silence that ends it
+  preroll_ms: 300             # keep the first syllable
+  tail_ms: 200
+
+stt:
+  engine: parakeet            # measured: ~0.2 s per Hungarian command on the Ryzen 5 5500
+  parakeet_model: nemo-parakeet-tdt-0.6b-v3
+  parakeet_quantization: int8
+  accurate_engine: whisper    # "accurate" mode (dictation): ~7.5 s, near-perfect Hungarian
+  whisper_model: large-v3-turbo
+  whisper_language: hu
+  whisper_threads: 6          # = physical cores; fewer threads measured ~10–11.5 s instead of ~7.5 s
+  lexicon: config/lexicon.yaml
+
+tts:
+  mode: hybrid                # local | hybrid | premium — user decision 2026-11-21: hybrid (premium only for fixed phrases, cached forever)
+  default_voice: daniel       # guest default (user decision 2026-11-20)
+  piper:
+    voice_hu: models/piper/hu_HU-imre-medium.onnx
+    voice_en: models/piper/en_GB-alan-medium.onnx
+  max_sentence_chars: 220
+  duck_music: true            # lower other apps (music) while Auri speaks
+  duck_level: 0.3
+  elevenlabs:
+    monthly_credit_budget: 2000   # our own monthly cap (the key itself cannot read the account quota)
+    first_byte_timeout_s: 2.0     # slower than this → that sentence is spoken by local Piper

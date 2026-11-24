@@ -38,6 +38,10 @@ export const config = {
   // Trailing slash stripped so we can safely append paths.
   ollamaUrl: (process.env.OLLAMA_URL ?? 'http://localhost:11434').replace(/\/+$/, ''),
   ollamaModel: process.env.OLLAMA_MODEL ?? 'llama3.2:3b',
+  // Requests with images go to this local vision model (gemma4:e2b reads screenshots/photos).
+  ollamaVisionModel: process.env.OLLAMA_VISION_MODEL ?? 'gemma4:e2b',
+  // Same context as the Jarvis daemon's gemma4:e2b → one loaded copy serves both (no ~15 s reload).
+  ollamaVisionNumCtx: parseInteger(process.env.OLLAMA_VISION_NUM_CTX, 8192),
   allowedOrigins: parseList(process.env.ALLOWED_ORIGINS),
   rateLimitPerMin: parseInteger(process.env.RATE_LIMIT_PER_MIN, 60),
   ollamaTimeoutMs: parseInteger(process.env.OLLAMA_TIMEOUT_MS, 60_000),

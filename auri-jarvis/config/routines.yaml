@@ -1,0 +1,32 @@
+# auri-jarvis — routines (owner: AI-2). Spec 5.6 / 5.11.
+# • Only for a logged-in user. A guest has no routines (a triple clap only says "Alvó mód.").
+# • Every `tool` step goes through the tool registry (allowlist, tier, validation). A `confirm`
+#   tool runs in a routine only with `preconfirmed: true` — you approve it by writing it here.
+# • "Üdv itthon" is NOT defined here: it is built from YOUR prefs.welcome_routine (HUD form or
+#   the onboarding question 4), see `welcome` below for its frame.
+
+routines:
+  munka:
+    name: Munka mód
+    phrases: ["munka mód", "munkamód", "dolgozzunk", "fókusz mód", "kezdjük a munkát"]
+    steps:
+      - say: "Fókusz mód. Szólok, ha lejárt a huszonöt perc."
+      - tool: {name: open_app, args: {name: vscode, monitor: 2, fullscreen: true}}
+      - tool: {name: set_volume, args: {level: 20}}
+      - tool: {name: set_timer, args: {seconds: 1500, label: pomodoro}}
+  alvas:
+    name: Alvó mód
+    phrases: ["jó éjt", "jó éjszakát", "alvó mód", "alvómód", "megyek aludni"]
+    steps:
+      - say: "Jó éjt."
+      - tool: {name: pc_power, args: {action: lock}, preconfirmed: true}   # spec: "rutinból, előre jóváhagyva"
+
+welcome:   # id: udv_itthon — music / apps / urls come from prefs.welcome_routine
+  name: Üdv itthon
+  phrases: ["üdv itthon", "kezdjük a napot", "welcome home", "megjöttem", "itthon vagyok"]
+  greeting: "Üdv itthon{address}. Rendszerek indítása."
+  # What saying "igen" to onboarding question 4 proposes (editable later on the HUD):
+  default:
+    music_url: null
+    apps: [{app: vscode, monitor: 2, fullscreen: true}]
+    urls: [{url: "https://claude.ai/new", monitor: 1}]

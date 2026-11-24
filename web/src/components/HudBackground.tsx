@@ -14,8 +14,9 @@ interface Particle {
   a: number;
 }
 
-// Canvas layer: floating dust particles + a slow rotating radar sweep.
-// The grid is drawn with CSS (cheaper). Respects prefers-reduced-motion.
+// Canvas layer: floating dust particles. (The rotating radar sweep from the center was
+// removed at the user's request, 2026-11-21.) The grid is drawn with CSS (cheaper).
+// Respects prefers-reduced-motion.
 export default function HudBackground({ intensity = 1 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const intensityRef = useRef(intensity);
@@ -34,7 +35,6 @@ export default function HudBackground({ intensity = 1 }: Props) {
     let w = 0;
     let h = 0;
     let parts: Particle[] = [];
-    let radar = 0;
     let raf = 0;
 
     const resize = () => {
@@ -59,25 +59,6 @@ export default function HudBackground({ intensity = 1 }: Props) {
     const frame = () => {
       const k = intensityRef.current;
       ctx.clearRect(0, 0, w, h);
-
-      // radar sweep — a faint rotating wedge from the center
-      const cx = w * 0.5;
-      const cy = h * 0.42;
-      const R = Math.hypot(w, h);
-      radar += 0.0022 * k;
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(radar * Math.PI * 2);
-      const g = ctx.createLinearGradient(0, 0, R, 0);
-      g.addColorStop(0, `rgba(31,229,255,${0.06 * Math.min(1.5, k)})`);
-      g.addColorStop(1, 'rgba(31,229,255,0)');
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, R, -0.2, 0);
-      ctx.closePath();
-      ctx.fillStyle = g;
-      ctx.fill();
-      ctx.restore();
 
       // particles
       for (const p of parts) {

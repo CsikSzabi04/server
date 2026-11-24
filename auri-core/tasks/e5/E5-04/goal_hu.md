@@ -1,0 +1,4 @@
+Készíts egy kis Python hőmérsékletnapló-projektet a munkakönyvtár gyökerében, két modulból (csak standard könyvtár).
+1. `naplo.py`: `beolvas(sorok: list[str]) -> list[tuple[str, float]]` — minden jó sor "ÉÉÉÉ-HH-NN hőmérséklet" alakú, egy szóközzel (pl. "2026-11-21 4.5"; a hőmérséklet tizedestört vagy egész, lehet negatív). A dátum pontosan 4-2-2 számjegy kötőjellel (naptár szerinti érvényességét nem kell nézni). A hibás sorokat (rossz dátumforma, nem szám, hiányzó rész, üres sor) kihagyja; a jókat (dátum, hőmérséklet float-ként) párokként, a bemenet sorrendjében adja vissza.
+2. `statisztika.py`: `napi(meresek: list[tuple[str, float]]) -> dict[str, tuple[float, float, float]]` — naponként (minimum, maximum, átlag), az átlag két tizedesre kerekítve (`round`).
+Írj hozzájuk unittest-teszteket is.

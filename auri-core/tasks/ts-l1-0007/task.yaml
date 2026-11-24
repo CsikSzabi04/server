@@ -1,0 +1,17 @@
+# AURI-CANARY-cd986c0a-d877-5dd0-88f5-117e7a1128b6
+id: ts-l1-0007
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Futáshossz-visszafejtés
+prompt_hu: |
+  Írj `rleDekodol(s: string): string` függvényt, amely a "<darabszám><karakter>" párok sorozatát (pl. "3a1b2c" →
+  "aaabcc") visszafejti. A darabszám egy vagy több számjegy, a karakter bármi, ami nem számjegy. Üres szövegre
+  üres szöveg. Hibás formátumra (hiányzó darabszám vagy karakter, 0 darabszám) dobj `RangeError`-t.
+signature: "export function rleDekodol(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: rle
+rating: 1200

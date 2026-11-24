@@ -1,0 +1,16 @@
+# AURI-CANARY-f5cb77f5-b3c3-567f-a871-56ebf8e35f08
+id: ts-l1-0004
+level: 1
+lang: ts
+topics: [ts.collections]
+title_hu: Darabolás
+prompt_hu: |
+  Írj `darabol<T>(xs: T[], size: number): T[][]` függvényt: a tömb egymást követő, `size` hosszú darabjai; az
+  utolsó darab lehet rövidebb. `size < 1` esetén dobj `RangeError`-t.
+signature: "export function darabol<T>(xs: T[], size: number): T[][]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: chunk
+rating: 1200

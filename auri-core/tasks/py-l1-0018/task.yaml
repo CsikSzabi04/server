@@ -1,0 +1,17 @@
+# AURI-CANARY-bae43364-2374-5789-891e-859f0311637c
+id: py-l1-0018
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Időtartam beolvasása
+prompt_hu: |
+  Írj `idotartam_mp(s: str) -> int` függvényt. A bemenet `<szám>h`, `<szám>m`, `<szám>s` részekből áll, EBBEN a
+  sorrendben, egy-egy szóközzel elválasztva; bármelyik rész elhagyható, de legalább egy kell, és egyik sem
+  ismétlődhet. Az eredmény másodpercben, pl. "1h 30m" → 5400. Minden más bemenetre dobj `ValueError`-t.
+signature: "def idotartam_mp(s: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: duration
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-21b52a1b-f037-5467-b5ef-fbbe23654e72
+id: ts-l0-h-0009
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Ismétlés elválasztóval
+prompt_hu: |
+  Írj `ismetel(s: string, n: number, sep: string): string` függvényt, amely az s szöveget n-szer egymás után
+  fűzi, a példányok közé a sep elválasztót téve. Ha n ≤ 0, üres szöveg.
+signature: "export function ismetel(s: string, n: number, sep: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: repeat
+rating: 1000

@@ -1,0 +1,17 @@
+# AURI-CANARY-406989fe-c7d3-5cd8-9b79-097f9d89619c
+id: py-l1-h-0009
+level: 1
+lang: py
+topics: [py.collections, py.errors]
+title_hu: Mátrixszorzás
+prompt_hu: |
+  Írj `matrix_szorzas(a: list[list[int]], b: list[list[int]]) -> list[list[int]]` függvényt: a két téglalap
+  alakú mátrix a·b szorzata. Ha a oszlopainak száma nem egyezik b sorainak számával, vagy bármelyik mátrix üres,
+  dobj `ValueError`-t.
+signature: "def matrix_szorzas(a: list[list[int]], b: list[list[int]]) -> list[list[int]]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: matmul
+rating: 1200

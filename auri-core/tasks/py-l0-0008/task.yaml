@@ -1,0 +1,16 @@
+# AURI-CANARY-c4feb925-5efe-56c6-baa4-8ac041c4b89f
+id: py-l0-0008
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: Ismétlődések nélkül
+prompt_hu: |
+  Írj `egyedi(xs: list[int]) -> list[int]` függvényt, amely a lista elemeit ismétlődés nélkül adja vissza, az
+  első előfordulás sorrendjében.
+signature: "def egyedi(xs: list[int]) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: dedupe
+rating: 1000

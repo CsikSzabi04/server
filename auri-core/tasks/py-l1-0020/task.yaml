@@ -1,0 +1,16 @@
+# AURI-CANARY-ae90ae24-b59f-570b-8aa5-3a91f504578e
+id: py-l1-0020
+level: 1
+lang: py
+topics: [py.collections]
+title_hu: Csoportosítás hossz szerint
+prompt_hu: |
+  Írj `hossz_szerint(szavak: list[str]) -> dict[int, list[str]]` függvényt: a kulcs a szó hossza, az érték az
+  ilyen hosszú szavak listája az eredeti sorrendben (ismétlődéssel együtt).
+signature: "def hossz_szerint(szavak: list[str]) -> dict[int, list[str]]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: group-by
+rating: 1200

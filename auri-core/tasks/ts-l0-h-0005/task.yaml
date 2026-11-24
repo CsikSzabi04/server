@@ -1,0 +1,16 @@
+# AURI-CANARY-4eee5193-3586-585c-a7b8-4f796a05db35
+id: ts-l0-h-0005
+level: 0
+lang: ts
+topics: [ts.basics]
+title_hu: Szökőév
+prompt_hu: |
+  Írj `szokoev(ev: number): boolean` függvényt a Gergely-naptár szerint: szökőév, ha osztható 4-gyel, kivéve a
+  100-zal oszthatókat, de a 400-zal oszthatók mégis szökőévek.
+signature: "export function szokoev(ev: number): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: leap-year
+rating: 1000

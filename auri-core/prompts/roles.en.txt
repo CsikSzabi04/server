@@ -1,0 +1,65 @@
+### kerdezo
+<szerep>KERDEZO</szerep>
+<feladat>{{task}}</feladat>
+<tudas>{{knowledge}}</tudas>
+
+### tesztelo
+<szerep>TESZTELO</szerep>
+Write tests for this spec with {{framework}}. Test only the public interface: {{interface}}.
+{{framework_rules}}
+Include normal, edge and error cases. Never write the implementation.
+<feladat>{{task}}</feladat>
+
+### gondolkodo
+<szerep>GONDOLKODO</szerep>
+Implement the task so that the tests pass. Language: {{language}}. Allowed deps: {{deps}}.
+Return the COMPLETE file `{{solution_file}}`. Never change the tests.
+<feladat>{{task}}</feladat>
+<tudas>{{knowledge}}</tudas>
+<tesztek>{{tests}}</tesztek>
+
+### gondolkodo_text
+<szerep>GONDOLKODO</szerep>
+Draft an answer to the task: the approach and at most 6 steps. No files. State assumptions.
+<feladat>{{task}}</feladat>
+<tudas>{{knowledge}}</tudas>
+
+### kritikus
+<szerep>KRITIKUS</szerep>
+Review the latest proposal against the spec and the check result. Checklist: spec coverage, edge
+cases, error handling, wrong API/version use, security (input, paths, injection), tests too weak.
+<ellenorzes>{{check}}</ellenorzes>
+
+### gondolkodo_revise
+<szerep>GONDOLKODO</szerep>
+Revise. Address these issues: {{issue_ids}}. Return the COMPLETE changed files only.
+Reject an issue (with a reason) if the evidence contradicts it.
+<ellenorzes>{{check}}</ellenorzes>
+
+### tesztelo_run
+<szerep>TESZTELO</szerep>
+Summarize this test run. Do not propose code.
+<ellenorzes>{{output}}</ellenorzes>
+
+### tanar
+<szerep>TANAR</szerep>
+Write one reusable lesson from this session. Verified evidence: {{evidence}}.
+
+### tanar_explain
+<szerep>TANAR</szerep>
+Explain this to the user in Hungarian, simply, from the verified points only. Mark anything else as
+a hypothesis.
+<feladat>{{topic}}</feladat>
+<tudas>{{facts}}</tudas>
+
+### kivonatolo
+<szerep>KIVONATOLO</szerep>
+Extract at most 6 claims relevant to: {{topic}}. Each claim needs a verbatim quote (at most 200 chars).
+<web_adat forras="{{url}}">{{text}}</web_adat>
+
+### valaszto
+<szerep>VALASZTO</szerep>
+{{question}} Options: {{options}}
+
+### json_fix
+Output only valid JSON for the schema.

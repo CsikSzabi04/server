@@ -1,0 +1,42 @@
+[project]
+name = "auri-core"
+version = "0.1.0"
+description = "Auri Core — the local thinking brain (programming-first). Spec: ideas_for_brain/thinking/"
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+# P0 goal: standard library + pytest. Every dependency is installed by AI-3 only
+# (requests: ideas_for_brain/ai_prompts.md §6.2). Installed into auri-core/.venv:
+#   httpx==0.28.1            Ollama transport (via auri_jarvis.mind.ollama_provider)
+#   auri-jarvis (editable, --no-deps)   Jarvis modules are imported, never modified
+dependencies = [
+  "httpx==0.28.1",
+  "fastapi==0.118.0",
+  "uvicorn==0.37.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.2.0",
+  "pytest-asyncio==1.5.0",
+  "ruff==0.17.6",
+]
+
+[project.scripts]
+auri-core = "auri_core.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["auri_core*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-ra --import-mode=importlib -m \"not manual\""
+markers = [
+  "manual: real side effects (real Ollama calls, firewall-dependent probes) — run by hand: pytest -m manual",
+  "slow: slower integration tests",
+]

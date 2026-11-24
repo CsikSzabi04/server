@@ -1,0 +1,16 @@
+# AURI-CANARY-da3844a0-e5ff-5ad1-a8d9-221569c068c3
+id: py-l1-h-0034
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Hamming-távolság
+prompt_hu: |
+  Írj `hamming(a: str, b: str) -> int` függvényt: hány pozícióban különbözik a két egyforma hosszú szöveg. Ha a
+  hosszuk eltér, dobj `ValueError`-t.
+signature: "def hamming(a: str, b: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: hamming
+rating: 1200

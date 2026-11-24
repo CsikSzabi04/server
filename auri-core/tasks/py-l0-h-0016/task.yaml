@@ -1,0 +1,15 @@
+# AURI-CANARY-71816b23-6823-5477-ab0d-756ff4319a4e
+id: py-l0-h-0016
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: Terjedelem
+prompt_hu: |
+  Írj `terjedelem(xs: list[int]) -> int` függvényt: a legnagyobb és a legkisebb elem különbsége; üres listára 0.
+signature: "def terjedelem(xs: list[int]) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: range
+rating: 1000

@@ -1,0 +1,15 @@
+# AURI-CANARY-0f4db97b-d067-546a-9695-8ae293bc3394
+id: ts-l0-0002
+level: 0
+lang: ts
+topics: [ts.basics]
+title_hu: Négyzetösszeg
+prompt_hu: |
+  Írj `negyzetosszeg(n: number): number` függvényt: 1² + 2² + … + n². Ha n ≤ 0, az eredmény 0.
+signature: "export function negyzetosszeg(n: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: sum-series
+rating: 1000

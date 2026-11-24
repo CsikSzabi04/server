@@ -1,0 +1,16 @@
+# AURI-CANARY-48579f0a-bc56-5c2a-9fc9-bb2b2f474776
+id: ts-l0-h-0010
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Leghosszabb szó
+prompt_hu: |
+  Írj `leghosszabbSzo(s: string): string` függvényt: a whitespace (`/\s+/`) mentén elválasztott, nem üres szavak
+  közül a leghosszabbat adja vissza; egyenlőségnél az elsőt. Ha nincs szó, üres szöveget.
+signature: "export function leghosszabbSzo(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: longest-word
+rating: 1000

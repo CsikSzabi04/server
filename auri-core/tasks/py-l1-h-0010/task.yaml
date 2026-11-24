@@ -1,0 +1,17 @@
+# AURI-CANARY-d1e1403d-cb8c-56fc-a626-50e32b0bb214
+id: py-l1-h-0010
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: IPv4-cím ellenőrzése
+prompt_hu: |
+  Írj `ipv4_ervenyes(s: str) -> bool` függvényt: igaz, ha s pontosan négy, ponttal elválasztott részből áll;
+  minden rész csak számjegyekből (0–9) áll, értéke 0–255, és nincs vezető nullája (a "0" maga megengedett).
+  Minden más (szóköz, előjel, üres rész) hamis.
+signature: "def ipv4_ervenyes(s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: validate-ip
+rating: 1200

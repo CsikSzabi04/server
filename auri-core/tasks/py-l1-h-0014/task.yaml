@@ -1,0 +1,16 @@
+# AURI-CANARY-c8234c43-0796-5f72-b68d-b84c1a304632
+id: py-l1-h-0014
+level: 1
+lang: py
+topics: [x.algo, py.errors]
+title_hu: Legnagyobb közös osztó
+prompt_hu: |
+  Írj `lnko_lista(xs: list[int]) -> int` függvényt: a lista elemeinek legnagyobb közös osztója, nemnegatív szám
+  (a negatív elemek abszolút értékével számolj; csupa 0 elemre 0). Üres listára dobj `ValueError`-t.
+signature: "def lnko_lista(xs: list[int]) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: gcd
+rating: 1200

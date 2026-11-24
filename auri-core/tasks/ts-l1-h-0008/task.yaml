@@ -1,0 +1,17 @@
+# AURI-CANARY-6cfa9ec7-ed9c-5fe2-b7ab-db57715f3e24
+id: ts-l1-h-0008
+level: 1
+lang: ts
+topics: [ts.collections, x.algo]
+title_hu: Csigavonal
+prompt_hu: |
+  Írj `spiral(m: number[][]): number[]` függvényt: a téglalap alakú mátrix elemei csigavonalban, a bal felső
+  saroktól indulva az óramutató járásával megegyezően (jobbra, le, balra, fel, majd befelé haladva). Üres
+  mátrixra üres tömb.
+signature: "export function spiral(m: number[][]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: spiral
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-133e53f7-598a-5318-b3cb-721ca4c3ef3a
+id: py-l1-0009
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Futáshossz-kódolás
+prompt_hu: |
+  Írj `rle_kodol(s: str) -> str` függvényt: az egymást követő azonos karakterek helyére darabszám + karakter
+  kerül, pl. "aaabcc" → "3a1b2c". Üres szövegre üres szöveg.
+signature: "def rle_kodol(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: rle
+rating: 1200

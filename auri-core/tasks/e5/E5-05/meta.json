@@ -1,0 +1,14 @@
+{
+ "id": "E5-05",
+ "title": "Szóstatisztika",
+ "lang": "py",
+ "acceptance": [
+  "szamlalo.py: szamol írásjelek levágásával",
+  "top.py: top rendezéssel",
+  "main.py: futtat",
+  "a tesztek zöldek"
+ ],
+ "limits": {
+  "wall_s": 60
+ }
+}

@@ -1,0 +1,16 @@
+# AURI-CANARY-481f6c97-a709-5e95-8030-89c435a38c94
+id: ts-l1-h-0018
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: Pangramma
+prompt_hu: |
+  Írj `pangramma(s: string): boolean` függvényt: igaz, ha a szövegben az angol ábécé mind a 26 betűje (a–z)
+  előfordul legalább egyszer, kis- és nagybetűtől függetlenül. A többi karakter nem számít.
+signature: "export function pangramma(s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: pangram
+rating: 1200

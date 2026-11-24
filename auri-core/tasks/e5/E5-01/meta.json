@@ -1,0 +1,13 @@
+{
+ "id": "E5-01",
+ "title": "Bevásárlólista",
+ "lang": "py",
+ "acceptance": [
+  "lista.py: hozzaad / torol / osszesen a leírt módon, hibákkal",
+  "formaz.py: szoveg név szerint rendezve",
+  "a tesztek zöldek"
+ ],
+ "limits": {
+  "wall_s": 60
+ }
+}

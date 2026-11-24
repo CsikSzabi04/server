@@ -1,0 +1,18 @@
+# AURI-CANARY-1faa60ea-36b9-5973-b1a8-ccca50194756
+id: ts-l1-h-0036
+level: 1
+lang: ts
+topics: [ts.strings, ts.collections]
+title_hu: Szóminta
+prompt_hu: |
+  Írj `szoMinta(minta: string, s: string): boolean` függvényt: igaz, ha s whitespace (`/\s+/`) mentén
+  elválasztott, nem üres szavai pontosan annyian vannak, ahány karakteres a minta, és a minta karakterei és a
+  szavak között kölcsönösen egyértelmű a megfeleltetés (azonos karakter ↔ azonos szó, különböző karakter ↔
+  különböző szó).
+signature: "export function szoMinta(minta: string, s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: word-pattern
+rating: 1200

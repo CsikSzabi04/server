@@ -10,7 +10,14 @@ export default function ChatMessage({ message }: Props) {
     return (
       <div className="msg msg-user">
         <div className="msg-tag">USER</div>
-        <div className="msg-body">{message.content}</div>
+        {message.images?.length ? (
+          <div className="msg-images">
+            {message.images.map((src, i) => (
+              <img key={i} src={src} alt={`Csatolt kép ${i + 1}`} />
+            ))}
+          </div>
+        ) : null}
+        {message.content && <div className="msg-body">{message.content}</div>}
       </div>
     );
   }

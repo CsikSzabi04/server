@@ -1,0 +1,15 @@
+# AURI-CANARY-a3249e12-2640-5f04-988a-740ce7a26a09
+id: py-l0-h-0002
+level: 0
+lang: py
+topics: [py.basics, py.errors]
+title_hu: Faktoriális
+prompt_hu: |
+  Írj `faktorialis(n: int) -> int` függvényt: n! (0! = 1). Negatív n-re dobj `ValueError`-t.
+signature: "def faktorialis(n: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: factorial
+rating: 1000

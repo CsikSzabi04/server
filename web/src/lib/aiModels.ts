@@ -26,10 +26,13 @@ const OLLAMA = [
 ];
 const OLLAMA_IDS = new Set(OLLAMA.map((o) => o.id));
 
-const HOSTED = [
+// Hosted providers. The real model id comes from the server (/api/models →
+// `hosted`), because it's set by GROQ_MODEL / GEMINI_MODEL env vars, not here.
+type HostedProvider = 'groq' | 'gemini';
+const HOSTED: { id: 'auto' | HostedProvider; label: string; detail: string }[] = [
   { id: 'auto', label: 'Auto', detail: 'local → Groq → Gemini' },
-  { id: 'groq', label: 'Groq Llama 3.3 70B', detail: 'via server (free)' },
-  { id: 'gemini', label: 'Gemini 2.0 Flash', detail: 'via server (free)' },
+  { id: 'groq', label: 'Groq', detail: 'free · via server' },
+  { id: 'gemini', label: 'Gemini', detail: 'free · via server' },
 ];
 
 /** Only Ollama selections force a specific model on the backend. */
@@ -37,9 +40,19 @@ export function forcedModelId(selectedId: string): string | undefined {
   return OLLAMA_IDS.has(selectedId) ? selectedId : undefined;
 }
 
+/** Groq / Gemini selections force that provider (no local, no fallback). */
+export function forcedProvider(selectedId: string): HostedProvider | undefined {
+  return selectedId === 'groq' || selectedId === 'gemini' ? selectedId : undefined;
+}
+
 // ── live local availability (shared) ─────────────────────────────────────────
 let localUp = false;
 let localModels: string[] | null = null;
+// Hosted model ids reported by the server; null = provider has no key configured.
+// undefined (missing) = unknown (older server) → assume available.
+let hostedModels: Partial<Record<HostedProvider, string | null>> = {};
+// Why the server turned a provider off (e.g. 'eea_paid_only' for Gemini's free quota).
+let hostedDisabled: Partial<Record<HostedProvider, string>> = {};
 let probed = false;
 const availListeners = new Set<() => void>();
 const emitAvail = () => {
@@ -50,9 +63,16 @@ export async function probeLocal(): Promise<void> {
   try {
     const r = await fetch('/api/models', { cache: 'no-store', signal: AbortSignal.timeout(4000) });
     if (!r.ok) throw new Error(String(r.status));
-    const j = (await r.json()) as { ollamaUp?: boolean; models?: string[] };
+    const j = (await r.json()) as {
+      ollamaUp?: boolean;
+      models?: string[];
+      hosted?: Partial<Record<HostedProvider, string | null>>;
+      disabled?: Partial<Record<HostedProvider, string>>;
+    };
     localUp = !!j.ollamaUp;
     localModels = Array.isArray(j.models) ? j.models : null;
+    hostedModels = j.hosted && typeof j.hosted === 'object' ? j.hosted : {};
+    hostedDisabled = j.disabled && typeof j.disabled === 'object' ? j.disabled : {};
   } catch {
     localUp = false;
     localModels = null;
@@ -70,7 +90,26 @@ function installed(id: string): boolean {
 export function buildOptions(): ModelOption[] {
   const opts: ModelOption[] = [];
   for (const h of HOSTED) {
-    opts.push({ id: h.id, label: h.label, group: 'Auto & hosted', available: true, detail: h.detail });
+    if (h.id === 'auto') {
+      opts.push({ id: h.id, label: h.label, group: 'Auto & hosted', available: true, detail: h.detail });
+      continue;
+    }
+    const model = hostedModels[h.id];
+    opts.push({
+      id: h.id,
+      label: h.label,
+      group: 'Auto & hosted',
+      available: model !== null,
+      // Show the model the server will actually call (e.g. "gpt-oss-120b · free").
+      detail:
+        hostedDisabled[h.id] === 'eea_paid_only'
+          ? 'off · EU needs paid tier'
+          : model === null
+            ? 'no API key on server'
+            : model
+              ? `${model.replace(/^.*\//, '')} · free`
+              : h.detail,
+    });
   }
   for (const o of OLLAMA) {
     opts.push({

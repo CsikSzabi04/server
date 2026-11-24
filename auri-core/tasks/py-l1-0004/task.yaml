@@ -1,0 +1,17 @@
+# AURI-CANARY-7029c79e-5c99-5446-9c30-d345adc67520
+id: py-l1-0004
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Palindrom
+prompt_hu: |
+  Írj `palindrom(s: str) -> bool` függvényt. Csak a betűket és számjegyeket (`str.isalnum()`) vedd figyelembe,
+  kis- és nagybetűtől függetlenül (`str.casefold()`); az ékezetes betű MÁS betű, mint az ékezet nélküli. Az üres
+  szöveg palindrom.
+signature: "def palindrom(s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: palindrome
+rating: 1200

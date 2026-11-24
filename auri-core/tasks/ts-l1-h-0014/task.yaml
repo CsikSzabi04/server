@@ -1,0 +1,16 @@
+# AURI-CANARY-14ed2bff-e72b-574a-8d7e-9d8637f40bde
+id: ts-l1-h-0014
+level: 1
+lang: ts
+topics: [x.algo, ts.errors]
+title_hu: Legnagyobb közös osztó
+prompt_hu: |
+  Írj `lnkoTömb(xs: number[]): number` függvényt: a tömb elemeinek legnagyobb közös osztója, nemnegatív szám (a
+  negatív elemek abszolút értékével számolj; csupa 0 elemre 0). Üres tömbre dobj `RangeError`-t.
+signature: "export function lnkoLista(xs: number[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: gcd
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-387d39c3-fa79-516a-b1f6-25ee09f49adc
+id: ts-l1-0009
+level: 1
+lang: ts
+topics: [x.algo]
+title_hu: Bináris keresés
+prompt_hu: |
+  Írj `binarisKereses(xs: number[], x: number): number` függvényt: egy növekvő (ismétlődést tartalmazható)
+  tömbben x LEGBALOLDALIBB előfordulásának indexe, ha nincs benne: -1.
+signature: "export function binarisKereses(xs: number[], x: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: bsearch
+rating: 1200

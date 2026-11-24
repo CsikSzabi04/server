@@ -365,6 +365,23 @@ body {
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.72rem;
 }
+/* sign-up consent (18+, terms, privacy notice) — SECURITY.md §20 */
+.auth-consent {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text);
+  cursor: pointer;
+}
+.auth-consent input {
+  margin-top: 3px;
+  accent-color: var(--accent);
+}
+.auth-consent a {
+  color: var(--accent);
+}
 
 /* ── archive (history) sidebar ───────────────────────────────────────────── */
 .archive-toggle {

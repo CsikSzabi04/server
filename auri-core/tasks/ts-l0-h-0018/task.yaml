@@ -1,0 +1,16 @@
+# AURI-CANARY-67e8e2a7-1ee2-5727-90c1-7155075cc44b
+id: ts-l0-h-0018
+level: 0
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Időpont formázása
+prompt_hu: |
+  Írj `idoFormatum(mp: number): string` függvényt: a nap 0 ≤ mp < 86400 másodpercét "ÓÓ:PP:MM" alakban adja
+  vissza, kétjegyű, nullával kitöltött részekkel (pl. 3661 → "01:01:01"). Más értékre dobj `RangeError`-t.
+signature: "export function idoFormatum(mp: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: clock
+rating: 1000

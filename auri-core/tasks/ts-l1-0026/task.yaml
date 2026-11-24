@@ -1,0 +1,18 @@
+# AURI-CANARY-a4d9683d-9188-5f7a-8ba3-fc3218621614
+id: ts-l1-0026
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Telefonszám egységesítése
+prompt_hu: |
+  Írj `telefonszam(s: string): string` függvényt, amely egy magyar mobilszámot "+36" + 9 számjegy alakra hoz
+  (pl. "06 30 123 4567" → "+36301234567"). A szóközt, a kötőjelet, a perjelet és a zárójeleket hagyd el; ezután
+  a szám `+36`, `36` vagy `06` előtaggal kezdődjön, és utána pontosan 9 számjegy álljon. Minden más esetben dobj
+  `RangeError`-t.
+signature: "export function telefonszam(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: normalize
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-2857cad5-f249-515f-a19d-0a228abb7a10
+id: ts-l1-h-0033
+level: 1
+lang: ts
+topics: [ts.strings, ts.collections]
+title_hu: Első egyedi karakter
+prompt_hu: |
+  Írj `elsoEgyedi(s: string): string | null` függvényt: a szöveg első olyan karaktere, amely pontosan egyszer
+  fordul elő benne (a kis- és nagybetű különbözik); ha nincs ilyen, `null`.
+signature: "export function elsoEgyedi(s: string): string | null"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: first-unique
+rating: 1200

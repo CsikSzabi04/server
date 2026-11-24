@@ -4,7 +4,8 @@
 //   1) LOCAL  — your own Ollama server (via AURI_SERVER_URL tunnel), used only
 //               when it is reachable AND healthy right now (your PC is on).
 //   2) GROQ   — free hosted API (smart, fast) when GROQ_API_KEY is set.
-//   3) GEMINI — free hosted API when GEMINI_API_KEY is set.
+//   3) GEMINI — hosted API when GEMINI_API_KEY is set AND GEMINI_PAID=1 (billing-
+//               enabled project; Google's terms forbid the free quota for EEA users).
 //   (else 503 — the frontend can show its mock/offline state.)
 //
 // The browser never holds any key: it calls this same-origin function, which
@@ -13,10 +14,13 @@
 //   GROQ_API_KEY    [, GROQ_MODEL]          (fallback #1)
 //   GEMINI_API_KEY  [, GEMINI_MODEL]        (fallback #2)
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+// Caller identification, rate limits, origin check, input validation (SECURITY.md §8).
+import { guard, validateMessages, clamp } from './_guard.js';
 
 interface Msg {
   role: string;
   content: string;
+  images?: string[]; // user turns: data:image/…;base64 URLs (validated by _guard)
 }
 interface Usage {
   prompt_tokens: number;
@@ -60,6 +64,59 @@ Honesty:
 - Never fabricate. If memory doesn't cover it or you're unsure, say so plainly and
   offer the best next step.`;
 
+// Default hosted models. Providers retire model IDs without notice (that silently
+// broke llama-3.3-70b-versatile and gemini-2.0-flash), so the Gemini default is an
+// auto-updating "-latest" alias, and every failure is logged with the real reason.
+const DEFAULT_GROQ_MODEL = 'openai/gpt-oss-120b';
+const DEFAULT_GEMINI_MODEL = 'gemini-flash-lite-latest';
+
+async function warnProvider(name: string, model: string, r: Response): Promise<void> {
+  const detail = (await r.text().catch(() => '')).replace(/\s+/g, ' ').slice(0, 300);
+  console.warn(`[auri] ${name} (${model}) failed: HTTP ${r.status} ${detail}`);
+}
+
+// ── Vision (images on user turns) ────────────────────────────────────────────
+// First the user's own local server (its vision model, OLLAMA_VISION_MODEL = gemma4:e2b);
+// of the hosted providers only Gemini (paid, see geminiKey) or an explicitly configured
+// Groq vision model ever receive images. Image bytes are never logged.
+const hasImages = (messages: Msg[]): boolean => messages.some((m) => m.images?.length);
+
+function splitDataUrl(url: string): { mime: string; data: string } | null {
+  const m = /^data:(image\/(?:png|jpeg|webp|gif));base64,([A-Za-z0-9+/]+=*)$/.exec(url);
+  return m ? { mime: m[1], data: m[2] } : null;
+}
+
+/** OpenAI chat format: a turn with images becomes text + image_url content parts. */
+function toOpenAi(messages: Msg[]): unknown[] {
+  return messages.map((m) =>
+    m.images?.length
+      ? { role: m.role, content: [{ type: 'text', text: m.content }, ...m.images.map((url) => ({ type: 'image_url', image_url: { url } }))] }
+      : { role: m.role, content: m.content },
+  );
+}
+
+/** Gemini contents: text part + one inlineData part per image. */
+function toGeminiContents(messages: Msg[]): unknown[] {
+  return messages
+    .filter((m) => m.role !== 'system')
+    .map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [
+        { text: m.content },
+        ...(m.images ?? []).flatMap((u) => {
+          const img = splitDataUrl(u);
+          return img ? [{ inlineData: { mimeType: img.mime, data: img.data } }] : [];
+        }),
+      ],
+    }));
+}
+
+/** The Groq model for this request; null when it has images but no vision model is set. */
+function groqModelFor(messages: Msg[]): string | null {
+  if (hasImages(messages)) return process.env.GROQ_VISION_MODEL || null;
+  return process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL;
+}
+
 function withSystem(messages: Msg[]): Msg[] {
   return messages.some((m) => m.role === 'system')
     ? messages
@@ -87,21 +144,24 @@ interface Opts {
 // ── Fallback #1: Groq (OpenAI-compatible) ────────────────────────────────────
 async function callGroq(messages: Msg[], o: Opts): Promise<Completion | null> {
   const key = process.env.GROQ_API_KEY;
-  if (!key) return null;
-  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  const model = groqModelFor(messages);
+  if (!key || !model) return null;
   try {
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model,
-        messages: withSystem(messages),
+        messages: toOpenAi(withSystem(messages)),
         temperature: o.temperature ?? 0.7,
         max_tokens: o.maxTokens ?? 1024,
       }),
       signal: AbortSignal.timeout(30_000),
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      await warnProvider('groq', model, r);
+      return null;
+    }
     const j = (await r.json()) as any;
     const reply: string = j.choices?.[0]?.message?.content ?? '';
     if (!reply) return null;
@@ -121,14 +181,21 @@ async function callGroq(messages: Msg[], o: Opts): Promise<Completion | null> {
 }
 
 // ── Fallback #2: Google Gemini ───────────────────────────────────────────────
+// LEGAL GATE (SECURITY.md §14.3, H-9): Google's Gemini API terms (effective
+// 2026-03-23) say "You may use only Paid Services when making API Clients available
+// to users in the European Economic Area, Switzerland, or the United Kingdom".
+// AuriGPT serves EEA (Hungarian) users, so Gemini is used ONLY when the operator
+// confirms a billing-enabled Cloud project with GEMINI_PAID=1. Otherwise: skipped.
+function geminiKey(): string | undefined {
+  return process.env.GEMINI_PAID === '1' ? process.env.GEMINI_API_KEY : undefined;
+}
+
 async function callGemini(messages: Msg[], o: Opts): Promise<Completion | null> {
-  const key = process.env.GEMINI_API_KEY;
+  const key = geminiKey();
   if (!key) return null;
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const model = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
   const sys = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n') || DEFAULT_SYSTEM;
-  const contents = messages
-    .filter((m) => m.role !== 'system')
-    .map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+  const contents = toGeminiContents(messages);
   try {
     const r = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
@@ -146,7 +213,10 @@ async function callGemini(messages: Msg[], o: Opts): Promise<Completion | null> 
         signal: AbortSignal.timeout(30_000),
       },
     );
-    if (!r.ok) return null;
+    if (!r.ok) {
+      await warnProvider('gemini', model, r);
+      return null;
+    }
     const j = (await r.json()) as any;
     const reply: string = (j.candidates?.[0]?.content?.parts ?? [])
       .map((p: any) => p.text ?? '')
@@ -173,13 +243,14 @@ async function callGemini(messages: Msg[], o: Opts): Promise<Completion | null> 
 // `data: {"usage": {...}}`, then `data: [DONE]`. Each returns true once it has
 // committed to streaming (response started); false if unavailable before then,
 // so the caller can try the next provider.
-function beginSse(res: VercelResponse, source: string): void {
+function beginSse(res: VercelResponse, source: string, model: string): void {
   res.status(200);
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
   res.setHeader('X-Auri-Source', source);
+  res.setHeader('X-Auri-Model', model); // the UI shows which model answered
 }
 
 async function pipeSse(
@@ -223,8 +294,8 @@ async function pipeSse(
 
 async function streamGroq(messages: Msg[], o: Opts, res: VercelResponse): Promise<boolean> {
   const key = process.env.GROQ_API_KEY;
-  if (!key) return false;
-  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  const model = groqModelFor(messages);
+  if (!key || !model) return false;
   let r: Response;
   try {
     r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -232,7 +303,7 @@ async function streamGroq(messages: Msg[], o: Opts, res: VercelResponse): Promis
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model,
-        messages: withSystem(messages),
+        messages: toOpenAi(withSystem(messages)),
         temperature: o.temperature ?? 0.7,
         max_tokens: o.maxTokens ?? 1024,
         stream: true,
@@ -243,9 +314,12 @@ async function streamGroq(messages: Msg[], o: Opts, res: VercelResponse): Promis
   } catch {
     return false;
   }
-  if (!r.ok || !r.body) return false;
+  if (!r.ok || !r.body) {
+    await warnProvider('groq', model, r);
+    return false;
+  }
 
-  beginSse(res, 'groq');
+  beginSse(res, 'groq', model);
   await pipeSse(r.body, res, (obj) => {
     const delta = obj.choices?.[0]?.delta?.content;
     const u = obj.usage;
@@ -264,13 +338,11 @@ async function streamGroq(messages: Msg[], o: Opts, res: VercelResponse): Promis
 }
 
 async function streamGemini(messages: Msg[], o: Opts, res: VercelResponse): Promise<boolean> {
-  const key = process.env.GEMINI_API_KEY;
+  const key = geminiKey();
   if (!key) return false;
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const model = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
   const sys = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n') || DEFAULT_SYSTEM;
-  const contents = messages
-    .filter((m) => m.role !== 'system')
-    .map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+  const contents = toGeminiContents(messages);
   let r: Response;
   try {
     r = await fetch(
@@ -289,9 +361,12 @@ async function streamGemini(messages: Msg[], o: Opts, res: VercelResponse): Prom
   } catch {
     return false;
   }
-  if (!r.ok || !r.body) return false;
+  if (!r.ok || !r.body) {
+    await warnProvider('gemini', model, r);
+    return false;
+  }
 
-  beginSse(res, 'gemini');
+  beginSse(res, 'gemini', model);
   await pipeSse(r.body, res, (obj) => {
     const delta = (obj.candidates?.[0]?.content?.parts ?? []).map((p: any) => p.text ?? '').join('');
     const um = obj.usageMetadata;
@@ -310,28 +385,47 @@ async function streamGemini(messages: Msg[], o: Opts, res: VercelResponse): Prom
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'method_not_allowed' });
-    return;
-  }
+  // POST only, own origin, caller identified, within rate limits — else already answered.
+  if (!(await guard(req, res, 'chat'))) return;
 
   const body = (req.body && typeof req.body === 'object' ? req.body : {}) as Record<string, any>;
-  const messages: Msg[] = Array.isArray(body.messages) ? body.messages : [];
-  const wantsStream = body.stream === true;
-  const opts: Opts = {
-    temperature: typeof body.temperature === 'number' ? body.temperature : undefined,
-    maxTokens: typeof body.max_tokens === 'number' ? body.max_tokens : undefined,
-  };
-  if (!messages.length) {
-    res.status(400).json({ error: 'bad_request', message: 'messages required' });
+  const checked = validateMessages(body.messages); // roles whitelisted, count + size capped
+  if (!checked.ok) {
+    res.status(400).json({ error: 'bad_request', message: checked.error });
     return;
   }
+  const messages: Msg[] = checked.messages;
+  const wantsStream = body.stream === true;
+  const opts: Opts = {
+    temperature: clamp(body.temperature, 0, 2),
+    maxTokens: clamp(body.max_tokens, 1, 4096),
+  };
+  // Only known, validated fields go on to the local server (never the raw body).
+  const forward = {
+    messages,
+    stream: wantsStream,
+    temperature: opts.temperature,
+    max_tokens: opts.maxTokens,
+    model: typeof body.model === 'string' ? body.model.slice(0, 120) : undefined,
+  };
 
   const base = process.env.AURI_SERVER_URL?.replace(/\/+$/, '');
   const key = process.env.AURI_SERVER_API_KEY;
+  // The picker can force one hosted provider (no local, no fallback); else Auto.
+  const provider: 'groq' | 'gemini' | undefined =
+    body.provider === 'groq' || body.provider === 'gemini' ? body.provider : undefined;
+  const images = hasImages(messages);
+  const noBackend = images
+    ? 'A képhez látó modell kell: a helyi Auri-szerver (gemma4:e2b) most nem érhető el, és nincs fizetős Gemini (GEMINI_PAID=1) vagy GROQ_VISION_MODEL.'
+    : provider
+      ? `${provider === 'groq' ? 'Groq' : 'Gemini'} is unavailable right now (missing API key, rate limit or model error).`
+      : 'Local server offline and no fallback API configured/available.';
 
   // ── 1) LOCAL (your Ollama) — only if reachable + healthy right now ──────────
-  if (base && key && (await localHealthy(base))) {
+  // Images too: the server answers them with its local vision model (OLLAMA_VISION_MODEL,
+  // default gemma4:e2b) — the picture stays on the user's own machine. A forced hosted
+  // provider is ignored for images (only a vision model can read them).
+  if ((!provider || images) && base && key && (await localHealthy(base))) {
     const ctrl = new AbortController();
     const timeout = setTimeout(() => ctrl.abort(), 60_000);
     res.on('close', () => ctrl.abort());
@@ -339,10 +433,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       const upstream = await fetch(`${base}/v1/chat`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-        body: JSON.stringify(body),
+        body: JSON.stringify(forward),
         signal: ctrl.signal,
       });
       const ct = upstream.headers.get('content-type') ?? '';
+      const upstreamModel = upstream.headers.get('x-auri-model');
 
       if (wantsStream && upstream.body && ct.includes('text/event-stream')) {
         res.status(200);
@@ -351,6 +446,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('X-Accel-Buffering', 'no');
         res.setHeader('X-Auri-Source', 'ollama');
+        if (upstreamModel) res.setHeader('X-Auri-Model', upstreamModel);
         const reader = upstream.body.getReader();
         const decoder = new TextDecoder();
         try {
@@ -397,31 +493,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   // Streaming clients: forward real SSE so the text appears token-by-token
   // instead of waiting for the whole reply. Each helper only commits once its
   // upstream responds OK, so we can still try the next provider before then.
+  const useGroq = provider !== 'gemini';
+  const useGemini = provider !== 'groq';
+
   if (wantsStream) {
-    if (await streamGroq(messages, opts, res)) return;
+    if (useGroq && (await streamGroq(messages, opts, res))) return;
     if (res.headersSent) return;
-    if (await streamGemini(messages, opts, res)) return;
+    if (useGemini && (await streamGemini(messages, opts, res))) return;
     if (res.headersSent) return;
-    res.status(503).json({
-      error: 'no_backend',
-      message: 'Local server offline and no fallback API configured/available.',
-    });
+    res.status(503).json({ error: 'no_backend', message: noBackend });
     return;
   }
 
   // Non-streaming clients (e.g. the document summariser): plain JSON.
-  const viaGroq = await callGroq(messages, opts);
-  const result = viaGroq ?? (await callGemini(messages, opts));
+  const viaGroq = useGroq ? await callGroq(messages, opts) : null;
+  const result = viaGroq ?? (useGemini ? await callGemini(messages, opts) : null);
   if (result) {
     res.status(200);
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('X-Auri-Source', viaGroq ? 'groq' : 'gemini');
+    res.setHeader('X-Auri-Model', result.model);
     res.send(JSON.stringify(result));
     return;
   }
 
-  res.status(503).json({
-    error: 'no_backend',
-    message: 'Local server offline and no fallback API configured/available.',
-  });
+  res.status(503).json({ error: 'no_backend', message: noBackend });
 }

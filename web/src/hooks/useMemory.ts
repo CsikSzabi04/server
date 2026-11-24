@@ -12,6 +12,8 @@ import {
   type Profile,
 } from '../lib/memory';
 import { chunkText, readDocument, summarizeWithModel } from '../lib/files';
+import { redactSecrets } from '../lib/secrets';
+import { setOwnNames } from '../brain/privacy';
 
 export interface MemoryApi {
   profile: Profile;
@@ -29,8 +31,10 @@ export interface MemoryApi {
   optimize: () => Promise<{ removed: number }>;
 }
 
+const UNLOADED: Profile = {}; // the initial profile, before the store has answered
+
 export function useMemory(userId: string | null): MemoryApi {
-  const [profile, setProfile] = useState<Profile>({});
+  const [profile, setProfile] = useState<Profile>(UNLOADED);
   const [memories, setMemories] = useState<Memory[]>([]);
   const profileRef = useRef<Profile>({});
   const memRef = useRef<Memory[]>([]);
@@ -42,6 +46,14 @@ export function useMemory(userId: string | null): MemoryApi {
     setProfile(p);
     setMemories(m);
   }, [userId]);
+
+  // PRIVACY: the brain must never learn this identity's own name — register it with the
+  // privacy filter (every isPersonal() check uses it). Re-registered whenever a profile is
+  // loaded or changed (login / logout / rename / clear). Skipped while still UNLOADED, so a
+  // freshly mounted second useMemory() (e.g. /brain) cannot wipe the names before its load.
+  useEffect(() => {
+    if (profile !== UNLOADED) setOwnNames([profile.name, profile.nickname]);
+  }, [profile]);
 
   useEffect(() => {
     let cancelled = false;
@@ -119,8 +131,12 @@ export function useMemory(userId: string | null): MemoryApi {
 
   const addDocument = useCallback(
     async (file: File) => {
-      const text = await readDocument(file); // throws a friendly error on bad file
-      const chunks = chunkText(text);
+      // SECURITY.md §13.2 (H-15): blank out passwords / keys / card & ID numbers BEFORE
+      // anything is stored as a memory or sent for summarising (e.g. an uploaded .env).
+      const text = redactSecrets(await readDocument(file)); // throws a friendly error on bad file
+      // …and again per chunk: chunking collapses whitespace, which can join a card / IBAN
+      // that was split by tabs or line breaks in the file
+      const chunks = chunkText(text).map(redactSecrets);
       if (!chunks.length) throw new Error('Empty or unreadable file.');
 
       for (const ch of chunks) {

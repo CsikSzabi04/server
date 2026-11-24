@@ -1,0 +1,16 @@
+# AURI-CANARY-d30b9687-12b9-5a93-9128-4fb6dd14c4da
+id: py-l1-h-0016
+level: 1
+lang: py
+topics: [x.algo, py.errors]
+title_hu: Collatz-lépések
+prompt_hu: |
+  Írj `collatz_lepesek(n: int) -> int` függvényt: hány lépésben jut el n az 1-hez, ha páros n-ből n/2,
+  páratlanból 3n + 1 lesz (1 → 0 lépés). n < 1 esetén dobj `ValueError`-t.
+signature: "def collatz_lepesek(n: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: collatz
+rating: 1200

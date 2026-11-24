@@ -1,0 +1,16 @@
+# AURI-CANARY-f99ed2b4-482e-59a4-bc21-2210393a8a4d
+id: ts-l0-h-0006
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Kezdőbetűk
+prompt_hu: |
+  Írj `kezdobetuk(s: string): string` függvényt: a whitespace (`/\s+/`) mentén elválasztott, nem üres szavak
+  első betűit nagybetűsítve fűzi össze (pl. "magyar tudományos akadémia" → "MTA"). Üres szövegre üres szöveg.
+signature: "export function kezdobetuk(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: acronym
+rating: 1000

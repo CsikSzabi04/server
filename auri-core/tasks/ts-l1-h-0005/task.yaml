@@ -1,0 +1,16 @@
+# AURI-CANARY-d72664bf-568f-53b9-96d7-bb23a6ca7731
+id: ts-l1-h-0005
+level: 1
+lang: ts
+topics: [ts.collections, x.algo]
+title_hu: Leghosszabb növekvő szakasz
+prompt_hu: |
+  Írj `leghosszabbNovekvo(xs: number[]): number` függvényt: a tömb leghosszabb szigorúan növekvő, összefüggő
+  (szomszédos elemekből álló) szakaszának hossza; üres tömbre 0.
+signature: "export function leghosszabbNovekvo(xs: number[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: run
+rating: 1200

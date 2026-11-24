@@ -1,0 +1,17 @@
+# AURI-CANARY-9cfed738-9ee5-5b19-b178-f85b6aa4cf92
+id: ts-l1-h-0024
+level: 1
+lang: ts
+topics: [ts.basics, ts.errors]
+title_hu: A hónap napjai
+prompt_hu: |
+  Írj `honapNapjai(ev: number, ho: number): number` függvényt: hány napos az adott év ho. hónapja (1 = január) a
+  Gergely-naptárban; a február szökőévben 29 napos (szökőév: 4-gyel osztható, kivéve a 100-zal oszthatókat, de a
+  400-zal oszthatók igen). Ha ho nem 1 és 12 közötti, dobj `RangeError`-t.
+signature: "export function honapNapjai(ev: number, ho: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: month-days
+rating: 1200

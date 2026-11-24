@@ -1,0 +1,78 @@
+# eval_tools fixture (AI-2, M2): Hungarian commands → expected tool + arguments.
+# Fictional data only (privacy rule). Evaluated on the LLM path (fast-path bypassed),
+# as a logged-in user, "now" = 2026-11-21 10:00 (szombat).
+#
+# expect: list of acceptable answers; each = {tool: <name or null>, args: {...}}
+#   arg matchers: plain value = equal (strings: case/accent-insensitive; app names resolved
+#   through apps.yaml), {contains: "x"} = substring, {when: "YYYY-MM-DD HH:MM"} = parse_when equal,
+#   {any: [a, b]} = one of.
+now: "2026-11-21 10:00"
+items:
+  - say: "Nyisd meg a Visual Studio Code-ot a középső monitoron."
+    expect: [{tool: open_app, args: {name: vscode, monitor: 2}}]
+  - say: "Tedd át a VS Code ablakát a bal oldali monitorra."
+    expect: [{tool: move_window, args: {app: vscode, monitor: 1}}]
+  - say: "Indítsd el a Chrome-ot teljes képernyőn."
+    expect: [{tool: open_app, args: {name: chrome, fullscreen: true}}]
+  - say: "Kéne egy böngésző a jobb oldali képernyőre."
+    expect: [{tool: open_app, args: {name: {any: [brave, chrome]}, monitor: 3}}]
+  - say: "Dobd fel a YouTube-ot."
+    expect: [{tool: open_app, args: {name: youtube}}]
+  # Time/day: the <kontextus> already carries them, so answering from it is correct too.
+  - say: "Pontosan mennyi most az idő?"
+    expect: [{tool: get_time, args: {}}, {tool: null, text_contains: "10"}]
+  - say: "Milyen nap van ma?"
+    expect: [{tool: get_time, args: {}}, {tool: null, text_contains: "szombat"}]
+  - say: "Legyen a hangerő huszonöt százalék."
+    expect: [{tool: set_volume, args: {level: 25}}]
+  - say: "Egy kicsit halkabban legyen, légyszi."
+    expect: [{tool: set_volume, args: {change: down}}]
+  - say: "Kapcsold ki teljesen a hangot."
+    expect: [{tool: set_volume, args: {change: mute}}, {tool: set_volume, args: {level: 0}}]
+  - say: "Tekerd fel a hangerőt a maximumra."
+    expect: [{tool: set_volume, args: {level: 100}}]
+  - say: "Ugorj a következő számra."
+    expect: [{tool: media_control, args: {action: next}}]
+  - say: "Állítsd meg egy kicsit a zenét."
+    expect: [{tool: media_control, args: {action: {any: [play_pause, stop]}}}]
+  - say: "Játssz valami lofi zenét."
+    expect: [{tool: play_music, args: {query: {contains: lofi}}}]
+  - say: "Tegyél be egy kis Queent."
+    expect: [{tool: play_music, args: {query: {contains: queen}}}]
+  - say: "Indíts egy huszonöt perces időzítőt."
+    expect: [{tool: set_timer, args: {seconds: 1500}}]
+  - say: "Szólj tíz perc múlva, hogy vegyem ki a pizzát a sütőből."
+    expect: [{tool: set_timer, args: {seconds: 600}}, {tool: set_reminder, args: {when: {when: "2026-11-21 10:10"}}}]
+  - say: "Emlékeztess holnap reggel nyolckor, hogy hívjam fel a fogorvost."
+    expect: [{tool: set_reminder, args: {when: {when: "2026-11-22 08:00"}, text: {contains: fogorvos}}}]
+  - say: "Este hétkor szólj, hogy edzés lesz."
+    expect: [{tool: set_reminder, args: {when: {when: "2026-11-21 19:00"}, text: {contains: edzés}}}]
+  - say: "Milyen emlékeztetőim vannak még mára?"
+    expect: [{tool: list_reminders, args: {}}]
+  - say: "Töröld az összes emlékeztetőmet."
+    expect: [{tool: cancel_reminder, args: {}}]
+  - say: "Mennyi szabad memória van most a gépen?"
+    expect: [{tool: system_status, args: {}}]
+  - say: "Hogy áll a demo projekt a gitben?"
+    expect: [{tool: project_status, args: {name: {contains: demo}}}]
+  - say: "Mi van most a vágólapomon?"
+    expect: [{tool: clipboard_read, args: {}}]
+  - say: "Zárd be a Chrome-ot."
+    expect: [{tool: close_app, args: {name: chrome}}]
+  - say: "Zárold le a gépet, elmegyek."
+    expect: [{tool: pc_power, args: {action: lock}}]
+  - say: "Altasd el a számítógépet."
+    expect: [{tool: pc_power, args: {action: sleep}}]
+  - say: "Mi Ausztrália fővárosa?"
+    expect: [{tool: null}]
+  - say: "Mondj egy rövid viccet."
+    expect: [{tool: null}]
+  - say: "Mit jelent az, hogy API, egy mondatban?"
+    expect: [{tool: null}]
+
+chat:  # Hungarian chat quality — answers are saved for HUMAN scoring (1–5)
+  - "Szia! Ki vagy, és miben tudsz segíteni?"
+  - "Mi Ausztrália fővárosa?"
+  - "Adj egy tippet, hogyan koncentráljak jobban tanulás közben."
+  - "Mi a különbség a RAM és az SSD között, röviden?"
+  - "Fáradt vagyok, de még dolgoznom kell. Mit javasolsz?"

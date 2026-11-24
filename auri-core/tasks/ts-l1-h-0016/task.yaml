@@ -1,0 +1,16 @@
+# AURI-CANARY-2b0f25af-3993-593e-891d-6dd49a43d166
+id: ts-l1-h-0016
+level: 1
+lang: ts
+topics: [x.algo, ts.errors]
+title_hu: Collatz-lépések
+prompt_hu: |
+  Írj `collatzLepesek(n: number): number` függvényt: hány lépésben jut el n az 1-hez, ha páros n-ből n/2,
+  páratlanból 3n + 1 lesz (1 → 0 lépés). n < 1 esetén dobj `RangeError`-t.
+signature: "export function collatzLepesek(n: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: collatz
+rating: 1200

@@ -30,7 +30,7 @@ export function piperAvailable(): boolean {
 
 export interface SynthParams {
   text: string;
-  voice?: string; // optional absolute/relative path to a .onnx voice override
+  voice?: string; // optional voice FILE NAME (e.g. "hu_HU-anna-medium.onnx") in the voices folder
   signal?: AbortSignal;
 }
 
@@ -39,7 +39,16 @@ export async function synthesize(p: SynthParams): Promise<Buffer> {
   if (!config.piperEnabled) throw new PiperError('TTS disabled', 503);
   const bin = binPath();
   if (!existsSync(bin)) throw new PiperError(`piper binary not found at ${bin}`, 503);
-  const voice = p.voice ? resolve(process.cwd(), p.voice) : defaultVoicePath();
+  // SECURITY: a requested voice is a bare FILE NAME inside the configured voices folder —
+  // never a path. (A path would let callers probe files on this machine, or on Windows
+  // make it open \\host\share and leak NTLM credentials.)
+  let voice = defaultVoicePath();
+  if (p.voice) {
+    if (!/^[A-Za-z0-9_.-]{1,80}\.onnx$/.test(p.voice) || p.voice.includes('..')) {
+      throw new PiperError('invalid voice name', 400);
+    }
+    voice = resolve(dirname(defaultVoicePath()), p.voice);
+  }
   if (!existsSync(voice)) throw new PiperError('voice model not found', 400);
 
   const outFile = resolve(tmpdir(), `auri-tts-${randomBytes(8).toString('hex')}.wav`);

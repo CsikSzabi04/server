@@ -1,0 +1,99 @@
+# auri-jarvis — app / URL allowlist (owner: AI-2). Only what is listed here can be opened.
+# public: true  → a guest (not logged in) may open it too (spec 5.11).
+# window_match  → process exe name used to find / move / close its windows.
+# aliases       → what you say (lower-case; suffixes like "-ot" are stripped before matching),
+#                 including frequent STT mishearings (fuzzy match ≥ 85 on top of these).
+# %VARS% in paths are expanded. Paths verified on this PC 2026-11-21.
+
+apps:
+  vscode:
+    name: VS Code
+    path: "D:/CsSzabj/Programing/VsCode/Microsoft VS Code/Code.exe"
+    window_match: Code.exe
+    aliases: ["vs code", "visual studio code", "vízkód", "vs kód", "kód", "visol studió", "vé es kód"]
+    public: false
+  chrome:
+    name: Chrome
+    path: "C:/Program Files/Google/Chrome/Application/chrome.exe"
+    window_match: chrome.exe
+    aliases: ["chrome", "google chrome", "króm", "krómot"]
+    public: true
+  brave:
+    name: Brave
+    path: "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
+    window_match: brave.exe
+    aliases: ["brave", "brév", "böngésző", "a böngésző"]
+    public: true
+  obsidian:
+    name: Obsidian
+    path: "%LOCALAPPDATA%/Programs/Obsidian/Obsidian.exe"
+    window_match: Obsidian.exe
+    aliases: ["obsidian", "obszidián", "jegyzetek"]
+    public: false
+  antigravity:
+    name: Antigravity
+    path: "%LOCALAPPDATA%/Programs/antigravity/Antigravity.exe"
+    window_match: Antigravity.exe
+    aliases: ["antigravity", "anti gravity", "antigraviti"]
+    public: false
+  figma:
+    name: Figma
+    path: "%LOCALAPPDATA%/Figma/Figma.exe"
+    window_match: Figma.exe
+    aliases: ["figma", "figmát"]
+    public: false
+  discord:
+    name: Discord
+    path: "%LOCALAPPDATA%/Discord/Update.exe"
+    args: ["--processStart", "Discord.exe"]
+    window_match: Discord.exe
+    aliases: ["discord", "diszkord"]
+    public: false
+  terminal:
+    name: Terminal
+    path: "D:/ADVANCED_USE/terminal/Terminal.exe"
+    window_match: Terminal.exe
+    aliases: ["terminál", "terminal", "parancssor"]
+    public: false
+  explorer:
+    name: Fájlkezelő
+    path: "C:/Windows/explorer.exe"
+    window_match: explorer.exe
+    aliases: ["fájlkezelő", "intéző", "explorer", "mappák"]
+    public: true
+  notepad:
+    name: Jegyzettömb
+    path: "C:/Windows/System32/notepad.exe"
+    window_match: notepad.exe
+    aliases: ["jegyzettömb", "notepad"]
+    public: true
+  calculator:
+    name: Számológép
+    path: "C:/Windows/System32/calc.exe"
+    window_match: CalculatorApp.exe
+    aliases: ["számológép", "kalkulátor", "calculator"]
+    public: true
+  taskmgr:
+    name: Feladatkezelő
+    path: "C:/Windows/System32/Taskmgr.exe"
+    window_match: Taskmgr.exe
+    aliases: ["feladatkezelő", "task manager"]
+    public: true
+
+urls:
+  aurigpt:  { name: AuriGPT, url: "http://localhost:5173", aliases: ["auri gpt", "aurigpt", "auri gépé"], public: false }
+  jarvis:   { name: Jarvis HUD, url: "http://127.0.0.1:8790/#jarvis", aliases: ["hud", "jarvis hud", "jarvis felület"], public: true }
+  claude:   { name: Claude, url: "https://claude.ai/new", aliases: ["claude", "klód", "claude ai"], public: true }
+  github:   { name: GitHub, url: "https://github.com", aliases: ["github", "githáb", "git hub"], public: true }
+  youtube:  { name: YouTube, url: "https://www.youtube.com", aliases: ["youtube", "jútyúb", "jutub"], public: true }
+  gmail:    { name: Gmail, url: "https://mail.google.com", aliases: ["gmail", "levelek", "email", "e-mail"], public: false }
+  vercel:   { name: Vercel, url: "https://vercel.com/dashboard", aliases: ["vercel", "verszel"], public: false }
+  supabase: { name: Supabase, url: "https://supabase.com/dashboard", aliases: ["supabase", "szupabéz"], public: false }
+
+# Browser used for open_url (Chrome, as in the spec; --new-window / --app=).
+browser: chrome
+
+monitors:   # 1-based, left to right (spec 3.1)
+  1: { name: "bal",   hint: "1920x1080" }
+  2: { name: "közép", hint: "1920x1080, elsődleges" }
+  3: { name: "jobb",  hint: "1152x864 — HUD" }

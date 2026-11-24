@@ -1,0 +1,16 @@
+# AURI-CANARY-fabad109-3944-58ec-8b68-81fb01b9a32f
+id: ts-l1-h-0022
+level: 1
+lang: ts
+topics: [x.algo, ts.errors]
+title_hu: Kombinációk száma
+prompt_hu: |
+  Írj `kombinacio(n: number, k: number): number` függvényt: n elemből k elem kiválasztásainak száma (binomiális
+  együttható). Ha k < 0 vagy k > n, 0. Negatív n-re dobj `RangeError`-t. Az eredmény kisebb 2^53-nál.
+signature: "export function kombinacio(n: number, k: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: binomial
+rating: 1200

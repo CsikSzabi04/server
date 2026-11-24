@@ -1,0 +1,16 @@
+# AURI-CANARY-49536514-79da-5829-b792-d05fcb8358b8
+id: py-l1-0011
+level: 1
+lang: py
+topics: [py.collections, x.algo]
+title_hu: Rendezett listák összefésülése
+prompt_hu: |
+  Írj `osszefesul(a: list[int], b: list[int]) -> list[int]` függvényt, amely két növekvő listát egy növekvő
+  listává fésül össze; az ismétlődések megmaradnak.
+signature: "def osszefesul(a: list[int], b: list[int]) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: merge
+rating: 1200

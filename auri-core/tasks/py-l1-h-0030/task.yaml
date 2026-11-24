@@ -1,0 +1,18 @@
+# AURI-CANARY-c871a4fc-9c6e-5127-ae3e-573045c61376
+id: py-l1-h-0030
+level: 1
+lang: py
+topics: [x.ds, py.errors]
+title_hu: Fordított lengyel jelölés
+prompt_hu: |
+  Írj `rpn(kif: str) -> int` függvényt, amely egy fordított lengyel jelölésű kifejezést értékel ki. A tokeneket
+  egy vagy több szóköz választja el; egy token vagy egész szám (lehet negatív, pl. "-3"), vagy a +, -, *
+  műveleti jelek egyike. Szabálytalan kifejezésre (ismeretlen token, kevés operandus, a végén nem pontosan egy
+  érték marad, üres kifejezés) dobj `ValueError`-t.
+signature: "def rpn(kif: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: rpn
+rating: 1200

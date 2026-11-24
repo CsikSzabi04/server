@@ -1,0 +1,16 @@
+# AURI-CANARY-181474df-baad-5055-a0e6-774e14139208
+id: ts-l0-h-0015
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Kis- és nagybetű csere
+prompt_hu: |
+  Írj `csere(s: string): string` függvényt, amely minden kisbetűt nagybetűre, minden nagybetűt kisbetűre cserél;
+  a többi karakter (számjegy, írásjel, szóköz) változatlan.
+signature: "export function csere(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: swapcase
+rating: 1000

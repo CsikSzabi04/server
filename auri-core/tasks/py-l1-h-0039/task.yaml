@@ -1,0 +1,16 @@
+# AURI-CANARY-4da61ba7-7b21-5bc1-bfa2-bbdd71499d40
+id: py-l1-h-0039
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Huszárlépések
+prompt_hu: |
+  Írj `huszar(mezo: str) -> list[str]` függvényt: a sakktábla adott mezőjéről (pl. "b1": oszlop a–h kisbetűvel,
+  sor 1–8) a huszár által elérhető mezők ábécérendben. Érvénytelen mezőre dobj `ValueError`-t.
+signature: "def huszar(mezo: str) -> list[str]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: knight
+rating: 1200

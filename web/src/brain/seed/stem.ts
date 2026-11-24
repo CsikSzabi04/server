@@ -23,15 +23,24 @@ const SUFFIXES: string[] = [
 const ORDERED = [...new Set(SUFFIXES)].sort((a, b) => b.length - a.length);
 
 const MIN_STEM = 3;
+// A one-letter suffix ('k', 't', 'i', 's') is too ambiguous to strip from a 4-letter word:
+// "fork" → "for" collided with "forest" → "for", "book"/"boot" → "boo". Keep ≥ 4 letters.
+const MIN_STEM_SHORT_SUFFIX = 4;
+
+/** Lowercase + strip accents (the raw, unstemmed form used for exact-word checks). */
+export function foldWord(word: string): string {
+  return word.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
 
 /** Reduce a word to a matching key: accent-folded, up to two suffixes stripped. */
 export function stemKey(word: string): string {
-  let w = word.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  let w = foldWord(word);
   if (w.length <= 3) return w;
   for (let pass = 0; pass < 2; pass++) {
     let cut = false;
     for (const suf of ORDERED) {
-      if (w.length - suf.length >= MIN_STEM && w.endsWith(suf)) {
+      const min = suf.length === 1 ? MIN_STEM_SHORT_SUFFIX : MIN_STEM;
+      if (w.length - suf.length >= min && w.endsWith(suf)) {
         w = w.slice(0, -suf.length);
         cut = true;
         break;

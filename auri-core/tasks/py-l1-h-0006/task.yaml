@@ -1,0 +1,17 @@
+# AURI-CANARY-b125952b-42a0-51a4-b185-0020b7c2b34e
+id: py-l1-h-0006
+level: 1
+lang: py
+topics: [py.collections, x.algo]
+title_hu: Két elem összege
+prompt_hu: |
+  Írj `ket_osszeg(xs: list[int], cel: int) -> list[int] | None` függvényt: olyan [i, j] indexpárt ad vissza (i <
+  j), amelyre xs[i] + xs[j] == cel; ha több ilyen van, a legkisebb j-vel, azon belül a legkisebb i-vel. Ha nincs
+  ilyen pár, `None`.
+signature: "def ket_osszeg(xs: list[int], cel: int) -> list[int] | None"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: two-sum
+rating: 1200

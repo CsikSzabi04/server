@@ -1,0 +1,16 @@
+# AURI-CANARY-98fac19d-ee36-5ca2-b169-d95cc2c21b50
+id: py-l0-h-0010
+level: 0
+lang: py
+topics: [py.strings]
+title_hu: Leghosszabb szó
+prompt_hu: |
+  Írj `leghosszabb_szo(s: str) -> str` függvényt: a `str.split()` szerinti szavak közül a leghosszabbat adja
+  vissza; egyenlőségnél az elsőt. Ha nincs szó, üres szöveget.
+signature: "def leghosszabb_szo(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: longest-word
+rating: 1000

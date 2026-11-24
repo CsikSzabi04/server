@@ -1,0 +1,16 @@
+# AURI-CANARY-58219427-7a49-5c5c-bcff-c0c4afa9bdbc
+id: ts-l1-h-0004
+level: 1
+lang: ts
+topics: [ts.strings, ts.collections]
+title_hu: Betűgyakoriság
+prompt_hu: |
+  Írj `betuGyakorisag(s: string): Record<string, number>` függvényt: a szöveg betűit (Unicode betű: `/\p{L}/u`)
+  kisbetűsítve megszámolja; az objektum kulcsai a kisbetűk, értékei a darabszámok. Más karakter nem számít.
+signature: "export function betuGyakorisag(s: string): Record<string, number>"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: letter-freq
+rating: 1200

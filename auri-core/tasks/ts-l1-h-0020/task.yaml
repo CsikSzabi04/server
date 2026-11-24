@@ -1,0 +1,16 @@
+# AURI-CANARY-f702c693-55a9-53bd-95ac-5440e3a3579e
+id: ts-l1-h-0020
+level: 1
+lang: ts
+topics: [x.algo, ts.errors]
+title_hu: Lépcsőn felfelé
+prompt_hu: |
+  Írj `lepcso(n: number): number` függvényt: hányféleképpen lehet felmenni egy n fokú lépcsőn, ha egyszerre 1
+  vagy 2 fokot lépünk (n = 0 esetén 1). Negatív n-re dobj `RangeError`-t. n legfeljebb 70.
+signature: "export function lepcso(n: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: stairs
+rating: 1200

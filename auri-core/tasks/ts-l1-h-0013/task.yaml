@@ -1,0 +1,17 @@
+# AURI-CANARY-e1784f6e-46ce-5d2c-ac79-fc860ad2ad48
+id: ts-l1-h-0013
+level: 1
+lang: ts
+topics: [ts.collections, x.algo, ts.errors]
+title_hu: Intervallumok összevonása
+prompt_hu: |
+  Írj `intervallumok(iv: number[][]): number[][]` függvényt: a zárt [eleje, vége] intervallumokat (tetszőleges
+  sorrendben) összevonja; az átfedő vagy érintkező (pl. [1, 2] és [2, 3]) intervallumokból egy lesz. Az eredmény
+  eleje szerint növekvő. Ha valamelyiknél eleje > vége, dobj `RangeError`-t.
+signature: "export function intervallumok(iv: number[][]): number[][]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: intervals
+rating: 1200

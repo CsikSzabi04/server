@@ -3,8 +3,9 @@
 // If the env vars aren't set, the app still runs (just without login/saving).
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim() || '';
-const anon = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() || '';
+// `?.` on env: outside Vite (node tests) import.meta.env is undefined → no client.
+const url = (import.meta.env?.VITE_SUPABASE_URL as string | undefined)?.trim() || '';
+const anon = (import.meta.env?.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() || '';
 
 export function isSupabaseConfigured(): boolean {
   return !!url && !!anon;

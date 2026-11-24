@@ -1,0 +1,16 @@
+# AURI-CANARY-ed166b2d-0914-57e4-8ed9-27ee7aa313c4
+id: ts-l0-h-0014
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Átlag fölötti elemek
+prompt_hu: |
+  Írj `atlagonFeluli(xs: number[]): number[]` függvényt: a tömb azon elemei, amelyek szigorúan nagyobbak a tömb
+  átlagánál, az eredeti sorrendben. Üres tömbre üres tömb.
+signature: "export function atlagonFeluli(xs: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: above-mean
+rating: 1000

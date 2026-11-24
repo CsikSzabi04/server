@@ -1,0 +1,16 @@
+# AURI-CANARY-9f644fa5-f819-5139-9baf-6abf092cd8af
+id: ts-l0-h-0003
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Előfordulások száma
+prompt_hu: |
+  Írj `elofordulas(xs: number[], x: number): number` függvényt, amely megszámolja, hányszor szerepel x a
+  tömbben.
+signature: "export function elofordulas(xs: number[], x: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: count
+rating: 1000

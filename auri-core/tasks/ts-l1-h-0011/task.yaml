@@ -1,0 +1,17 @@
+# AURI-CANARY-955bf4bc-a70e-5dc6-9a8e-d76ca5049f58
+id: ts-l1-h-0011
+level: 1
+lang: ts
+topics: [ts.strings, x.algo]
+title_hu: ISBN-10 ellenőrzése
+prompt_hu: |
+  Írj `isbn10Ervenyes(s: string): boolean` függvényt. A kötőjeleket hagyd figyelmen kívül; ami marad, pontosan
+  10 karakter: az első 9 számjegy, az utolsó számjegy vagy nagy "X" (értéke 10). Érvényes, ha d1…d10 jegyekkel
+  10·d1 + 9·d2 + … + 1·d10 osztható 11-gyel. Minden más hamis.
+signature: "export function isbn10Ervenyes(s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: isbn
+rating: 1200

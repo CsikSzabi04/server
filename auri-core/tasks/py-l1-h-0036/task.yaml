@@ -1,0 +1,17 @@
+# AURI-CANARY-3e2c44de-20ea-59f3-a3d9-5055539751a5
+id: py-l1-h-0036
+level: 1
+lang: py
+topics: [py.strings, py.collections]
+title_hu: Szóminta
+prompt_hu: |
+  Írj `szo_minta(minta: str, s: str) -> bool` függvényt: igaz, ha s `str.split()` szerinti szavai pontosan
+  annyian vannak, ahány karakteres a minta, és a minta karakterei és a szavak között kölcsönösen egyértelmű a
+  megfeleltetés (azonos karakter ↔ azonos szó, különböző karakter ↔ különböző szó).
+signature: "def szo_minta(minta: str, s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: word-pattern
+rating: 1200

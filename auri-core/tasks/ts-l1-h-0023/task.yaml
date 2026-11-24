@@ -1,0 +1,19 @@
+# AURI-CANARY-6f0b890a-f2e2-5e55-a64c-be38e41a33d9
+id: ts-l1-h-0023
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Szám betűvel
+prompt_hu: |
+  Írj `szamBetuvel(n: number): string` függvényt, amely a 0 ≤ n ≤ 99 számot magyarul, betűvel, egybeírva adja
+  vissza. Egyesek: nulla, egy, kettő, három, négy, öt, hat, hét, nyolc, kilenc; kerek tízesek: tíz, húsz,
+  harminc, negyven, ötven, hatvan, hetven, nyolcvan, kilencven. A 11–19 alakja tizen + egyes (tizenegy), a
+  21–29-é huszon + egyes (huszonkettő), a többi tízes + egyes (harmincöt). A nulla csak önmagában szerepel. Más
+  n-re dobj `RangeError`-t.
+signature: "export function szamBetuvel(n: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: number-words
+rating: 1200

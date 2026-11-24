@@ -1,0 +1,19 @@
+# AURI-CANARY-5615f8b7-6077-57be-9bc4-5d3c35bda032
+id: py-l1-h-0023
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Szám betűvel
+prompt_hu: |
+  Írj `szam_betuvel(n: int) -> str` függvényt, amely a 0 ≤ n ≤ 99 számot magyarul, betűvel, egybeírva adja
+  vissza. Egyesek: nulla, egy, kettő, három, négy, öt, hat, hét, nyolc, kilenc; kerek tízesek: tíz, húsz,
+  harminc, negyven, ötven, hatvan, hetven, nyolcvan, kilencven. A 11–19 alakja tizen + egyes (tizenegy), a
+  21–29-é huszon + egyes (huszonkettő), a többi tízes + egyes (harmincöt). A nulla csak önmagában szerepel. Más
+  n-re dobj `ValueError`-t.
+signature: "def szam_betuvel(n: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: number-words
+rating: 1200

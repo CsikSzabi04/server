@@ -1,0 +1,16 @@
+# AURI-CANARY-4ec8c631-2174-5e1a-a568-dd387eda0eb3
+id: py-l1-h-0017
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Közös előtag
+prompt_hu: |
+  Írj `kozos_elotag(szavak: list[str]) -> str` függvényt: a szavak leghosszabb közös előtagja (a kis- és
+  nagybetű különbözik). Üres listára üres szöveg.
+signature: "def kozos_elotag(szavak: list[str]) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: prefix
+rating: 1200

@@ -1,0 +1,15 @@
+# AURI-CANARY-fa520df1-be4f-5f6d-b774-85683bce9944
+id: py-l0-h-0003
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: Előfordulások száma
+prompt_hu: |
+  Írj `elofordulas(xs: list[int], x: int) -> int` függvényt, amely megszámolja, hányszor szerepel x a listában.
+signature: "def elofordulas(xs: list[int], x: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: count
+rating: 1000

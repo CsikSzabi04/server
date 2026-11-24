@@ -1,0 +1,16 @@
+# AURI-CANARY-e53a5fdd-3917-5585-9789-5b62212fe849
+id: ts-l0-h-0013
+level: 0
+lang: ts
+topics: [ts.basics, ts.errors]
+title_hu: Kettes számrendszer
+prompt_hu: |
+  Írj `binaris(n: number): string` függvényt, amely a nemnegatív n kettes számrendszerbeli alakját adja vissza
+  vezető nullák nélkül (0 → "0"). Negatív n-re dobj `RangeError`-t.
+signature: "export function binaris(n: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: to-binary
+rating: 1000

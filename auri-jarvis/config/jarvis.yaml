@@ -1,0 +1,57 @@
+# jarvis.yaml — core, HUD, identity, guest defaults, privacy (owner: AI-3).
+# Merged with audio.yaml (AI-1) and mind.yaml (AI-2) by auri_jarvis/config.py.
+# Secrets NEVER go here — only ${VAR} references to auri-jarvis/.env.
+# Reserved top-level keys filled in by config.py: env, paths.
+
+language: hu
+
+# Guest (not signed in) defaults — fixed by the user (spec 2.1 / 5.11).
+# Signed in, the user's own prefs (Supabase profiles.prefs.jarvis) override these.
+guest_defaults:
+  address: "you"          # no name, no title; plain informal "you"
+  wake_word: hey_auri
+  voice: daniel
+  welcome_routine: null   # guests get no "Üdv itthon"
+
+core:
+  log_level: INFO         # console + data/body/logs/jarvis.log (rotated)
+  ack_phrase: "Igen?"     # spoken on wake (signature → AI-1 pre-renders + caches it)
+  ack_by_source:          # phrase = ack_phrase · earcon = short sound (if the Mouth offers one) · none
+    hotkey: phrase
+    hud: phrase
+    wakeword: earcon      # on speakers the mic hears a spoken ack back (AI-1) → a short sound is better
+    clap2: phrase
+    clap3: phrase
+  no_speech_phrase: ""    # said when nobody speaks after a wake; "" = silent
+  listen_start_timeout_s: 4
+  listen_max_s: 15
+  dictation_max_s: 60     # mind.expects_reply {accurate: true}
+  follow_up_s: 5          # after a voice reply, listen this long without a wake word
+  idle_tick_s: 60         # mind.idle_tick() cadence while idle (dream phase)
+  ollama_wait_s: 60       # startup: wait this long for Ollama (/api/tags), with retries
+  tray: true              # system tray icon in voice mode (--no-tray to skip)
+
+identity:
+  supabase_url: ${SUPABASE_URL}   # = web VITE_SUPABASE_URL; the anon key stays in .env
+  verify_timeout_s: 5
+  offline_grace_days: 7           # accept a cached login this long without network
+  guest_on_lock: false            # switch to guest when Windows locks
+
+hud:
+  host: 127.0.0.1                 # never 0.0.0.0
+  port: 8790
+  allowed_origins: ["http://127.0.0.1:8790", "http://localhost:8790", "http://localhost:5173", "http://127.0.0.1:5173"]
+  allowed_hosts: ["127.0.0.1:8790", "localhost:8790"]
+  dev_token: null                 # fixed token for Vite dev (5173); null = off (random per start)
+  web_dist: ../web/dist           # served at / (the /jarvis view); relative to auri-jarvis/
+  open_on_start: true             # open the HUD as a Chrome app window
+  chrome_path: "C:/Program Files/Google/Chrome/Application/chrome.exe"
+  window: { monitor: 3, x: 1920, y: 209, width: 1152, height: 864 }
+
+online:
+  enabled: false                  # web search / weather — OFF by default (local-first)
+
+privacy:
+  log_transcripts: false          # transcripts never go to the file log
+  keep_turns_days: 90
+  save_utterances: 0              # debug: keep the last N utterances as WAV (0 = never)

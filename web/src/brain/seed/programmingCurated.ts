@@ -2,12 +2,21 @@
 // NOT generate (verbatim code snippets + Q→A + keyword set). Kept SEPARATE from
 // programming.gen.ts (which AI-3's `npm run ingest:brain` may regenerate), so
 // regeneration never clobbers these. Snippets are short, original idioms.
+// The programming-LANGUAGES pack (C, C++, C#, .NET 10, Bash, Linux, …) is appended
+// from ./languageSnippets.ts and ./languages.ts.
+import { LANG_SNIPPETS } from './languageSnippets';
+import { LANG_QA, LANG_KEYWORDS } from './languages';
+import { DESIGN_SNIPPETS } from './designSnippets';
+import { DESIGN_QA, DESIGN_KEYWORDS } from './design';
+import { mentionsTech, normalizeTechQuery } from './techAlias';
 
 export interface ProgSnippet {
   tech: string;
   title: string;
   code: string;
   source: string;
+  /** Extra accent-free (Hungarian) word stems that also match, as word prefixes. */
+  alt?: string[];
 }
 export interface ProgQA {
   tech: string;
@@ -34,7 +43,7 @@ export const PROGRAMMING_SNIPPETS: ProgSnippet[] = [
   { tech: 'javascript', title: 'Loop over an array', code: 'for (const item of items) {\n  console.log(item);\n}', source: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of' },
   { tech: 'react', title: 'Render a list with keys', code: '{items.map((item) => (\n  <li key={item.id}>{item.name}</li>\n))}', source: 'https://react.dev/learn/rendering-lists' },
   { tech: 'react', title: 'Controlled input', code: 'const [text, setText] = useState("");\n<input value={text} onChange={(e) => setText(e.target.value)} />', source: 'https://react.dev/reference/react-dom/components/input' },
-  { tech: 'node', title: 'Read JSON from a request', code: "import { readFile } from 'node:fs/promises';\nconst cfg = JSON.parse(await readFile('config.json', 'utf8'));", source: 'https://nodejs.org/docs/latest/api/fs.html' },
+  { tech: 'node', title: 'Read a JSON file in Node', code: "import { readFile } from 'node:fs/promises';\nconst cfg = JSON.parse(await readFile('config.json', 'utf8'));", source: 'https://nodejs.org/docs/latest/api/fs.html' },
   { tech: 'css', title: 'Space items in a row', code: '.row {\n  display: flex;\n  gap: 12px;\n  justify-content: space-between;\n}', source: 'https://developer.mozilla.org/en-US/docs/Web/CSS/gap' },
   { tech: 'html', title: 'Link and image', code: '<a href="/home">Home</a>\n<img src="logo.png" alt="Logo" />', source: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a' },
   { tech: 'tailwind', title: 'Responsive grid', code: '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">...</div>', source: 'https://tailwindcss.com/docs/grid-template-columns' },
@@ -68,6 +77,10 @@ export const PROGRAMMING_SNIPPETS: ProgSnippet[] = [
   { tech: 'javascript', title: 'Sum an array with reduce', code: 'const sum = nums.reduce((a, b) => a + b, 0);', source: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce' },
   { tech: 'javascript', title: 'Object destructuring', code: 'const { name, age } = user;', source: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment' },
   { tech: 'node', title: 'Express server', code: "import express from 'express';\nconst app = express();\napp.get('/', (req, res) => res.send('Hi'));\napp.listen(3000);", source: 'https://expressjs.com/en/starter/hello-world.html' },
+  // programming-languages pack (seed v17): Python … C, C++, C#, .NET 10, Bash, Linux, Windows, iOS, VPN, WPS
+  ...LANG_SNIPPETS,
+  // CSS + visual design pack (seed v18): layouts, modern CSS, theming, components, motion
+  ...DESIGN_SNIPPETS,
 ];
 
 // Question→answer mappings (HU + EN) so respond()/qaCount cover common questions.
@@ -127,6 +140,8 @@ export const PROGRAMMING_QA: ProgQA[] = [
   { tech: 'sql', q: 'how to select data in sql', a: 'SELECT columns FROM table WHERE condition ORDER BY column.' },
   { tech: 'sql', q: 'how to join tables in sql', a: 'SELECT ... FROM a JOIN b ON b.id = a.b_id.' },
   { tech: 'java', q: 'how to write a for loop in java', a: 'for (int i = 0; i < n; i++) { ... }.' },
+  ...LANG_QA,
+  ...DESIGN_QA,
 ];
 
 // Keyword set for "is this a programming question?" coverage in the arbiter.
@@ -137,29 +152,52 @@ export const PROG_KEYWORDS = new Set<string>(
     'python py kotlin php phpmyadmin oracle vite mysql mariadb sql sqlt query database table select join insert ' +
     'express django flask spring laravel api server endpoint route json npm pip gradle maven import export ' +
     'loop for while if else variable const let def return file read write request response error debug compile ' +
-    'fuggveny komponens valtozo ciklus kozepre allapot adatbazis lekerdezes szerver fajl kod programozas'
+    'fuggveny komponens valtozo ciklus kozepre allapot adatbazis lekerdezes szerver fajl kod programozas ' +
+    LANG_KEYWORDS +
+    ' ' +
+    DESIGN_KEYWORDS
   ).split(/\s+/),
 );
 
 /** Is this query a programming/coding question? (tech name or coding keyword present) */
 export function isProgrammingQuery(query: string): boolean {
-  const words = query.toLowerCase().match(/[a-z0-9]{2,}/g) ?? [];
+  const words = normalizeTechQuery(query).match(/[a-z0-9]{2,}/g) ?? [];
   for (const w of words) if (PROG_KEYWORDS.has(w)) return true;
   return false;
 }
 
+// Title words per snippet, normalized once ("C#" → csharp, "C++" → cpp, ".NET" → dotnet).
+// Glue words never count — "fish and chips in town" must not hit "Variables and types in …".
+const TITLE_STOP = new Set('in and or the with to of on an from is by as at its'.split(' '));
+const titleWordCache = new Map<ProgSnippet, string[]>();
+function titleWords(s: ProgSnippet): string[] {
+  let w = titleWordCache.get(s);
+  if (!w) {
+    w = [...new Set(normalizeTechQuery(s.title).match(/[a-z0-9]{2,}/g) ?? [])].filter((x) => !TITLE_STOP.has(x));
+    titleWordCache.set(s, w);
+  }
+  return w;
+}
+
 /** Best matching snippet for a CODE/how-to question. Requires real title-word overlap
  *  (not just the tech name), so conceptual "what is X" falls through to the prose
- *  knowledge answer, while "how to read a file in python" returns code. */
-export function findSnippet(query: string): ProgSnippet | null {
-  const q = query.toLowerCase();
-  const words = new Set<string>(q.match(/[a-z0-9]{2,}/g) ?? []);
+ *  knowledge answer, while "how to read a file in python" returns code. A title word
+ *  of 4+ letters also matches an inflected form ("python" → "pythonban"), and the
+ *  optional `alt` stems match Hungarian wording ("ciklus" → "ciklust"). An optional
+ *  `accept` filter skips candidates that don't answer the question. */
+export function findSnippet(query: string, accept?: (s: ProgSnippet) => boolean): ProgSnippet | null {
+  const q = normalizeTechQuery(query);
+  const qWords = q.match(/[a-z0-9]{2,}/g) ?? [];
+  const words = new Set<string>(qWords);
+  const hasPrefix = (stem: string) => qWords.some((w) => w.startsWith(stem));
   let best: ProgSnippet | null = null;
   let bestScore = 0;
   for (const s of PROGRAMMING_SNIPPETS) {
-    let score = q.includes(s.tech) ? 1 : 0;
-    for (const w of s.title.toLowerCase().match(/[a-z0-9]{2,}/g) ?? []) if (words.has(w)) score += 2;
-    if (score > bestScore) {
+    let score = mentionsTech(q, s.tech) ? 1 : 0;
+    for (const w of titleWords(s)) if (words.has(w) || (w.length >= 4 && hasPrefix(w))) score += 2;
+    for (const a of s.alt ?? []) if (hasPrefix(a)) score += 2;
+    // `accept` (the relevance gate) lets the best snippet that REALLY answers win
+    if (score >= 4 && score > bestScore && (!accept || accept(s))) {
       bestScore = score;
       best = s;
     }

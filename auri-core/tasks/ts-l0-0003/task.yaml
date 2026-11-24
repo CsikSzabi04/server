@@ -1,0 +1,15 @@
+# AURI-CANARY-15e087e4-595d-5c3d-a90e-ab5245501f76
+id: ts-l0-0003
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Fordított szöveg
+prompt_hu: |
+  Írj `forditott(s: string): string` függvényt, amely a szöveget karakterenként visszafelé adja vissza.
+signature: "export function forditott(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: str-reverse
+rating: 1000

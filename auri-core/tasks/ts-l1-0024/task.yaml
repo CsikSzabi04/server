@@ -1,0 +1,18 @@
+# AURI-CANARY-fd70fa72-93ae-5573-92d2-7a9f66cdea22
+id: ts-l1-0024
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: Sortörés
+prompt_hu: |
+  Írj `sortores(szoveg: string, szelesseg: number): string[]` függvényt: a whitespace (`/\s+/`) mentén
+  elválasztott, nem üres szavakat sorokba tördeli; egy sorba balról jobbra annyi szó kerül (egy-egy szóközzel),
+  amennyi `szelesseg` karakterbe belefér. A `szelesseg`-nél hosszabb szó külön sorba kerül, csonkítás nélkül.
+  Üres szövegre üres tömb; `szelesseg < 1` esetén dobj `RangeError`-t.
+signature: "export function sortores(szoveg: string, szelesseg: number): string[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: wrap
+rating: 1200

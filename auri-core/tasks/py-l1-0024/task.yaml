@@ -1,0 +1,16 @@
+# AURI-CANARY-80fc3a0f-27a3-57eb-82b9-3490214d8931
+id: py-l1-0024
+level: 1
+lang: py
+topics: [x.algo]
+title_hu: Prímek n-ig
+prompt_hu: |
+  Írj `primek(n: int) -> list[int]` függvényt: az n-nél nem nagyobb prímszámok növekvő sorrendben (n < 2 → üres
+  lista).
+signature: "def primek(n: int) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: prime
+rating: 1200

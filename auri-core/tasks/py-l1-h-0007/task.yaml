@@ -1,0 +1,17 @@
+# AURI-CANARY-766afb16-1347-57a4-b8ef-9024be4f3a20
+id: py-l1-h-0007
+level: 1
+lang: py
+topics: [py.collections, py.errors]
+title_hu: Mozgóátlag
+prompt_hu: |
+  Írj `mozgo_atlag(xs: list[float], k: int) -> list[float]` függvényt: minden k hosszú, összefüggő ablak átlaga
+  balról jobbra, két tizedesre kerekítve (`round(x, 2)`). Ha k nagyobb a lista hosszánál, üres lista; k < 1
+  esetén dobj `ValueError`-t.
+signature: "def mozgo_atlag(xs: list[float], k: int) -> list[float]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: moving-avg
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-d07ae44e-2417-5637-8b12-d5b7ec49bb59
+id: py-l1-0012
+level: 1
+lang: py
+topics: [x.algo]
+title_hu: Bináris keresés
+prompt_hu: |
+  Írj `binaris_kereses(xs: list[int], x: int) -> int` függvényt: egy növekvő (ismétlődést tartalmazható)
+  listában x LEGBALOLDALIBB előfordulásának indexe, ha nincs benne: -1.
+signature: "def binaris_kereses(xs: list[int], x: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: bsearch
+rating: 1200

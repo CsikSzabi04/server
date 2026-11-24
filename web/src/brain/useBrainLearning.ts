@@ -20,6 +20,8 @@ import { buildBrainContext } from './grounding';
 import { distillFromModel, distilledCount } from './distill';
 import { nextStudyTopic } from './selfStudy';
 import { loadWebDocs } from './webStore';
+import { isPersonal } from './privacy';
+import { containsSecret } from '../lib/secrets';
 import type { Memory } from '../lib/memory';
 import { trainStage6, stage6Status } from './stage6/net';
 import type { BrainLearningResult, BrainState, WebHit, Stage6Status } from './contracts';
@@ -46,6 +48,7 @@ const BULK_CHUNK = 4_000; // sequences ingested per idle tick (~24k tokens)
 let learnerSingleton: BrainLearner | null = null;
 let version = 0;
 let hydratedFor: string | null | undefined = undefined; // which userId is loaded
+let wantedFor: string | null | undefined = undefined; // which userId the UI wants loaded now
 let hydrating = false;
 const listeners = new Set<() => void>();
 const subscribe = (cb: () => void): (() => void) => {
@@ -71,7 +74,16 @@ export function initLearner(): BrainLearner {
 
 function persist(userId: string | null): void {
   if (!learnerSingleton) return;
+  // PRIVACY: only save the brain that was loaded for THIS identity — never write one
+  // account's brain into another account's (or the guest's) store during a switch.
+  if (hydratedFor !== userId) return;
   void brainStore.save(userId, { ...learnerSingleton.toState(), seedVersion: SEED_VERSION });
+}
+
+/** PRIVACY: drop any personal Q→A an older build may have learned (it must not be recalled). */
+function scrubPersonal(l: BrainLearner): void {
+  // …and any credential / card / ID number an older build may have stored (SECURITY.md §13.2)
+  l.qa = l.qa.filter((p) => !isPersonal(p.q) && !isPersonal(p.a) && !containsSecret(p.q) && !containsSecret(p.a));
 }
 
 // ── chunked bulk-vocabulary seeding (non-blocking) ─────────────────────────────
@@ -187,12 +199,27 @@ export function ensureHydrated(userId: string | null): void {
 /** Load the persisted brain (IndexedDB/Supabase) for this user and merge it in,
  *  then notify. Idempotent per userId; re-runs on login/logout. */
 async function hydrateFor(userId: string | null): Promise<void> {
-  if (hydratedFor === userId || hydrating) return;
+  wantedFor = userId;
+  if (hydratedFor === userId) return;
+  if (hydratedFor !== undefined) {
+    // PRIVACY: the identity changed (login / logout / switch) → drop the previous
+    // identity's learned brain from memory RIGHT NOW, before any await, so nothing of
+    // it is visible, recalled or saved in the new session while the new one loads.
+    const fresh = new BrainLearner();
+    seedBaseBrain(fresh);
+    learnerSingleton = fresh;
+    hydratedFor = undefined;
+    void loadWebDocs(userId); // swap the web-learned docs too (clears the old set synchronously)
+    emit();
+  }
+  if (hydrating) return; // the running hydrate re-checks `wantedFor` when it finishes
   hydrating = true;
   try {
-    await loadWebDocs(); // bring back web-learned facts (region:web) from IndexedDB
+    await loadWebDocs(userId); // THIS identity's web-learned facts (region:web) from IndexedDB
     const snap = await brainStore.load(userId);
+    if (wantedFor !== userId) return; // identity changed while loading → re-run in finally
     const l = BrainLearner.from(snap);
+    scrubPersonal(l);
     // Seed a fresh brain; augment an out-of-date one (additive — never wipes learned data).
     const needSeed = (snap?.seedVersion ?? 0) < SEED_VERSION;
     if (needSeed) {
@@ -207,6 +234,7 @@ async function hydrateFor(userId: string | null): Promise<void> {
     if (needSeed) {
       await seedIngestedCorpora(l);
     }
+    if (wantedFor !== userId) return; // switched during the heavy seed → don't save it
     if (l.assocSize > 4000) l.consolidate(); // M4: keep a large brain lean & fast
     void brainStore.save(userId, { ...l.toState(), seedVersion: SEED_VERSION });
     emit();
@@ -219,6 +247,8 @@ async function hydrateFor(userId: string | null): Promise<void> {
     if (stage6Enabled()) setTimeout(() => void trainStage6(l, emit), 3500);
   } finally {
     hydrating = false;
+    // A login/logout happened mid-load → now load the identity the UI actually wants.
+    if (wantedFor !== undefined && wantedFor !== hydratedFor) void hydrateFor(wantedFor);
   }
 }
 
@@ -261,6 +291,13 @@ export function useBrainLearning(): BrainLearningResult {
 
   const observe = useCallback(
     (userText: string, assistantText: string) => {
+      // PRIVACY: the brain never learns personal data (birth dates, addresses, names,
+      // contacts…). That belongs only to the signed-in account's own memory.
+      if (isPersonal(userText) || isPersonal(assistantText)) return;
+      // …nor secrets (passwords, keys, card/ID numbers) — SECURITY.md §13.2
+      if (containsSecret(userText) || containsSecret(assistantText)) return;
+      // a turn that finishes after a login/logout belongs to the PREVIOUS identity → drop it
+      if (hydratedFor !== userId) return;
       initLearner().observeTurn(userText, assistantText);
       persist(userId);
       emit(); // bumps version → state re-derives
@@ -298,6 +335,9 @@ export function useBrainLearning(): BrainLearningResult {
   // Learn from web results (3.b): store source docs + grow vocab, then refresh.
   const learnWeb = useCallback(
     (query: string, hits: WebHit[], pages?: string[]) => {
+      // a search that returns after a login/logout must not land in the new identity
+      if (hydratedFor !== userId) return;
+      if (containsSecret(query)) return;
       ingestWeb(initLearner(), query, hits, pages ?? []);
       persist(userId);
       emit(); // region:web nodes + counters refresh on /brain
@@ -311,6 +351,9 @@ export function useBrainLearning(): BrainLearningResult {
   // Hybrid H2: distil a model answer into the brain (learn it for an offline answer next time).
   const distill = useCallback(
     (query: string, answer: string) => {
+      if (isPersonal(query) || isPersonal(answer)) return; // PRIVACY: never distil personal data
+      if (containsSecret(query) || containsSecret(answer)) return; // …nor secrets (§13.2)
+      if (hydratedFor !== userId) return; // the answer arrived after a login/logout
       distillFromModel(initLearner(), query, answer);
       persist(userId);
       emit();

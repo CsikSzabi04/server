@@ -1,0 +1,21 @@
+# ruff config for auri-jarvis (owner: AI-3). Run: .venv\Scripts\ruff check .
+target-version = "py312"
+line-length = 130
+extend-exclude = [".venv", "models", "data", ".cache"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "RUF", "SIM"]
+ignore = [
+  "RUF001", "RUF002", "RUF003",  # Hungarian text: „ ” – … are intentional
+  "SIM105",                      # contextlib.suppress vs try/except: either is fine
+  "SIM108",                      # nested ternaries are less readable than if/else
+  "B008",                        # FastAPI-style defaults
+]
+
+[lint.per-file-ignores]
+# contracts.py is the verbatim text of JARVIS_BUILD §2.1 — do not "modernize" it.
+"auri_jarvis/contracts.py" = ["UP035", "E501", "F401"]
+"tests/**" = ["B011", "RUF059", "ASYNC109", "ASYNC110"]
+
+[lint.isort]
+known-first-party = ["auri_jarvis"]

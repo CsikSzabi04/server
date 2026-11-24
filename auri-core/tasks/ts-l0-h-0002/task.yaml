@@ -1,0 +1,15 @@
+# AURI-CANARY-692ac689-7541-5642-9ef9-b195e913a2b3
+id: ts-l0-h-0002
+level: 0
+lang: ts
+topics: [ts.basics, ts.errors]
+title_hu: Faktoriális
+prompt_hu: |
+  Írj `faktorialis(n: number): number` függvényt: n! (0! = 1). Negatív n-re dobj `RangeError`-t.
+signature: "export function faktorialis(n: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: factorial
+rating: 1000

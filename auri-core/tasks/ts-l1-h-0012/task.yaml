@@ -1,0 +1,18 @@
+# AURI-CANARY-8a1f55bf-b062-5097-8c2d-3ccfde5e65fc
+id: ts-l1-h-0012
+level: 1
+lang: ts
+topics: [ts.strings, x.algo]
+title_hu: Luhn-ellenőrzés
+prompt_hu: |
+  Írj `luhn(s: string): boolean` függvényt (Luhn-ellenőrzés): a szóközöket hagyd figyelmen kívül; ha ezután más,
+  nem számjegy karakter is van benne, vagy 2-nél kevesebb számjegy marad, hamis. Jobbról a 2., 4., 6., …
+  számjegyet duplázd, és ha a dupla 9-nél nagyobb, vonj le belőle 9-et; a szám érvényes, ha az így kapott jegyek
+  összege osztható 10-zel.
+signature: "export function luhn(s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: luhn
+rating: 1200

@@ -5,6 +5,8 @@
 // user's own chosen provider directly (see lib/byo.ts). They are never sent to
 // our server/proxy.
 
+import { claimLegacyLocal, scopedKey, storageScope } from './storageScope';
+
 export type ChatMode = 'agent' | 'chat';
 export type ByoProvider = 'openai' | 'gemini';
 
@@ -14,7 +16,7 @@ export interface CustomModel {
   provider: ByoProvider; // 'openai' = OpenAI-compatible (OpenAI, Groq, OpenRouter, …)
   baseUrl?: string; // OpenAI-compatible base, default https://api.openai.com/v1
   apiKey: string;
-  model: string; // e.g. gpt-4o-mini / llama-3.3-70b-versatile / gemini-2.0-flash
+  model: string; // e.g. gpt-4o-mini / openai/gpt-oss-120b / gemini-flash-latest
 }
 
 interface PrefsState {
@@ -26,9 +28,18 @@ interface PrefsState {
 const LS_KEY = 'auri.modelPrefs';
 const DEFAULT: PrefsState = { selectedId: 'auto', mode: 'chat', custom: [] };
 
+// PRIVACY (SECURITY.md §4.4, §10.4): the BYO keys and the selected model belong to ONE
+// identity — after a logout the guest (or another account) must not chat through
+// someone else's key. Stored per identity; legacy unscoped prefs go to the first account.
+function prefsKey(): string {
+  const uid = storageScope();
+  if (uid) claimLegacyLocal(LS_KEY, uid);
+  return scopedKey(LS_KEY, uid);
+}
+
 function load(): PrefsState {
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = localStorage.getItem(prefsKey());
     if (!raw) return { ...DEFAULT };
     const p = JSON.parse(raw) as Partial<PrefsState>;
     return {
@@ -46,10 +57,16 @@ const listeners = new Set<() => void>();
 
 function commit() {
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    localStorage.setItem(prefsKey(), JSON.stringify(state));
   } catch {
     /* storage blocked */
   }
+  for (const fn of listeners) fn();
+}
+
+/** Re-read the prefs for the identity that just became active (called by useAuth). */
+export function reloadPrefsForIdentity(): void {
+  state = load();
   for (const fn of listeners) fn();
 }
 

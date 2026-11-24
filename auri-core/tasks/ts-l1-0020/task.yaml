@@ -1,0 +1,16 @@
+# AURI-CANARY-9e635f6e-3906-5e5b-8c23-1e2dd1147076
+id: ts-l1-0020
+level: 1
+lang: ts
+topics: [x.algo]
+title_hu: Prímszám-e
+prompt_hu: |
+  Írj `prim(n: number): boolean` függvényt, amely eldönti, hogy n prímszám-e. 2-nél kisebb számok (a negatívak
+  is) nem prímek.
+signature: "export function prim(n: number): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: prime
+rating: 1200

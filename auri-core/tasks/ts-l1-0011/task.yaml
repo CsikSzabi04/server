@@ -1,0 +1,17 @@
+# AURI-CANARY-ff4d6d19-f32f-5de8-8669-32b8e51c8004
+id: ts-l1-0011
+level: 1
+lang: ts
+topics: [ts.strings, ts.collections]
+title_hu: Karakterstatisztika
+prompt_hu: |
+  Írj `statisztika(s: string): { betu: number; szamjegy: number; szokoz: number; egyeb: number }` függvényt,
+  amely mindig a "betu", "szamjegy", "szokoz", "egyeb" kulcsokkal tér vissza: betű = `/\p{L}/u`, számjegy =
+  `/\p{Nd}/u`, szóköz = `/\s/`, egyéb = minden más karakter.
+signature: "export function statisztika(s: string): { betu: number; szamjegy: number; szokoz: number; egyeb: number }"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: char-class
+rating: 1200

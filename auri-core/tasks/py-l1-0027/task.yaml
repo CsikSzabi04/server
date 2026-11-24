@@ -1,0 +1,18 @@
+# AURI-CANARY-8e6bc047-3624-5673-839e-79ec01a97caa
+id: py-l1-0027
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Sortörés
+prompt_hu: |
+  Írj `sortores(szoveg: str, szelesseg: int) -> list[str]` függvényt: a `str.split()` szerinti szavakat sorokba
+  tördeli; egy sorba balról jobbra annyi szó kerül (egy-egy szóközzel), amennyi `szelesseg` karakterbe belefér.
+  A `szelesseg`-nél hosszabb szó külön sorba kerül, csonkítás nélkül. Üres szövegre üres lista; `szelesseg < 1`
+  esetén dobj `ValueError`-t.
+signature: "def sortores(szoveg: str, szelesseg: int) -> list[str]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: wrap
+rating: 1200

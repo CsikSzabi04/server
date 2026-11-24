@@ -1,0 +1,16 @@
+# AURI-CANARY-e6ad6851-b7c7-5783-aeae-03d6edfacdf1
+id: py-l1-h-0033
+level: 1
+lang: py
+topics: [py.strings, py.collections]
+title_hu: Első egyedi karakter
+prompt_hu: |
+  Írj `elso_egyedi(s: str) -> str | None` függvényt: a szöveg első olyan karaktere, amely pontosan egyszer
+  fordul elő benne (a kis- és nagybetű különbözik); ha nincs ilyen, `None`.
+signature: "def elso_egyedi(s: str) -> str | None"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: first-unique
+rating: 1200

@@ -1,0 +1,18 @@
+# AURI-CANARY-8bf4781b-4cba-5eb0-89db-ae3f6f6d5306
+id: ts-l1-h-0030
+level: 1
+lang: ts
+topics: [x.ds, ts.errors]
+title_hu: Fordított lengyel jelölés
+prompt_hu: |
+  Írj `rpn(kif: string): number` függvényt, amely egy fordított lengyel jelölésű kifejezést értékel ki. A
+  tokeneket egy vagy több szóköz választja el; egy token vagy egész szám (lehet negatív, pl. "-3"), vagy a +, -,
+  * műveleti jelek egyike. Szabálytalan kifejezésre (ismeretlen token, kevés operandus, a végén nem pontosan egy
+  érték marad, üres kifejezés) dobj `RangeError`-t.
+signature: "export function rpn(kif: string): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: rpn
+rating: 1200

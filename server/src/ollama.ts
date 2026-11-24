@@ -6,6 +6,8 @@ import { config } from './config';
 export interface ChatMessage {
   role: string; // 'system' | 'user' | 'assistant'
   content: string;
+  /** User turns only: raw base64 image payloads (Ollama's format, no data: prefix). */
+  images?: string[];
 }
 
 export interface ChatUsage {
@@ -19,6 +21,10 @@ export interface ChatParams {
   model?: string;
   temperature?: number;
   maxTokens?: number;
+  /** Override num_ctx (the vision model shares the Jarvis daemon's 8192 → no reload). */
+  numCtx?: number;
+  /** false = no hidden "thinking" tokens (gemma4 would otherwise spend the budget there). */
+  think?: boolean;
   signal?: AbortSignal;
 }
 
@@ -53,7 +59,7 @@ function buildBody(p: ChatParams, stream: boolean) {
     top_p: config.topP,
     top_k: config.topK,
     repeat_penalty: config.repeatPenalty,
-    num_ctx: config.ollamaNumCtx,
+    num_ctx: p.numCtx ?? config.ollamaNumCtx,
     num_predict: typeof p.maxTokens === 'number' ? p.maxTokens : config.ollamaNumPredict,
   };
   if (config.ollamaNumThread > 0) options.num_thread = config.ollamaNumThread;
@@ -63,6 +69,7 @@ function buildBody(p: ChatParams, stream: boolean) {
     messages: p.messages,
     stream,
     keep_alive: config.ollamaKeepAlive,
+    ...(p.think === undefined ? {} : { think: p.think }),
     options,
   };
 }

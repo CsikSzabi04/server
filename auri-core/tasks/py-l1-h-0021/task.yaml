@@ -1,0 +1,16 @@
+# AURI-CANARY-35343a44-f007-55ac-8547-2af677805881
+id: py-l1-h-0021
+level: 1
+lang: py
+topics: [py.strings, x.algo]
+title_hu: Permutációk
+prompt_hu: |
+  Írj `permutaciok(s: str) -> list[str]` függvényt: s karaktereinek összes KÜLÖNBÖZŐ sorrendje, karakterkód
+  szerint növekvő rendezésben. Üres szövegre [""].
+signature: "def permutaciok(s: str) -> list[str]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: permutations
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-a9d8fb02-1aa0-5a67-850a-ee58abdfad10
+id: ts-l1-h-0015
+level: 1
+lang: ts
+topics: [x.algo]
+title_hu: Tökéletes szám
+prompt_hu: |
+  Írj `tokeletes(n: number): boolean` függvényt: igaz, ha n pozitív egész, és egyenlő a nála kisebb pozitív
+  osztóinak összegével (pl. 6 = 1 + 2 + 3). n ≤ 0 esetén hamis.
+signature: "export function tokeletes(n: number): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: perfect
+rating: 1200

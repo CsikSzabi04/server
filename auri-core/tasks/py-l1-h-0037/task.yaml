@@ -1,0 +1,17 @@
+# AURI-CANARY-f77963f6-172d-543e-aa1c-c364aafb8467
+id: py-l1-h-0037
+level: 1
+lang: py
+topics: [py.collections]
+title_hu: Egyensúlyi index
+prompt_hu: |
+  Írj `egyensuly_index(xs: list[int]) -> int` függvényt: a legkisebb olyan i index, amelynél az előtte álló
+  elemek összege egyenlő az utána állókéval (az i. elem egyikbe sem számít; az üres összeg 0). Ha nincs ilyen,
+  -1.
+signature: "def egyensuly_index(xs: list[int]) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: pivot
+rating: 1200

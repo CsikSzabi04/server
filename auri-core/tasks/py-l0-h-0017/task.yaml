@@ -1,0 +1,16 @@
+# AURI-CANARY-ab924bfe-5fe4-5881-bb0a-f549e485be9a
+id: py-l0-h-0017
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: Van-e ismétlődés
+prompt_hu: |
+  Írj `van_ismetlodes(xs: list[int]) -> bool` függvényt: igaz, ha van olyan érték, amely legalább kétszer
+  szerepel a listában.
+signature: "def van_ismetlodes(xs: list[int]) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: has-dup
+rating: 1000

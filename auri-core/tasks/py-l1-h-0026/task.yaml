@@ -1,0 +1,19 @@
+# AURI-CANARY-06fa3143-1beb-5ab8-bea5-bd2f8a01e44b
+id: py-l1-h-0026
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: CSV-sor felbontása
+prompt_hu: |
+  Írj `csv_sor(s: str) -> list[str]` függvényt, amely egy CSV-sort mezőkre bont. A mezőket vessző választja el.
+  Ha egy mező idézőjellel (") kezdődik, a záró idézőjelig tart: benne a vessző sima karakter, a "" pedig
+  egyetlen " karaktert jelent; a záró idézőjel után csak vessző vagy a sor vége jöhet. Idézőjellel nem kezdődő
+  mezőben nem lehet idézőjel. Üres szövegre [""]. Szabálytalan sorra (le nem zárt idézőjel, idézőjel rossz
+  helyen) dobj `ValueError`-t.
+signature: "def csv_sor(s: str) -> list[str]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: csv
+rating: 1200

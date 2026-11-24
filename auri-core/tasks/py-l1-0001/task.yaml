@@ -1,0 +1,19 @@
+id: py-l1-0001
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Forintösszeg beolvasása
+prompt_hu: |
+  Írj `parse_forint(s: str) -> int` függvényt, amely egy magyar formátumú forintösszeget egész számmá alakít.
+  - A bemenet egy egész szám, utána egy vagy több szóköz, majd a pénznem: `Ft` vagy `HUF`.
+  - A szám előtt állhat mínuszjel: `"-500 Ft"` → -500.
+  - Az ezreseket szóköz vagy nem törhető szóköz (U+00A0) választhatja el: `"1 234 Ft"` → 1234, `"12 000 HUF"` → 12000.
+  - A bemenet elején és végén álló szóközöket hagyd figyelmen kívül: `"  7 Ft "` → 7.
+  - Érvénytelen bemenetre (például `"abc"`, `"Ft"`, `""`) dobj `ValueError`-t.
+signature: "def parse_forint(s: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: practice
+family: num-parse
+rating: 1200

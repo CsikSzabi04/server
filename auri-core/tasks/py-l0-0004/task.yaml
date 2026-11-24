@@ -1,0 +1,16 @@
+# AURI-CANARY-a8c3c770-f2df-5fe1-8ddc-6eac52f41405
+id: py-l0-0004
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: A legnagyobb elem indexe
+prompt_hu: |
+  Írj `max_index(xs: list[int]) -> int` függvényt, amely a legnagyobb elem ELSŐ előfordulásának indexét adja
+  vissza; üres listára -1-et.
+signature: "def max_index(xs: list[int]) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: argmax
+rating: 1000

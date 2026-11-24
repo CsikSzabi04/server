@@ -1,0 +1,16 @@
+# AURI-CANARY-90e057c9-65a3-5662-a737-1ff2dd6af0c5
+id: ts-l1-0003
+level: 1
+lang: ts
+topics: [ts.strings, x.algo]
+title_hu: Római szám írása
+prompt_hu: |
+  Írj `romaiSzam(n: number): string` függvényt, amely 1 ≤ n ≤ 3999 számot a szokásos legrövidebb római alakban
+  adja vissza (kivonásos írásmóddal: IV, IX, XL, XC, CD, CM). Tartományon kívül dobj `RangeError`-t.
+signature: "export function romaiSzam(n: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: roman
+rating: 1200

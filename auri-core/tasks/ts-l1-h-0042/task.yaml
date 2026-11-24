@@ -1,0 +1,16 @@
+# AURI-CANARY-d436fa57-5dbf-5f5a-b73e-0d63642c9758
+id: ts-l1-h-0042
+level: 1
+lang: ts
+topics: [ts.collections]
+title_hu: Módusz
+prompt_hu: |
+  Írj `modusz(xs: number[]): number | null` függvényt: a tömb leggyakoribb eleme; ha több elem is ugyanannyiszor
+  fordul elő, közülük a legkisebb. Üres tömbre `null`.
+signature: "export function modusz(xs: number[]): number | null"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: mode
+rating: 1200

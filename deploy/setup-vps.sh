@@ -104,6 +104,14 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now auri-server
 
+echo "==> journald: keep server logs at most 30 days (privacy notice §2, SECURITY.md §15.6)"
+sudo mkdir -p /etc/systemd/journald.conf.d
+sudo tee /etc/systemd/journald.conf.d/auri-retention.conf >/dev/null <<'EOF'
+[Journal]
+MaxRetentionSec=30day
+EOF
+sudo systemctl restart systemd-journald
+
 echo "==> firewall (ufw)"
 sudo ufw allow 22/tcp
 if [ -n "$DOMAIN" ]; then sudo ufw allow 80/tcp; sudo ufw allow 443/tcp; else sudo ufw allow 8787/tcp; fi

@@ -1,0 +1,17 @@
+# AURI-CANARY-45e29d38-377a-57fe-8671-b9cf6d53d228
+id: ts-l1-h-0009
+level: 1
+lang: ts
+topics: [ts.collections, ts.errors]
+title_hu: Mátrixszorzás
+prompt_hu: |
+  Írj `matrixSzorzas(a: number[][], b: number[][]): number[][]` függvényt: a két téglalap alakú mátrix a·b
+  szorzata. Ha a oszlopainak száma nem egyezik b sorainak számával, vagy bármelyik mátrix üres, dobj
+  `RangeError`-t.
+signature: "export function matrixSzorzas(a: number[][], b: number[][]): number[][]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: matmul
+rating: 1200

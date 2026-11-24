@@ -1,0 +1,17 @@
+# AURI-CANARY-3a555cbc-9406-50b1-9d6b-ba6a33020d9f
+id: ts-l1-0002
+level: 1
+lang: ts
+topics: [ts.strings, x.algo]
+title_hu: Római szám értéke
+prompt_hu: |
+  Írj `romaiErtek(s: string): number` függvényt, amely egy érvényes római szám (I, V, X, L, C, D, M, kivonásos
+  írásmóddal, pl. IV, IX, XL, CM) értékét adja vissza. Kisbetűt is fogadj el. Üres szövegre vagy más karakterre
+  dobj `RangeError`-t.
+signature: "export function romaiErtek(s: string): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: roman
+rating: 1200

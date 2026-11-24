@@ -2,6 +2,7 @@
 // splits them into retrievable chunks, and (best-effort) asks the model for a
 // short summary. The chunks are stored as 'doc' memories so the relevant parts
 // get injected into the system prompt — refining future answers.
+import { apiAuthHeader } from './authFetch';
 
 export const ACCEPTED = '.txt,.md,.markdown,.json,.csv,.log,.text';
 const TEXT_EXT = /\.(txt|md|markdown|json|csv|log|text)$/i;
@@ -49,7 +50,7 @@ export async function summarizeWithModel(name: string, text: string): Promise<st
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...(await apiAuthHeader(url)) },
       body: JSON.stringify({
         messages: [
           {

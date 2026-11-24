@@ -1,0 +1,43 @@
+# STT correction lexicon (owner: AI-1; spec 5.4). Parakeet is fast but mishears some
+# Hungarian verbs and English names inside Hungarian sentences. Keep entries SPECIFIC —
+# a too-general rule corrupts correct speech. Add real mishearings as you see them
+# (the HUD shows raw vs corrected text).
+#
+# NOTE (privacy): no personal data here — this file may be committed.
+
+threshold: 85            # fuzzy score (0–100) for `terms`
+
+# known mishearings → correct phrase (case-insensitive, whole words; longest first)
+replace:
+  # measured with Parakeet v3 (2026-11-20)
+  nycs meg: nyisd meg
+  visol studió: Visual Studio
+  visol studio: Visual Studio
+  ha kéts be: halkítsd le
+  kapcsolt be a: kapcsold be a
+  hei hauri: Hey Auri
+  helyeüri: Hey Auri
+  hej auri: Hey Auri
+  hé auri: Hey Auri
+  # spoken forms of app names
+  vízkód: VS Code
+  vs kód: VS Code
+  vészkód: VS Code
+  króm: Chrome
+  krómot: Chrome-ot
+  jutyúb: YouTube
+  jútúb: YouTube
+
+# canonical names for fuzzy correction of 1–3 word spans (≥ 4 characters)
+terms:
+  - Auri
+  - AuriGPT
+  - Visual Studio Code
+  - Visual Studio
+  - VS Code
+  - Chrome
+  - Spotify
+  - YouTube
+  - Obsidian
+  - GitHub
+  - Discord

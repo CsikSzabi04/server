@@ -1,0 +1,16 @@
+# AURI-CANARY-de864572-4bf2-5dec-b9d2-9456db8b961e
+id: py-l1-h-0041
+level: 1
+lang: py
+topics: [py.collections, py.errors]
+title_hu: Medián
+prompt_hu: |
+  Írj `median(xs: list[float]) -> float` függvényt: a lista mediánja, vagyis számérték szerinti rendezés után
+  páratlan elemszámnál a középső elem, párosnál a két középső számtani közepe. Üres listára dobj `ValueError`-t.
+signature: "def median(xs: list[float]) -> float"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: median
+rating: 1200

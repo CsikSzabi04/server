@@ -1,0 +1,16 @@
+# AURI-CANARY-db01f964-d922-5a99-88a6-2ec4fb05c377
+id: py-l1-h-0035
+level: 1
+lang: py
+topics: [py.strings, x.algo]
+title_hu: Szerkesztési távolság
+prompt_hu: |
+  Írj `levenshtein(a: str, b: str) -> int` függvényt: a két szöveg szerkesztési távolsága, vagyis legkevesebb
+  hány egykarakteres beszúrás, törlés vagy csere kell ahhoz, hogy a-ból b legyen.
+signature: "def levenshtein(a: str, b: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: edit-distance
+rating: 1200

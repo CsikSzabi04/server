@@ -1,0 +1,20 @@
+id: py-l1-0002
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Magyar monogram
+prompt_hu: |
+  Írj `monogram(nev: str) -> str` függvényt, amely egy magyar név monogramját adja vissza.
+  - A nevet a `str.split()` szerinti szóközök bontják szavakra (bármennyi szóköz, a szélein is).
+  - Minden szóból az első betűt vesszük; ha a szó kettős vagy hármas mássalhangzóval kezdődik
+    (`Cs`, `Dz`, `Dzs`, `Gy`, `Ly`, `Ny`, `Sz`, `Ty`, `Zs`), akkor azt egészben. A `Dzs` elsőbbséget élvez a `Dz`-vel szemben.
+  - A kis- és nagybetű a bemenettől független: a monogram első betűje nagy, a többi kicsi (`"szabó"` → `"Sz."`, `"DZSUNGEL"` → `"Dzs."`).
+  - Minden monogram után pont áll, a monogramokat egy szóköz választja el: `"Teszt Elek"` → `"T. E."`.
+  - Üres vagy csak szóközökből álló névre üres szöveget adj vissza.
+signature: "def monogram(nev: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: practice
+family: str-hu-digraph
+rating: 1200

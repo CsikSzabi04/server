@@ -1,50 +1,63 @@
 // Bridges AI-1's live BRAIN graph into the 3D view: real data via useBrainGraph(),
-// a brain-shaped 3D layout (brainLayout.ts), and stats. Falls back to a mock graph
-// when the live brain is still empty (signed-out / no memory yet) so /brain is
-// never blank.
-import { useMemo } from 'react';
+// an anatomical layout (brainLayout.ts / anatomy.ts), and stats. Falls back to a
+// mock graph when the live brain is still empty so /brain is never blank.
+import { useMemo, useRef } from 'react';
 import { useBrainGraph } from '../brain';
 import type { BrainGraph, BrainStats, Positions } from './types';
 import { mockGraph } from './mockGraph';
-import { brainLayout } from './brainLayout';
+import { brainLayout, type BrainLayout } from './brainLayout';
 
-// Render ceiling (LOD). The engine now hands us HUNDREDS OF THOUSANDS of words; we
-// keep the most important ones — enough to FILL a dense, human-brain-like volume —
-// rendered at 60 fps via instanced points + a single line-segments draw call (see
-// BrainScene). Profile/pinned always kept; edges only between kept nodes (no
-// dangling strands), and capped to the strongest so it stays a brain, not a blob.
+// Render ceiling (LOD). REAL knowledge (anything not machine-generated) always wins
+// a slot first; synthetic self-built tokens ("bulk:*") only fill what is left, and
+// are capped so they stay a faint substrate instead of drowning the real brain.
 const MAX_NODES = 30000;
+const MAX_PROTO = 14000;
 const MAX_EDGES = 65000;
+const PER_NODE = 16;
 
-function capGraph(g: BrainGraph, maxNodes: number, maxEdges: number): BrainGraph {
-  let nodes = g.nodes;
-  let keep: Set<string> | null = null;
-  if (nodes.length > maxNodes) {
-    const score = (n: BrainGraph['nodes'][number]) =>
-      (n.kind === 'profile' ? 1e7 : 0) + (n.pinned ? 1e6 : 0) + (n.weight ?? 0);
-    nodes = [...g.nodes].sort((a, b) => score(b) - score(a)).slice(0, maxNodes);
-    keep = new Set(nodes.map((n) => n.id));
+const isProto = (n: BrainGraph['nodes'][number]): boolean => (n.sources?.[0] ?? '').startsWith('bulk:');
+
+function capGraph(g: BrainGraph): BrainGraph {
+  const score = (n: BrainGraph['nodes'][number]) =>
+    (n.kind === 'profile' ? 1e7 : 0) + (n.pinned ? 1e6 : 0) + (isProto(n) ? 0 : 1e4) + (n.weight ?? 0);
+  const sorted = [...g.nodes].sort((a, b) => score(b) - score(a));
+  const nodes: BrainGraph['nodes'] = [];
+  let proto = 0;
+  for (const n of sorted) {
+    if (nodes.length >= MAX_NODES) break;
+    if (isProto(n)) {
+      if (proto >= MAX_PROTO) continue;
+      proto++;
+    }
+    nodes.push(n);
   }
-  let edges = keep ? g.edges.filter((e) => keep!.has(e.a) && keep!.has(e.b)) : g.edges;
-  // PER-NODE degree cap: keep each node's strongest ~PER_NODE links. Stops a single
-  // "super-hub" (e.g. a region hub wired to thousands of words) from spraying an
-  // X-burst of lines; the result is an even web over the brain shell. Every drawn
-  // strand is still REAL — we just keep the strongest per node (LOD, BRAIN.md §30.2).
-  const PER_NODE = 16;
-  const strongest = [...edges].sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0));
+  const keep = new Set(nodes.map((n) => n.id));
+  // PER-NODE degree cap: keep each node's strongest links, so a region hub wired to
+  // thousands of words doesn't spray an X-burst. Every kept strand is REAL.
+  const strongest = g.edges
+    .filter((e) => keep.has(e.a) && keep.has(e.b))
+    .sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0));
   const deg = new Map<string, number>();
-  const capped: typeof edges = [];
+  const edges: typeof g.edges = [];
   for (const e of strongest) {
     const da = deg.get(e.a) ?? 0;
     const db = deg.get(e.b) ?? 0;
     if (da >= PER_NODE || db >= PER_NODE) continue;
-    capped.push(e);
+    edges.push(e);
     deg.set(e.a, da + 1);
     deg.set(e.b, db + 1);
-    if (capped.length >= maxEdges) break;
+    if (edges.length >= MAX_EDGES) break;
   }
-  edges = capped;
   return { nodes, edges, regions: g.regions };
+}
+
+/** Cheap structural fingerprint: sizes + a sparse sample of ids and weights. */
+function signature(g: BrainGraph): string {
+  const n = g.nodes.length;
+  let s = `${n}|${g.edges.length}`;
+  const step = Math.max(1, Math.floor(n / 48));
+  for (let i = 0; i < n; i += step) s += `|${g.nodes[i].id}:${Math.round(g.nodes[i].weight ?? 0)}`;
+  return s;
 }
 
 function mockStats(g: BrainGraph): BrainStats {
@@ -62,6 +75,7 @@ function mockStats(g: BrainGraph): BrainStats {
 
 export function useBrainView(): {
   graph: BrainGraph;
+  layout: BrainLayout;
   positions: Positions;
   stats: BrainStats;
   isMock: boolean;
@@ -69,8 +83,18 @@ export function useBrainView(): {
   const { graph: live, stats: liveStats } = useBrainGraph();
   const isMock = live.nodes.length === 0;
   const base = isMock ? mockGraph : live;
-  const graph = useMemo(() => capGraph(base, MAX_NODES, MAX_EDGES), [base]);
-  const positions = useMemo(() => brainLayout(graph), [graph]);
+  // The engine re-emits often (e.g. every Stage-6 training epoch) with a graph that
+  // is structurally unchanged. Reuse the previous view graph then, so the 3D brain
+  // isn't rebuilt (and its impulses reset) for nothing.
+  const last = useRef<{ sig: string; graph: BrainGraph } | null>(null);
+  const graph = useMemo(() => {
+    const sig = signature(base);
+    if (last.current?.sig === sig) return last.current.graph;
+    const g = capGraph(base);
+    last.current = { sig, graph: g };
+    return g;
+  }, [base]);
+  const layout = useMemo(() => brainLayout(graph), [graph]);
   const stats = isMock ? mockStats(base) : liveStats;
-  return { graph, positions, stats, isMock };
+  return { graph, layout, positions: layout.positions, stats, isMock };
 }

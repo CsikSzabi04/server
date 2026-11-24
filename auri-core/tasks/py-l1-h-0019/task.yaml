@@ -1,0 +1,17 @@
+# AURI-CANARY-6ce2a96c-718b-52ed-9383-7b71dc575559
+id: py-l1-h-0019
+level: 1
+lang: py
+topics: [x.algo, py.errors]
+title_hu: Legkevesebb érme
+prompt_hu: |
+  Írj `min_ermek(osszeg: int, cimletek: list[int]) -> int` függvényt: legalább hány érme kell az osszeg pontos
+  kifizetéséhez, ha minden (pozitív) címletből korlátlanul van. Ha nem lehet kifizetni, -1; osszeg = 0 esetén 0.
+  Negatív osszeg esetén dobj `ValueError`-t. Vigyázz: a mohó stratégia nem mindig optimális.
+signature: "def min_ermek(osszeg: int, cimletek: list[int]) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: coin-change
+rating: 1200

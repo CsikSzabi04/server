@@ -1,26 +1,27 @@
-// Storage for the BRAIN: Supabase when signed in (syncs across devices, survives
-// cache clears), localStorage fallback for anonymous users. All functions accept
-// userId|null and degrade gracefully if Supabase/tables aren't available.
+// Storage for the personal memory (profile + memories).
+//
+// PRIVACY RULE: personal data lives ONLY in the signed-in user's own account
+// (Supabase, Row Level Security → only that user can read it). A logged-out (guest)
+// session gets NO persistent personal memory: its profile + memories live only in
+// this tab's RAM and vanish on reload / login / logout. So a logged-out screen can
+// never show a signed-in user's — or a previous guest's — personal data.
+//
+// (Older builds kept guest data in localStorage under 'auri.profile' / 'auri.memories'.
+//  Those keys are intentionally NEVER read anymore.)
+// All functions accept userId|null and degrade gracefully if Supabase is unavailable.
 import { supabase } from './supabase';
 import type { Memory, Profile } from './memory';
 
-const LS_PROFILE = 'auri.profile';
-const LS_MEM = 'auri.memories';
+// Guest (logged-out) memory: RAM only, this tab only.
+let guestProfile: Profile = {};
+let guestMemories: Memory[] = [];
+const GUEST_MEM_CAP = 5000;
 
-function lsGet<T>(key: string, def: T): T {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? (JSON.parse(v) as T) : def;
-  } catch {
-    return def;
-  }
-}
-function lsSet(key: string, value: unknown): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    /* storage blocked */
-  }
+/** Forget the guest's RAM memory — called on every login / logout (useAuth), so facts
+ *  typed as a guest never show up for whoever uses the tab next (or in the account). */
+export function resetGuestMemory(): void {
+  guestProfile = {};
+  guestMemories = [];
 }
 
 export async function getProfile(userId: string | null): Promise<Profile> {
@@ -37,7 +38,7 @@ export async function getProfile(userId: string | null): Promise<Profile> {
       prefs: data.prefs ?? {},
     };
   }
-  return lsGet<Profile>(LS_PROFILE, {});
+  return { ...guestProfile };
 }
 
 export async function saveProfile(userId: string | null, patch: Partial<Profile>): Promise<Profile> {
@@ -56,7 +57,7 @@ export async function saveProfile(userId: string | null, patch: Partial<Profile>
       updated_at: new Date().toISOString(),
     });
   } else {
-    lsSet(LS_PROFILE, merged);
+    guestProfile = merged;
   }
   return merged;
 }
@@ -84,7 +85,7 @@ export async function listMemories(userId: string | null): Promise<Memory[]> {
     if (error || !data) return [];
     return data.map(mapMem);
   }
-  return lsGet<Memory[]>(LS_MEM, []);
+  return [...guestMemories];
 }
 
 export async function addMemory(userId: string | null, mem: Memory): Promise<Memory | null> {
@@ -104,10 +105,8 @@ export async function addMemory(userId: string | null, mem: Memory): Promise<Mem
     if (error || !data) return null;
     return mapMem(data);
   }
-  const all = lsGet<Memory[]>(LS_MEM, []);
   const m: Memory = { ...mem, id: crypto.randomUUID(), created_at: new Date().toISOString() };
-  all.unshift(m);
-  lsSet(LS_MEM, all.slice(0, 5000));
+  guestMemories = [m, ...guestMemories].slice(0, GUEST_MEM_CAP);
   return m;
 }
 
@@ -116,12 +115,8 @@ export async function bumpWeight(userId: string | null, id: string, weight: numb
     await supabase.from('memories').update({ weight }).eq('id', id);
     return;
   }
-  const all = lsGet<Memory[]>(LS_MEM, []);
-  const i = all.findIndex((m) => m.id === id);
-  if (i >= 0) {
-    all[i].weight = weight;
-    lsSet(LS_MEM, all);
-  }
+  const g = guestMemories.find((m) => m.id === id);
+  if (g) g.weight = weight;
 }
 
 export async function deleteMemory(userId: string | null, id: string): Promise<void> {
@@ -129,10 +124,7 @@ export async function deleteMemory(userId: string | null, id: string): Promise<v
     await supabase.from('memories').delete().eq('id', id);
     return;
   }
-  lsSet(
-    LS_MEM,
-    lsGet<Memory[]>(LS_MEM, []).filter((m) => m.id !== id),
-  );
+  guestMemories = guestMemories.filter((m) => m.id !== id);
 }
 
 export async function setMemoryPinned(userId: string | null, id: string, pinned: boolean): Promise<void> {
@@ -140,12 +132,8 @@ export async function setMemoryPinned(userId: string | null, id: string, pinned:
     await supabase.from('memories').update({ pinned }).eq('id', id);
     return;
   }
-  const all = lsGet<Memory[]>(LS_MEM, []);
-  const i = all.findIndex((m) => m.id === id);
-  if (i >= 0) {
-    all[i].pinned = pinned;
-    lsSet(LS_MEM, all);
-  }
+  const g = guestMemories.find((m) => m.id === id);
+  if (g) g.pinned = pinned;
 }
 
 export async function clearAll(userId: string | null): Promise<void> {
@@ -154,12 +142,8 @@ export async function clearAll(userId: string | null): Promise<void> {
     await supabase.from('profiles').delete().eq('user_id', userId);
     return;
   }
-  lsSet(LS_MEM, []);
-  try {
-    localStorage.removeItem(LS_PROFILE);
-  } catch {
-    /* ignore */
-  }
+  guestMemories = [];
+  guestProfile = {};
 }
 
 export interface MemoryExport {

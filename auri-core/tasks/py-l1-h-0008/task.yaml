@@ -1,0 +1,17 @@
+# AURI-CANARY-40b5b27d-88e0-5865-b1ce-7e94cda62213
+id: py-l1-h-0008
+level: 1
+lang: py
+topics: [py.collections, x.algo]
+title_hu: Csigavonal
+prompt_hu: |
+  Írj `spiral(m: list[list[int]]) -> list[int]` függvényt: a téglalap alakú mátrix elemei csigavonalban, a bal
+  felső saroktól indulva az óramutató járásával megegyezően (jobbra, le, balra, fel, majd befelé haladva). Üres
+  mátrixra üres lista.
+signature: "def spiral(m: list[list[int]]) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: spiral
+rating: 1200

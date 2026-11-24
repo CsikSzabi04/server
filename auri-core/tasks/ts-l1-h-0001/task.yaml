@@ -1,0 +1,17 @@
+# AURI-CANARY-a5aac386-088d-5257-9b32-9be7ef00906b
+id: ts-l1-h-0001
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: Caesar-eltolás
+prompt_hu: |
+  Írj `caesar(s: string, k: number): string` függvényt: az angol ábécé betűit (a–z, A–Z) k hellyel eltolja
+  körbe, a kis- és nagybetűt megtartva; k lehet negatív vagy 26-nál nagyobb is. Minden más karakter (ékezetes
+  betű, számjegy, szóköz, írásjel) változatlan.
+signature: "export function caesar(s: string, k: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: caesar
+rating: 1200

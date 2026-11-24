@@ -1,0 +1,15 @@
+# AURI-CANARY-fde339dd-9997-5ec9-85dd-c359fd6feead
+id: py-l0-0006
+level: 0
+lang: py
+topics: [py.strings]
+title_hu: Szavak száma
+prompt_hu: |
+  Írj `szavak_szama(s: str) -> int` függvényt, amely a `str.split()` szerinti szavak számát adja vissza.
+signature: "def szavak_szama(s: str) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: word-count
+rating: 1000

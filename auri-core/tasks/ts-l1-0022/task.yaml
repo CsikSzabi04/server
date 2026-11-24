@@ -1,0 +1,16 @@
+# AURI-CANARY-aa20550e-067d-57a4-9a66-1b0e798a618e
+id: ts-l1-0022
+level: 1
+lang: ts
+topics: [ts.collections, ts.errors]
+title_hu: Mátrix transzponálása
+prompt_hu: |
+  Írj `transzponal(m: number[][]): number[][]` függvényt, amely egy téglalap alakú mátrix (sorok tömbje)
+  transzponáltját adja vissza; üres tömbre üres tömböt. Ha a sorok hossza eltér, dobj `RangeError`-t.
+signature: "export function transzponal(m: number[][]): number[][]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: matrix
+rating: 1200

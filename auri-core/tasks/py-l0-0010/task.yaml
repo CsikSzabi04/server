@@ -1,0 +1,16 @@
+# AURI-CANARY-20851c4a-471b-5642-9337-a7da693f8327
+id: py-l0-0010
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Átlag
+prompt_hu: |
+  Írj `atlag(xs: list[float]) -> float | None` függvényt: a számtani közép két tizedesre kerekítve (`round(x,
+  2)`); üres listára `None`.
+signature: "def atlag(xs: list[float]) -> float | None"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: mean
+rating: 1000

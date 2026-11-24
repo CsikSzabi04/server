@@ -1,0 +1,16 @@
+# AURI-CANARY-7db0188c-9817-53d7-8939-433fb0f4838f
+id: ts-l0-0008
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Ismétlődések nélkül
+prompt_hu: |
+  Írj `egyedi(xs: number[]): number[]` függvényt, amely a tömb elemeit ismétlődés nélkül adja vissza, az első
+  előfordulás sorrendjében.
+signature: "export function egyedi(xs: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: dedupe
+rating: 1000

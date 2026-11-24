@@ -1,0 +1,15 @@
+# AURI-CANARY-1719af0a-7bef-5571-944e-320d96f0ac30
+id: py-l0-0003
+level: 0
+lang: py
+topics: [py.strings]
+title_hu: Fordított szöveg
+prompt_hu: |
+  Írj `forditott(s: str) -> str` függvényt, amely a szöveget karakterenként visszafelé adja vissza.
+signature: "def forditott(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: str-reverse
+rating: 1000

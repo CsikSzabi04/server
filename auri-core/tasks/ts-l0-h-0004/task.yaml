@@ -1,0 +1,16 @@
+# AURI-CANARY-5c308039-d9ee-5143-b432-4cacd1a9cbe6
+id: ts-l0-h-0004
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Középső karakter
+prompt_hu: |
+  Írj `kozepso(s: string): string` függvényt: páratlan hosszú szövegnél a középső karaktert, páros hosszúnál a
+  középső kettőt adja vissza; üres szövegre üres szöveget.
+signature: "export function kozepso(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: middle
+rating: 1000

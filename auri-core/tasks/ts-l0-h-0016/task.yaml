@@ -1,0 +1,15 @@
+# AURI-CANARY-f511e1f8-43cc-58b4-87b8-951d776e3409
+id: ts-l0-h-0016
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Terjedelem
+prompt_hu: |
+  Írj `terjedelem(xs: number[]): number` függvényt: a legnagyobb és a legkisebb elem különbsége; üres tömbre 0.
+signature: "export function terjedelem(xs: number[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: range
+rating: 1000

@@ -1,0 +1,17 @@
+# AURI-CANARY-6fbf813d-34b7-51eb-8b67-0b4e98de2849
+id: py-l1-0019
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Időtartam szövegesen
+prompt_hu: |
+  Írj `idotartam_szoveg(mp: int) -> str` függvényt: másodpercből "<ó> óra <p> perc <mp> másodperc" szöveg, a 0
+  értékű részek elhagyásával, egy-egy szóközzel (pl. 3661 → "1 óra 1 perc 1 másodperc", 60 → "1 perc"). 0 → "0
+  másodperc". Negatív bemenetre dobj `ValueError`-t.
+signature: "def idotartam_szoveg(mp: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: duration
+rating: 1200

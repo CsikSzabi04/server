@@ -1,0 +1,18 @@
+# AURI-CANARY-551aab1b-b170-5717-a2f4-def022cfe5b8
+id: ts-l1-0027
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Magyar dátum
+prompt_hu: |
+  Írj `datum(s: string): [number, number, number]` függvényt, amely egy "ÉÉÉÉ.HH.NN." alakú dátumot (év, hónap,
+  nap) hármassá alakít. Az év 4 számjegy; a hónap és a nap egy- vagy kétjegyű; minden pont után állhat egy
+  szóköz ("2026. 11. 21."); a záró pont kötelező. Ellenőrizd, hogy a dátum létezik (szökőév: osztható 4-gyel, de
+  a 100-zal oszthatók közül csak a 400-zal oszthatók). Minden más esetben dobj `RangeError`-t.
+signature: "export function datum(s: string): [number, number, number]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: date-parse
+rating: 1200

@@ -1,0 +1,17 @@
+# AURI-CANARY-cc49b68d-c4a9-5f28-b10b-f4447957bba2
+id: ts-l1-h-0032
+level: 1
+lang: ts
+topics: [ts.collections]
+title_hu: Csúcsok
+prompt_hu: |
+  Írj `csucsok(xs: number[]): number[]` függvényt: azon i indexek növekvő sorrendben, ahol xs[i] szigorúan
+  nagyobb minden létező szomszédjánál (az első és az utolsó elemnek csak egy szomszédja van, egyelemű tömbben az
+  egyetlen elem csúcs). Üres tömbre üres tömb.
+signature: "export function csucsok(xs: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: peaks
+rating: 1200

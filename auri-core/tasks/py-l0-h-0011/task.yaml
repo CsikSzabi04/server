@@ -1,0 +1,16 @@
+# AURI-CANARY-ddf00700-7603-562a-ad9b-de29ca69f058
+id: py-l0-h-0011
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: Futó összeg
+prompt_hu: |
+  Írj `kumulalt(xs: list[int]) -> list[int]` függvényt: az eredmény i. eleme az xs első i+1 elemének összege
+  (pl. [1, 2, 3] → [1, 3, 6]).
+signature: "def kumulalt(xs: list[int]) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: prefix-sum
+rating: 1000

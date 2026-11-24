@@ -1,0 +1,16 @@
+# AURI-CANARY-64d05c92-5a1f-595b-bcbd-6bd664b59960
+id: py-l0-0007
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Celsius → Fahrenheit
+prompt_hu: |
+  Írj `celsius_fahrenheit(c: float) -> float` függvényt: F = C · 9/5 + 32, egy tizedesre kerekítve (`round(x,
+  1)`).
+signature: "def celsius_fahrenheit(c: float) -> float"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: unit-convert
+rating: 1000

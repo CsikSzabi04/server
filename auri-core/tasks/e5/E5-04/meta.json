@@ -1,0 +1,13 @@
+{
+ "id": "E5-04",
+ "title": "Hőmérséklet-napló",
+ "lang": "py",
+ "acceptance": [
+  "naplo.py: beolvas a hibás sorok kihagyásával",
+  "statisztika.py: napi (min, max, átlag)",
+  "a tesztek zöldek"
+ ],
+ "limits": {
+  "wall_s": 60
+ }
+}

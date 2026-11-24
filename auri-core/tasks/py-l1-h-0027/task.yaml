@@ -1,0 +1,17 @@
+# AURI-CANARY-cd4c9e7f-e4e0-5def-be83-9ce69f7d0623
+id: py-l1-h-0027
+level: 1
+lang: py
+topics: [py.strings]
+title_hu: Ezres tagolás
+prompt_hu: |
+  Írj `ezres_tagolas(n: int) -> str` függvényt: az egész szám számjegyeit jobbról hármas csoportokra tagolja, a
+  csoportok közé egy szóközt téve (pl. 1234567 → "1 234 567"); negatív számnál a mínuszjel elöl marad ("-1
+  234").
+signature: "def ezres_tagolas(n: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: thousands
+rating: 1200

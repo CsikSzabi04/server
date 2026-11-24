@@ -7,6 +7,7 @@
 // with a project key. If a provider blocks CORS the call surfaces a clear error.
 import type { ChatMessage, StreamCallbacks } from './api';
 import type { CustomModel } from './modelStore';
+import { parseDataUrl } from './images';
 
 function abortableDelay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -41,6 +42,21 @@ async function emitReply(
   cb.onDone({ usage, latencyMs: Math.round(performance.now() - started) });
 }
 
+/** OpenAI chat format; a user turn with images becomes text + image_url content parts. */
+function toOpenAiMessages(messages: ChatMessage[]): unknown[] {
+  return messages.map((m) =>
+    m.images?.length
+      ? {
+          role: m.role,
+          content: [
+            { type: 'text', text: m.content },
+            ...m.images.filter((u) => parseDataUrl(u)).map((url) => ({ type: 'image_url', image_url: { url } })),
+          ],
+        }
+      : { role: m.role, content: m.content },
+  );
+}
+
 export async function byoStream(
   custom: CustomModel,
   messages: ChatMessage[],
@@ -54,7 +70,16 @@ export async function byoStream(
       const sys = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n');
       const contents = messages
         .filter((m) => m.role !== 'system')
-        .map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+        .map((m) => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [
+            { text: m.content },
+            ...(m.images ?? []).flatMap((u) => {
+              const img = parseDataUrl(u);
+              return img ? [{ inlineData: { mimeType: img.mime, data: img.data } }] : [];
+            }),
+          ],
+        }));
       const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(custom.model)}:generateContent?key=${encodeURIComponent(custom.apiKey)}`,
         {
@@ -101,7 +126,7 @@ export async function byoStream(
     const r = await fetch(`${base}/chat/completions`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${custom.apiKey}` },
-      body: JSON.stringify({ model: custom.model, messages, temperature: 0.7, max_tokens: 1024 }),
+      body: JSON.stringify({ model: custom.model, messages: toOpenAiMessages(messages), temperature: 0.7, max_tokens: 1024 }),
       signal,
     });
     if (!r.ok) {

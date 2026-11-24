@@ -4,14 +4,18 @@
 // The UI only ever sees a stream of text deltas, so it doesn't care which mode.
 import { pickMockReply } from './mockResponses';
 import { getPrefs, getCustomModel } from './modelStore';
-import { forcedModelId } from './aiModels';
+import { forcedModelId, forcedProvider } from './aiModels';
 import { byoStream } from './byo';
+import { apiAuthHeader } from './authFetch';
 
 export type Role = 'system' | 'user' | 'assistant';
 
 export interface ChatMessage {
   role: Role;
   content: string;
+  /** Images on a user turn, as data:image/(png|jpeg|webp|gif);base64 URLs. Only vision-capable
+   *  providers receive them; such requests are never cached (image bytes stay out of memory). */
+  images?: string[];
 }
 
 export interface ChatUsage {
@@ -20,10 +24,22 @@ export interface ChatUsage {
   total_tokens: number;
 }
 
+/** What answered a request — shown under replies (e.g. "groq · gpt-oss-120b · 2310 → 3980"). */
+export interface DoneInfo {
+  usage?: ChatUsage;
+  latencyMs: number;
+  /** 'ollama' | 'groq' | 'gemini' | 'byo' | 'mock' (from the X-Auri-Source header). */
+  source?: string;
+  /** The model id that answered (X-Auri-Model header, JSON body, or the forced pick). */
+  model?: string;
+  /** Replayed from the client cache — no new tokens were spent. */
+  cached?: boolean;
+}
+
 export interface StreamCallbacks {
   onStart?: () => void;
   onDelta: (text: string) => void;
-  onDone: (info: { usage?: ChatUsage; latencyMs: number }) => void;
+  onDone: (info: DoneInfo) => void;
   onError: (message: string) => void;
 }
 
@@ -35,7 +51,7 @@ export interface StreamOpts {
 }
 
 // Small client-side cache: identical request -> instant replay (no round-trip).
-const replyCache = new Map<string, { reply: string; usage?: ChatUsage }>();
+const replyCache = new Map<string, { reply: string; usage?: ChatUsage; source?: string; model?: string }>();
 const cacheKey = (messages: ChatMessage[], opts?: StreamOpts) =>
   JSON.stringify({ m: messages, t: opts?.temperature ?? 0.7, k: opts?.maxTokens ?? 1024 });
 
@@ -87,11 +103,18 @@ export async function streamChat(
   }
   // BYO: call the user's OWN provider directly — the key never leaves the device.
   const custom = getCustomModel(prefs.selectedId);
-  if (custom) return byoStream(custom, messages, cb, signal);
+  if (custom)
+    return byoStream(
+      custom,
+      messages,
+      { ...cb, onDone: (i) => cb.onDone({ ...i, source: 'byo', model: i.model ?? custom.model }) },
+      signal,
+    );
 
-  if (getMode() === 'mock') return mockStream(messages, cb, signal);
+  if (getMode() === 'mock')
+    return mockStream(messages, { ...cb, onDone: (i) => cb.onDone({ ...i, source: 'mock' }) }, signal);
 
-  const useCache = opts?.cache !== false;
+  const useCache = opts?.cache !== false && !messages.some((m) => m.images?.length);
   const key = useCache ? cacheKey(messages, opts) : '';
 
   // Cache hit -> replay instantly, word by word so the UI still animates.
@@ -104,7 +127,13 @@ export async function streamChat(
         if (signal?.aborted) return;
         cb.onDelta(tok);
       }
-      cb.onDone({ usage: hit.usage, latencyMs: Math.round(performance.now() - started) });
+      cb.onDone({
+        usage: hit.usage,
+        source: hit.source,
+        model: hit.model,
+        cached: true,
+        latencyMs: Math.round(performance.now() - started),
+      });
       return;
     }
   }
@@ -119,7 +148,7 @@ export async function streamChat(
     },
     onDone: (info) => {
       if (useCache && full.trim()) {
-        replyCache.set(key, { reply: full, usage: info.usage });
+        replyCache.set(key, { reply: full, usage: info.usage, source: info.source, model: info.model });
         if (replyCache.size > 24) {
           const oldest = replyCache.keys().next().value;
           if (oldest) replyCache.delete(oldest);
@@ -175,6 +204,8 @@ async function liveStream(
   // Only attach a client-side key for the DIRECT (private) mode. The PROXY mode
   // adds the key server-side, so none is needed (and none should be exposed).
   if (ENV_KEY && !ENV_URL.startsWith('/')) headers.authorization = `Bearer ${ENV_KEY}`;
+  // PROXY mode: identify the signed-in user to our own /api (same-origin only).
+  Object.assign(headers, await apiAuthHeader(ENV_URL));
 
   let res: Response;
   try {
@@ -183,8 +214,10 @@ async function liveStream(
       headers,
       body: JSON.stringify({
         messages,
-        // Only Ollama selections force a model; otherwise the server chain decides.
+        // Ollama selections force a model; Groq/Gemini selections force that
+        // provider; Auto leaves both unset so the server chain decides.
         model: forcedModelId(getPrefs().selectedId),
+        provider: forcedProvider(getPrefs().selectedId),
         stream: true,
         temperature: opts?.temperature ?? 0.7,
         max_tokens: opts?.maxTokens ?? 1024,
@@ -198,6 +231,11 @@ async function liveStream(
   }
 
   const contentType = res.headers.get('content-type') ?? '';
+  // Who answered: the proxy tags the provider; the model comes from a header (streams),
+  // the JSON body, or — for an older local server — the Ollama model we forced.
+  const source = res.headers.get('x-auri-source') ?? undefined;
+  const headerModel = res.headers.get('x-auri-model') ?? undefined;
+  const forced = forcedModelId(getPrefs().selectedId);
 
   // Non-OK and JSON error -> surface message
   if (!res.ok && !contentType.includes('text/event-stream')) {
@@ -246,7 +284,12 @@ async function liveStream(
       return;
     }
 
-    cb.onDone({ usage, latencyMs: Math.round(performance.now() - started) });
+    cb.onDone({
+      usage,
+      source,
+      model: headerModel ?? (source === 'ollama' ? forced : undefined),
+      latencyMs: Math.round(performance.now() - started),
+    });
     return;
   }
 
@@ -267,5 +310,10 @@ async function liveStream(
       return;
     }
   }
-  cb.onDone({ usage: data?.usage, latencyMs: Math.round(performance.now() - started) });
+  cb.onDone({
+    usage: data?.usage,
+    source,
+    model: (typeof data?.model === 'string' ? data.model : undefined) ?? headerModel ?? (source === 'ollama' ? forced : undefined),
+    latencyMs: Math.round(performance.now() - started),
+  });
 }

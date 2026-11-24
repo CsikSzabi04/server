@@ -1,0 +1,17 @@
+# AURI-CANARY-0ec46c2b-8d70-5397-a506-bd218f60e6d6
+id: ts-l1-h-0002
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Átváltás b alapú számrendszerbe
+prompt_hu: |
+  Írj `szamrendszer(n: number, b: number): string` függvényt: a nemnegatív n alakja b alapú számrendszerben (2 ≤
+  b ≤ 36), a 10–35 értékű jegyeket a–z kisbetűkkel jelölve, vezető nullák nélkül (0 → "0"). Negatív n-re vagy
+  érvénytelen b-re dobj `RangeError`-t.
+signature: "export function szamrendszer(n: number, b: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: base-out
+rating: 1200

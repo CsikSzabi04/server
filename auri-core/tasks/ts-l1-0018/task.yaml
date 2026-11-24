@@ -1,0 +1,17 @@
+# AURI-CANARY-9ced5d8f-9918-53d2-85ee-dfbe980180a2
+id: ts-l1-0018
+level: 1
+lang: ts
+topics: [ts.collections]
+title_hu: Lista forgatása
+prompt_hu: |
+  Írj `forgat<T>(xs: T[], k: number): T[]` függvényt: a tömb jobbra forgatva k lépéssel (az utolsó elem kerül
+  előre). k lehet negatív (balra forgatás) vagy nagyobb a tömb hosszánál. Az eredeti tömböt NE módosítsd; üres
+  tömbre üres tömb.
+signature: "export function forgat<T>(xs: T[], k: number): T[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: rotate
+rating: 1200

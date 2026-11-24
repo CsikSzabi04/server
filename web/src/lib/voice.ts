@@ -13,6 +13,7 @@
 //
 // Speaks sentence-by-sentence as the reply streams in. OFF by default; the
 // user flips it with the VOICE toggle. Preference persisted in localStorage.
+import { apiAuthHeader } from './authFetch';
 
 const LS_KEY = 'auri.voice';
 
@@ -145,6 +146,7 @@ async function pump(): Promise<void> {
         const headers: Record<string, string> = { 'content-type': 'application/json' };
         // Direct (non-proxy) calls need the key; the proxy adds it server-side.
         if (ENV_KEY && !url.startsWith('/')) headers.authorization = `Bearer ${ENV_KEY}`;
+        Object.assign(headers, await apiAuthHeader(url)); // same-origin proxy only
         const res = await fetch(url, {
           method: 'POST',
           headers,

@@ -170,7 +170,7 @@ export function buildBrainGraph(
     nodes.push({ id, label: TECH_LABEL[tech], kind: 'keyword', weight: 6, freshness: 0.9, pinned: false, regionId: PROG_REGION, sources: ['skill'], color: hsl(30) });
   }
   const snippetNodes: { id: string; tech: string }[] = [];
-  PROGRAMMING_SNIPPETS.slice(0, 40).forEach((sn, i) => {
+  PROGRAMMING_SNIPPETS.slice(0, 800).forEach((sn, i) => { // every curated example is a visible doc neuron
     const id = `snip:${i}`;
     baseIds.add(id);
     fixedRegion.set(id, PROG_REGION);

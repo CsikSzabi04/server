@@ -2,6 +2,7 @@
 // each project is a set of editable files scaffolded from a language template.
 // Projects can be exported as a real .zip (store method, built by hand below so
 // we don't have to add a zip dependency to package.json).
+import { claimLegacyLocal, scopedKey, storageScope } from './storageScope';
 
 export type ProjectKind = 'python' | 'node' | 'react' | 'js' | 'java';
 
@@ -35,12 +36,19 @@ export const KINDS: KindMeta[] = [
 
 export const kindIcon = (k: ProjectKind): string => KINDS.find((x) => x.id === k)?.icon ?? '📁';
 
-/** Safe lowercase package/folder slug from a project name. */
+/** Safe lowercase package/folder slug from a project name ("Első web" → "elso-web").
+ *  Also the project's run address: /code/<slug>. */
+export function projectSlug(name: string): string {
+  return slug(name);
+}
+
 function slug(name: string): string {
   return (
     name
       .trim()
       .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{M}/gu, '') // strip accents (combining marks)
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '') || 'project'
   );
@@ -126,11 +134,20 @@ export function scaffold(kind: ProjectKind, name: string): CodeFile[] {
 }
 
 // ── localStorage persistence ────────────────────────────────────────────────
+// PRIVACY (SECURITY.md §4.4): projects made while signed in live under the user's own
+// key, so they don't show up after logout or for another account on this browser.
 const LS_KEY = 'auri.projects';
+
+/** The current identity's key; a signed-in user first claims any legacy guest data. */
+function projectsKey(): string {
+  const uid = storageScope();
+  if (uid) claimLegacyLocal(LS_KEY, uid);
+  return scopedKey(LS_KEY, uid);
+}
 
 function read(): CodeProject[] {
   try {
-    return JSON.parse(localStorage.getItem(LS_KEY) || '[]') as CodeProject[];
+    return JSON.parse(localStorage.getItem(projectsKey()) || '[]') as CodeProject[];
   } catch {
     return [];
   }
@@ -138,7 +155,7 @@ function read(): CodeProject[] {
 
 function write(v: CodeProject[]): void {
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(v));
+    localStorage.setItem(projectsKey(), JSON.stringify(v));
   } catch {
     /* storage blocked */
   }
@@ -187,6 +204,21 @@ export function deleteProject(id: string): void {
   write(read().filter((p) => p.id !== id));
 }
 
+/** The project behind /code/<slug> (most recently edited one if names collide), or by id. */
+export function findProjectBySlug(s: string): CodeProject | null {
+  const want = s.toLowerCase();
+  return listProjects().find((p) => slug(p.name) === want) ?? read().find((p) => p.id === s) ?? null;
+}
+
+/** Can the browser run this project (an HTML page or a React entry)? null = not a web project. */
+export function webEntry(files: CodeFile[]): 'html' | 'react' | null {
+  const paths = new Set(files.map((f) => f.path.replace(/^\.?\//, '')));
+  if ([...paths].some((p) => /(^|\/)index\.html?$/i.test(p))) return 'html';
+  if (['src/main.jsx', 'src/main.tsx', 'src/index.jsx', 'src/index.tsx', 'main.jsx', 'index.jsx'].some((p) => paths.has(p)))
+    return 'react';
+  return null;
+}
+
 // ── Code learnings: the workspace gets better with every write ───────────────
 // Self-contained, localStorage-backed. We extract the libraries/imports and the
 // naming style the user actually writes, per language, and feed a short summary
@@ -202,16 +234,22 @@ export type Learnings = Partial<Record<ProjectKind, KindLearning>>;
 
 const LEARN_KEY = 'auri.codeLearnings';
 
+function learningsKey(): string {
+  const uid = storageScope();
+  if (uid) claimLegacyLocal(LEARN_KEY, uid);
+  return scopedKey(LEARN_KEY, uid);
+}
+
 function readLearnings(): Learnings {
   try {
-    return JSON.parse(localStorage.getItem(LEARN_KEY) || '{}') as Learnings;
+    return JSON.parse(localStorage.getItem(learningsKey()) || '{}') as Learnings;
   } catch {
     return {};
   }
 }
 function writeLearnings(v: Learnings): void {
   try {
-    localStorage.setItem(LEARN_KEY, JSON.stringify(v));
+    localStorage.setItem(learningsKey(), JSON.stringify(v));
   } catch {
     /* storage blocked */
   }

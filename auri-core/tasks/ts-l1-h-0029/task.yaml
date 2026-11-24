@@ -1,0 +1,17 @@
+# AURI-CANARY-05fc9fbd-09e4-57e4-be0a-0afad7f4df7f
+id: ts-l1-h-0029
+level: 1
+lang: ts
+topics: [x.algo, x.ds]
+title_hu: Szigetek száma
+prompt_hu: |
+  Írj `szigetek(terkep: string[]): number` függvényt. A térkép egyforma hosszú sorokból áll: '#' szárazföld, '.'
+  víz. Hány sziget van, ha a vízszintesen vagy függőlegesen szomszédos szárazföld-mezők ugyanahhoz a szigethez
+  tartoznak (az átlósak nem)?
+signature: "export function szigetek(terkep: string[]): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: islands
+rating: 1200

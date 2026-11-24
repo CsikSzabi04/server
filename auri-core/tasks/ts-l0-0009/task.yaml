@@ -1,0 +1,16 @@
+# AURI-CANARY-7ab287f2-ada5-50d5-8889-9fe53e377e5f
+id: ts-l0-0009
+level: 0
+lang: ts
+topics: [ts.strings]
+title_hu: Nagybetűs szavak
+prompt_hu: |
+  Írj `nagybetusSzavak(s: string): string[]` függvényt: a whitespace (`/\s+/`) mentén elválasztott, nem üres
+  szavak közül azok, amelyek ELSŐ karaktere nagybetű (`ch !== ch.toLowerCase()`), az eredeti sorrendben.
+signature: "export function nagybetusSzavak(s: string): string[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: filter-words
+rating: 1000

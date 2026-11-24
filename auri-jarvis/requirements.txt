@@ -1,0 +1,43 @@
+# auri-jarvis — dependencies (owner: AI-3; requests go to JARVIS_BUILD.md §5).
+# Pinned after a clean install into .venv on Windows 10, Python 3.12.6 (2026-11-20).
+# Install:  .\scripts\setup_env.ps1   (or: .venv\Scripts\python -m pip install -r requirements.txt)
+
+# ── audio I/O + DSP (AI-1) ────────────────────────────────────────────────────
+sounddevice==0.5.6
+numpy==2.5.5
+soxr==1.1.0
+# ── STT (AI-1) ───────────────────────────────────────────────────────────────
+onnxruntime==1.32.0
+onnx-asr[cpu,hub]==0.12.0
+faster-whisper==1.2.1
+# av 19 breaks faster-whisper 1.2.1 decode_audio(path) ("metadata_errors") — measured;
+# 18.1.0 verified OK with a file path. Passing numpy arrays avoids av entirely.
+av==18.1.0
+# ── TTS (AI-1) ───────────────────────────────────────────────────────────────
+piper-tts==1.8.0
+# ── wake word + VAD (AI-1) ───────────────────────────────────────────────────
+openwakeword==0.6.0
+sherpa-onnx==2.0.2
+pysilero-vad==3.4.1
+# ── LLM (AI-2) ───────────────────────────────────────────────────────────────
+ollama==0.6.3
+rapidfuzz==3.14.6
+# ── Windows control (AI-2 tools, AI-3 tray) ──────────────────────────────────
+pycaw==20260927
+comtypes==1.5.0
+psutil==7.2.2
+pynput==1.8.2
+pystray==0.19.5
+pillow==13.0.0
+mss==10.2.0
+# ── daemon / HUD server / config (AI-3) ──────────────────────────────────────
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+pyyaml==6.0.3
+pydantic==2.14.4
+python-dotenv==1.2.4
+httpx==0.28.1
+# ── dev ──────────────────────────────────────────────────────────────────────
+pytest==9.2.0
+pytest-asyncio==1.5.0
+ruff==0.17.6

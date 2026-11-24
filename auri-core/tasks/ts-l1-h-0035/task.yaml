@@ -1,0 +1,16 @@
+# AURI-CANARY-0fa1a00e-0330-50a8-95c1-411e6fee986e
+id: ts-l1-h-0035
+level: 1
+lang: ts
+topics: [ts.strings, x.algo]
+title_hu: Szerkesztési távolság
+prompt_hu: |
+  Írj `levenshtein(a: string, b: string): number` függvényt: a két szöveg szerkesztési távolsága, vagyis
+  legkevesebb hány egykarakteres beszúrás, törlés vagy csere kell ahhoz, hogy a-ból b legyen.
+signature: "export function levenshtein(a: string, b: string): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: edit-distance
+rating: 1200

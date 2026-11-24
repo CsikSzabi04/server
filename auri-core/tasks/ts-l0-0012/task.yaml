@@ -1,0 +1,16 @@
+# AURI-CANARY-648fdb1c-3891-5992-8d84-0d5e54434b40
+id: ts-l0-0012
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Szorzótábla
+prompt_hu: |
+  Írj `szorzotabla(n: number): number[][]` függvényt: n×n-es szorzótábla, az i. sor (1-től) `[i*1, i*2, …,
+  i*n]`. n ≤ 0 → üres tömb.
+signature: "export function szorzotabla(n: number): number[][]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: table
+rating: 1000

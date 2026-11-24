@@ -1,0 +1,17 @@
+# AURI-CANARY-319adfe0-2fec-5687-b7fa-4ba86e12eb92
+id: py-l1-0010
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Futáshossz-visszafejtés
+prompt_hu: |
+  Írj `rle_dekodol(s: str) -> str` függvényt, amely a "<darabszám><karakter>" párok sorozatát (pl. "3a1b2c" →
+  "aaabcc") visszafejti. A darabszám egy vagy több számjegy, a karakter bármi, ami nem számjegy. Üres szövegre
+  üres szöveg. Hibás formátumra (hiányzó darabszám vagy karakter, 0 darabszám) dobj `ValueError`-t.
+signature: "def rle_dekodol(s: str) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: rle
+rating: 1200

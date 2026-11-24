@@ -1,0 +1,15 @@
+# AURI-CANARY-80f401a2-d116-56f1-83e5-d80695bcc180
+id: py-l0-0005
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Számjegyösszeg
+prompt_hu: |
+  Írj `szamjegyosszeg(n: int) -> int` függvényt, amely n abszolút értékének számjegyösszegét adja vissza.
+signature: "def szamjegyosszeg(n: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: digits
+rating: 1000

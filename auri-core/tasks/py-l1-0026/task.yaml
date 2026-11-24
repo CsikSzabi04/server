@@ -1,0 +1,16 @@
+# AURI-CANARY-e8ae753a-da02-51be-9e5e-50975be794bb
+id: py-l1-0026
+level: 1
+lang: py
+topics: [py.collections]
+title_hu: Második legnagyobb
+prompt_hu: |
+  Írj `masodik_legnagyobb(xs: list[int]) -> int | None` függvényt: a második legnagyobb KÜLÖNBÖZŐ érték; ha
+  nincs legalább két különböző érték, `None`.
+signature: "def masodik_legnagyobb(xs: list[int]) -> int | None"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: order-stat
+rating: 1200

@@ -1,0 +1,16 @@
+# AURI-CANARY-51605ed3-9981-5b53-918d-a02167792d9c
+id: ts-l0-h-0011
+level: 0
+lang: ts
+topics: [ts.collections]
+title_hu: Futó összeg
+prompt_hu: |
+  Írj `kumulalt(xs: number[]): number[]` függvényt: az eredmény i. eleme az xs első i+1 elemének összege (pl.
+  [1, 2, 3] → [1, 3, 6]).
+signature: "export function kumulalt(xs: number[]): number[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: prefix-sum
+rating: 1000

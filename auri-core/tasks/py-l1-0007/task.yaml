@@ -1,0 +1,16 @@
+# AURI-CANARY-703a1a4f-276e-5814-8e39-ed114a5c29c3
+id: py-l1-0007
+level: 1
+lang: py
+topics: [py.collections]
+title_hu: Darabolás
+prompt_hu: |
+  Írj `darabol(xs: list, size: int) -> list[list]` függvényt: a lista egymást követő, `size` hosszú darabjai; az
+  utolsó darab lehet rövidebb. `size < 1` esetén dobj `ValueError`-t.
+signature: "def darabol(xs: list, size: int) -> list[list]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: chunk
+rating: 1200

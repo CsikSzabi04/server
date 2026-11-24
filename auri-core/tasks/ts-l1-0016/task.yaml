@@ -1,0 +1,17 @@
+# AURI-CANARY-31b45d03-56a8-54c8-9abb-00474dd1c4d8
+id: ts-l1-0016
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Időtartam szövegesen
+prompt_hu: |
+  Írj `idotartamSzoveg(mp: number): string` függvényt: másodpercből "<ó> óra <p> perc <mp> másodperc" szöveg, a
+  0 értékű részek elhagyásával, egy-egy szóközzel (pl. 3661 → "1 óra 1 perc 1 másodperc", 60 → "1 perc"). 0 → "0
+  másodperc". Negatív bemenetre dobj `RangeError`-t.
+signature: "export function idotartamSzoveg(mp: number): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: duration
+rating: 1200

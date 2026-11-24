@@ -1,0 +1,16 @@
+# AURI-CANARY-42363330-0e69-5a2c-b1e3-b28b4bd3a537
+id: py-l0-0001
+level: 0
+lang: py
+topics: [py.basics, py.collections]
+title_hu: Páros számok
+prompt_hu: |
+  Írj `paros_szamok(xs: list[int]) -> list[int]` függvényt, amely a lista páros elemeit adja vissza az eredeti
+  sorrendben. A 0 és a negatív páros számok is párosak.
+signature: "def paros_szamok(xs: list[int]) -> list[int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: filter
+rating: 1000

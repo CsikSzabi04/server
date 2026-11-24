@@ -1,0 +1,17 @@
+# AURI-CANARY-1db1e144-c9ee-5842-b589-c196ed42eb92
+id: ts-l1-0012
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: camelCase → snake_case
+prompt_hu: |
+  Írj `camelSnake(s: string): string` függvényt: a szöveg első karakterét kisbetűsítsd; minden további nagybetű
+  elé tegyél egy `_` jelet, és kisbetűsítsd (pl. "parseForintValue" → "parse_forint_value", "HTTP" → "h_t_t_p").
+  Minden más karakter változatlan.
+signature: "export function camelSnake(s: string): string"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: case-convert
+rating: 1200

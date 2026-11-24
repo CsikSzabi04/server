@@ -1,0 +1,15 @@
+# AURI-CANARY-40f2902b-c93a-50d1-9284-084857ed6c7e
+id: py-l0-0002
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Négyzetösszeg
+prompt_hu: |
+  Írj `negyzetosszeg(n: int) -> int` függvényt: 1² + 2² + … + n². Ha n ≤ 0, az eredmény 0.
+signature: "def negyzetosszeg(n: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: sum-series
+rating: 1000

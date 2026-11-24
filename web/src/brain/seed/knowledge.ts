@@ -6,8 +6,16 @@
 //   2) KNOWLEDGE_TEXT → fed to the learner so the vocabulary + association graph
 //      grow dense (more nodes/edges = the "looks like a brain" map).
 //
-// Every entry is original, factual and short. Keywords are lowercase stems matched
-// as substrings, so Hungarian suffixed forms (Földről, vízben, számítógépek) hit too.
+// Every entry is original, factual and short. Keywords are lowercase stems matched at
+// the START of a word, so Hungarian suffixed forms (Földről, vízben, vulkánokról) hit,
+// but a stem buried inside another word does not ("vagy" ≠ "agy", "brain" ≠ "rain").
+// An entry only answers when the query really ASKS ABOUT its topic (a definition /
+// "tell me about" question, a bare topic, or an exact phrase) — never for a task that
+// merely mentions it ("írj egy python függvényt…") — see findKnowledge().
+import { LANG_KNOWLEDGE } from './languages';
+import { DESIGN_KNOWLEDGE } from './design';
+import { expandTechAliases } from './techAlias';
+import { coversQuery } from '../relevance';
 
 export interface KnowledgeEntry {
   topic: string;
@@ -17,10 +25,12 @@ export interface KnowledgeEntry {
 }
 
 export const KNOWLEDGE: KnowledgeEntry[] = [
+  // ── Auri itself (identity questions must never fall into a random topic) ───────
+  { topic: 'auri', keywords: ['ki vagy', 'mi vagy', 'mutatkozz be', 'bemutatkoz', 'mi a neved', 'hogy hívnak', 'hogy hivnak', 'who are you', 'what are you', 'introduce yourself', 'your name'], en: 'I’m Auri, your own AI assistant. I help most with programming and technical questions, and I remember what we discuss in my BRAIN so I can answer better next time.', hu: 'Auri vagyok, a saját AI-asszisztensed. Leginkább programozásban és technikai kérdésekben segítek, és amit megbeszélünk, azt a BRAIN-emben megjegyzem, hogy legközelebb jobban válaszoljak.' },
   // ── science: space & earth ───────────────────────────────────────────────────
   { topic: 'sun', keywords: ['sun', 'nap ', ' nap', 'napunk', 'naprol'], en: 'The Sun is the star at the centre of our solar system. It is a huge ball of hot gas that gives the Earth light and warmth.', hu: 'A Nap a Naprendszerünk középpontjában lévő csillag. Hatalmas, forró gázgömb, amely fényt és meleget ad a Földnek.' },
   { topic: 'moon', keywords: ['moon', 'hold'], en: 'The Moon is the Earth’s only natural satellite. It orbits the Earth about once a month and reflects the Sun’s light at night.', hu: 'A Hold a Föld egyetlen természetes holdja. Körülbelül havonta egyszer kerüli meg a Földet, és éjjel a Nap fényét veri vissza.' },
-  { topic: 'earth', keywords: ['earth', 'föld', 'fold', 'bolygó', 'bolygo', 'planet'], en: 'The Earth is the third planet from the Sun and the only one known to support life. It is round and travels around the Sun once a year.', hu: 'A Föld a Naptól számított harmadik bolygó, és az egyetlen ismert, ahol van élet. Gömbölyű, és egy év alatt kerüli meg a Napot.' },
+  { topic: 'earth', keywords: ['earth', 'föld', 'fold', 'föld bolygó', 'planet earth'], en: 'The Earth is the third planet from the Sun and the only one known to support life. It is round and travels around the Sun once a year.', hu: 'A Föld a Naptól számított harmadik bolygó, és az egyetlen ismert, ahol van élet. Gömbölyű, és egy év alatt kerüli meg a Napot.' },
   { topic: 'stars', keywords: ['star', 'csillag', 'galaxy', 'galaxis', 'univerzum', 'universe'], en: 'Stars are giant balls of burning gas far out in space. Our galaxy, the Milky Way, holds billions of them.', hu: 'A csillagok hatalmas, égő gázgömbök a világűrben. A galaxisunk, a Tejútrendszer, milliárdnyit tartalmaz belőlük.' },
   { topic: 'gravity', keywords: ['gravity', 'gravitáció', 'gravitacio', 'gravitaci'], en: 'Gravity is the force that pulls objects toward each other. It is why things fall down and why planets orbit the Sun.', hu: 'A gravitáció az az erő, amely a testeket egymás felé húzza. Ezért esnek le a dolgok, és ezért keringenek a bolygók a Nap körül.' },
   // ── science: physical world ───────────────────────────────────────────────────
@@ -194,32 +204,118 @@ export const KNOWLEDGE: KnowledgeEntry[] = [
   // ── data formats ──────────────────────────────────────────────────────────────
   { topic: 'json', keywords: ['json', 'mi az a json'], en: 'JSON is a simple text format for data, made of key–value pairs and lists. It is how web APIs usually send data between a server and the browser.', hu: 'A JSON egyszerű szöveges adatformátum kulcs–érték párokból és listákból. A webes API-k általában így küldenek adatot a szerver és a böngésző között.' },
   { topic: 'regex', keywords: ['regex', 'regular expression', 'reguláris kifejezés'], en: 'A regular expression (regex) is a pattern for matching text — for example to validate an email or find all numbers in a string.', hu: 'A reguláris kifejezés (regex) szövegmintázat illesztésre — például email-cím ellenőrzésére vagy az összes szám megtalálására egy szövegben.' },
+  // ── programming-languages pack (seed v17): basics, HTML/CSS, TS, C, C++, C#, .NET 10,
+  //    WPF, MAUI, MUI, Go, Rust, Linux, Bash, Windows, PowerShell, WSL, VPN, WPS ──────
+  ...LANG_KNOWLEDGE,
+  // ── CSS + visual design pack (seed v18): layout, modern CSS, typography, colour,
+  //    accessibility, UI patterns, design systems, effects ──────────────────────
+  ...DESIGN_KNOWLEDGE,
 ];
 
 /** Lowercase + strip diacritics so accented/suffixed HU forms still match. */
 const fold = (s: string): string => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-/** Find the best clean answer for a query in the given language (fallback: EN). */
+const isWordChar = (c: string | undefined): boolean => c !== undefined && /[a-z0-9]/.test(c);
+
+/**
+ * Score one folded keyword against the space-padded, folded query (0 = no valid hit).
+ * The keyword must START a word ("vagy" never hits "agy", "brain" never hits "rain"),
+ * but may take a Hungarian suffix ("víz" → "vízben", "vulkán" → "vulkánokról"). Short
+ * stems (≤ 4 letters) take at most a 3-letter suffix ("kód" → "kódot", not "kódommal"),
+ * and a phrase ending in a short word must end exactly ("ki vagy" ≠ "ki vagyok").
+ */
+function keywordScore(q: string, kf: string): number {
+  const t = kf.trim();
+  if (!t) return 0;
+  const phrase = t.includes(' ');
+  const lastWordLen = t.length - t.lastIndexOf(' ') - 1;
+  for (let i = q.indexOf(kf); i >= 0; i = q.indexOf(kf, i + 1)) {
+    if (isWordChar(kf[0]) && isWordChar(q[i - 1])) continue; // buried mid-word → not a hit
+    if (isWordChar(kf[kf.length - 1]) && lastWordLen <= 4) {
+      let rest = 0;
+      while (isWordChar(q[i + kf.length + rest])) rest++;
+      if (rest > (phrase ? 0 : 3)) continue;
+    }
+    // phrases > long specific words > content words > fragments
+    return phrase ? 4 : t.length >= 6 ? 3 : t.length >= 3 ? 2 : 1;
+  }
+  return 0;
+}
+
+// Words that carry no topic (HU + EN function and question words) — ignored when we
+// check whether a bare query is entirely about one topic.
+const NO_TOPIC = new Set(
+  (
+    'a az egy es is de hogy nem mi mit mik ki kik ez ezt azt ezek azok en te o ti ok van vannak volt ' +
+    'vagy vagyok vagyunk vagytok lesz meg mar csak tud tudsz tudod jo jol kerlek szia nekem neked ' +
+    'miert hogyan mikor hol milyen melyik mennyi hany ' +
+    'the an are was were be of to in on at for and or but not it this that do does did can you your ' +
+    'me my we they please so why how what who where which when'
+  ).split(/\s+/),
+);
+
+// Tasks, comparisons, troubleshooting and real-time questions need a model (or live
+// data) — a canned definition would be a wrong answer there.
+const NEEDS_MODEL =
+  /\b(irj|irjal|ird|keszits|keszitsd|csinalj|csinald|generalj|javits|javitsd|segits|oldd meg|refaktor\w*|kulonbseg\w*|osszehasonlit\w*|vs|versus|hiba\w*|baj|nem mukodik|nem megy|ma|mai|most|holnap|tegnap|write|create|build|make|fix|debug|implement|generate|refactor|difference|compare|error|bug|broken|today|now|tomorrow|yesterday|latest)\b/;
+
+// A definition / "tell me about X" question — what this knowledge base actually answers.
+const ASKS_ABOUT =
+  /^(mi|mik|ki|kik|mit|melyik|milyen|hol|hany|mennyi|mikor|what|who|where|which|when)\b|\b(mi az|mi a|mit jelent|mit tudsz|meselj|magyarazd|ismertesd|hogyan mukodik|hogy mukodik|mire valo|tell me about|explain|define|describe|what is|what are|how does .{1,40} work)\b/;
+
+/** Is the (folded) query really asking ABOUT this entry's topic? */
+function asksAbout(fq: string, e: KnowledgeEntry): boolean {
+  if (NEEDS_MODEL.test(fq)) return false;
+  if (ASKS_ABOUT.test(fq)) return true;
+  // A bare topic ("víz?", "python", "a Föld"): every content word must belong to the topic.
+  const words = (fq.match(/[a-z0-9]+/g) ?? []).filter((w) => w.length >= 2 && !NO_TOPIC.has(w));
+  return (
+    words.length > 0 &&
+    words.length <= 3 &&
+    words.every((w) => e.keywords.some((k) => keywordScore(` ${w} `, fold(k)) > 0))
+  );
+}
+
+/**
+ * Find the best clean answer for a query in the given language (fallback: EN).
+ * Returns null unless the match is real (word-start keywords) AND the query asks about
+ * the topic — so the caller falls through to recall / web / the model instead of
+ * answering "ki vagy?" with the human body or "…brain…" with the weather.
+ */
 export function findKnowledge(query: string, lang: 'hu' | 'en' | 'de' | 'unknown' = 'en'): string | null {
-  const q = ` ${fold(query)} `;
-  let best: KnowledgeEntry | null = null;
-  let bestScore = 0;
+  // "C#" → csharp, "C++" → cpp, ".NET" → dotnet BEFORE scoring (symbols would be lost);
+  // matching itself stays word-start only (keywordScore).
+  const fq = fold(expandTechAliases(query));
+  // A task / comparison / error / real-time question never gets a canned definition —
+  // not even on an exact phrase hit ("írj egy reszponzív css grid oldalt" → the model).
+  if (NEEDS_MODEL.test(fq)) return null;
+  const q = ` ${fq} `;
+  const scored: { e: KnowledgeEntry; score: number; hasPhrase: boolean }[] = [];
   for (const e of KNOWLEDGE) {
     let score = 0;
+    let hasPhrase = false;
     // Dedupe folded keywords so redundant accented/unaccented variants don't double-count.
     for (const kf of new Set(e.keywords.map(fold))) {
-      if (!q.includes(kf)) continue;
-      const t = kf.trim();
-      // phrases > long specific words > content words > fragments
-      score += t.includes(' ') ? 4 : t.length >= 6 ? 3 : t.length >= 3 ? 2 : 1;
+      const s = keywordScore(q, kf);
+      score += s;
+      if (s > 0 && kf.trim().includes(' ')) hasPhrase = true;
     }
-    if (score > bestScore) {
-      bestScore = score;
-      best = e;
-    }
+    if (score >= 2) scored.push({ e, score, hasPhrase });
   }
-  if (!best || bestScore < 2) return null;
-  return lang === 'hu' ? best.hu : best.en;
+  // Best first (stable: on a tie the earlier entry wins, as before) — and the first
+  // candidate that really answers the question wins, so a rejected look-alike
+  // ("fordító" = translator) gives way to the right one ("fordítóprogram" = compiler).
+  scored.sort((a, b) => b.score - a.score);
+  for (const { e, hasPhrase } of scored) {
+    // An exact phrase ("miért kék az ég", "ki vagy") is strong enough on its own.
+    if (!hasPhrase && !asksAbout(fq, e)) continue;
+    // RELEVANCE GATE: the entry must be about EVERY topic of the question — "who is the
+    // president of france" is not answered by the France definition, nor "what is a
+    // closure in rust" by the Rust intro (→ the model answers instead).
+    if (!coversQuery(query, e.topic.replace(/-/g, ' '), e.keywords.join(' '), e.en, e.hu)) continue;
+    return lang === 'hu' ? e.hu : e.en;
+  }
+  return null;
 }
 
 /** All answer sentences (both languages) for seeding the learner's vocab/graph. */

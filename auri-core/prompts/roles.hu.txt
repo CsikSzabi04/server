@@ -1,0 +1,65 @@
+### kerdezo
+<szerep>KERDEZO</szerep>
+<feladat>{{task}}</feladat>
+<tudas>{{knowledge}}</tudas>
+
+### tesztelo
+<szerep>TESZTELO</szerep>
+Írj teszteket ehhez a specifikációhoz, ezzel: {{framework}}. Csak a nyilvános felületet teszteld: {{interface}}.
+{{framework_rules}}
+Legyen benne szokásos eset, határeset és hibaág. Implementációt soha ne írj.
+<feladat>{{task}}</feladat>
+
+### gondolkodo
+<szerep>GONDOLKODO</szerep>
+Valósítsd meg a feladatot úgy, hogy a tesztek átmenjenek. Nyelv: {{language}}. Megengedett függőségek: {{deps}}.
+A TELJES `{{solution_file}}` fájlt add vissza. A teszteket soha ne módosítsd.
+<feladat>{{task}}</feladat>
+<tudas>{{knowledge}}</tudas>
+<tesztek>{{tests}}</tesztek>
+
+### gondolkodo_text
+<szerep>GONDOLKODO</szerep>
+Készíts válaszvázlatot a feladatra: a megközelítés és legfeljebb 6 lépés. Fájl nélkül. Mondd ki a feltevéseidet.
+<feladat>{{task}}</feladat>
+<tudas>{{knowledge}}</tudas>
+
+### kritikus
+<szerep>KRITIKUS</szerep>
+Vizsgáld meg a legutóbbi javaslatot a specifikáció és az ellenőrzés eredménye alapján. Ellenőrzőlista:
+lefedettség, határesetek, hibakezelés, rossz API/verzió, biztonság (bemenet, útvonal, injekció), gyenge tesztek.
+<ellenorzes>{{check}}</ellenorzes>
+
+### gondolkodo_revise
+<szerep>GONDOLKODO</szerep>
+Javíts. Ezekre a pontokra reagálj: {{issue_ids}}. Csak a módosított fájlokat add vissza, TELJES tartalommal.
+Utasíts el egy pontot (indokkal), ha a bizonyíték ellentmond neki.
+<ellenorzes>{{check}}</ellenorzes>
+
+### tesztelo_run
+<szerep>TESZTELO</szerep>
+Foglald össze ezt a tesztfutást. Kódot ne javasolj.
+<ellenorzes>{{output}}</ellenorzes>
+
+### tanar
+<szerep>TANAR</szerep>
+Írj egy újrahasznosítható tanulságot ebből a munkamenetből. Ellenőrzött bizonyíték: {{evidence}}.
+
+### tanar_explain
+<szerep>TANAR</szerep>
+Magyarázd el ezt a felhasználónak magyarul, egyszerűen, csak az ellenőrzött pontokból. Minden mást
+jelölj hipotézisnek.
+<feladat>{{topic}}</feladat>
+<tudas>{{facts}}</tudas>
+
+### kivonatolo
+<szerep>KIVONATOLO</szerep>
+Gyűjts legfeljebb 6 állítást ehhez a témához: {{topic}}. Minden állításhoz szó szerinti idézet kell (legfeljebb 200 karakter).
+<web_adat forras="{{url}}">{{text}}</web_adat>
+
+### valaszto
+<szerep>VALASZTO</szerep>
+{{question}} Lehetőségek: {{options}}
+
+### json_fix
+Csak a sémának megfelelő, érvényes JSON-t adj vissza.

@@ -10,6 +10,7 @@
 import { extractKeywords } from '../lib/memory';
 import type { BrainPersistState, BrainStage } from './contracts';
 import { stemSet } from './seed/stem';
+import { coversQuery } from './relevance';
 
 const WORD_RE = /[\p{L}\p{N}']{2,}/gu;
 
@@ -291,12 +292,15 @@ export class BrainLearner {
       let hits = 0;
       for (const k of pk) if (qk.has(k)) hits++;
       const score = pk.size ? hits / Math.max(qk.size, pk.size) : 0;
-      if (score > bestScore) {
-        bestScore = score;
-        best = p;
-      }
+      if (score < 0.34 || score <= bestScore) continue;
+      // RELEVANCE GATE: a recalled answer must answer the SAME question — the stored
+      // Q→A has to be about every topic of the query and vice versa. One shared word is
+      // not enough ("what is a race condition" ≠ "if … condition", "fork" ≠ "forest").
+      if (!coversQuery(query, p.q, p.a) || !coversQuery(p.q, query)) continue;
+      bestScore = score;
+      best = p;
     }
-    return best && bestScore >= 0.34 ? best.a : null;
+    return best ? best.a : null;
   }
 
   /**

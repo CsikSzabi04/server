@@ -1,0 +1,18 @@
+# AURI-CANARY-d9683aef-489e-5c68-98be-c0f3edbba9db
+id: py-l1-0030
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Magyar dátum
+prompt_hu: |
+  Írj `datum(s: str) -> tuple[int, int, int]` függvényt, amely egy "ÉÉÉÉ.HH.NN." alakú dátumot (év, hónap, nap)
+  hármassá alakít. Az év 4 számjegy; a hónap és a nap egy- vagy kétjegyű; minden pont után állhat egy szóköz
+  ("2026. 11. 21."); a záró pont kötelező. Ellenőrizd, hogy a dátum létezik (szökőév: osztható 4-gyel, de a
+  100-zal oszthatók közül csak a 400-zal oszthatók). Minden más esetben dobj `ValueError`-t.
+signature: "def datum(s: str) -> tuple[int, int, int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: date-parse
+rating: 1200

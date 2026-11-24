@@ -1,0 +1,16 @@
+# AURI-CANARY-84848832-e492-5dd5-9ad3-803e15c171df
+id: py-l0-0012
+level: 0
+lang: py
+topics: [py.collections]
+title_hu: Szorzótábla
+prompt_hu: |
+  Írj `szorzotabla(n: int) -> list[list[int]]` függvényt: n×n-es szorzótábla, az i. sor (1-től) `[i*1, i*2, …,
+  i*n]`. n ≤ 0 → üres lista.
+signature: "def szorzotabla(n: int) -> list[list[int]]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: table
+rating: 1000

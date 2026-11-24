@@ -1,0 +1,18 @@
+# AURI-CANARY-80029ac3-0715-5ac6-b026-3320dd631be4
+id: ts-l1-h-0003
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Beolvasás b alapú számrendszerből
+prompt_hu: |
+  Írj `szamrendszerbol(s: string, b: number): number` függvényt: az s szöveget b alapú (2 ≤ b ≤ 36) nemnegatív
+  számként értelmezi; a jegyek 0–9, majd a–z (kis- és nagybetű egyaránt), és mindegyik értéke kisebb b-nél. Üres
+  szövegre, bármilyen más karakterre (előjel, szóköz, aláhúzás, előtag) vagy érvénytelen b-re dobj
+  `RangeError`-t.
+signature: "export function szamrendszerbol(s: string, b: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: base-in
+rating: 1200

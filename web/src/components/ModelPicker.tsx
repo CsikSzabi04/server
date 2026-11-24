@@ -102,7 +102,7 @@ export default function ModelPicker() {
                 <input className="auth-input" placeholder="label (e.g. My GPT-4o)" value={label} onChange={(e) => setLabel(e.target.value)} />
                 <input
                   className="auth-input"
-                  placeholder={provider === 'gemini' ? 'model (e.g. gemini-2.0-flash)' : 'model (e.g. gpt-4o-mini)'}
+                  placeholder={provider === 'gemini' ? 'model (e.g. gemini-flash-latest)' : 'model (e.g. gpt-4o-mini)'}
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                 />
@@ -129,8 +129,12 @@ export default function ModelPicker() {
                     Cancel
                   </button>
                 </div>
+                {/* SECURITY.md §10.4 (H-11): be honest about where the key lives. */}
                 <div className="model-form-note">
-                  Stored only in this browser — your key is never sent to our server.
+                  Stored only in this browser — your key is never sent to our server. It is kept
+                  unencrypted on this device: don't add it on a shared or public computer, and set a
+                  spending limit for the key at your provider. Your chats then go directly to that provider
+                  under its terms.
                 </div>
               </div>
             )}

@@ -1,0 +1,17 @@
+# AURI-CANARY-718c62d1-65c1-50a8-a62f-4d5ff1696d06
+id: ts-l1-h-0010
+level: 1
+lang: ts
+topics: [ts.strings]
+title_hu: IPv4-cím ellenőrzése
+prompt_hu: |
+  Írj `ipv4Ervenyes(s: string): boolean` függvényt: igaz, ha s pontosan négy, ponttal elválasztott részből áll;
+  minden rész csak számjegyekből (0–9) áll, értéke 0–255, és nincs vezető nullája (a "0" maga megengedett).
+  Minden más (szóköz, előjel, üres rész) hamis.
+signature: "export function ipv4Ervenyes(s: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: validate-ip
+rating: 1200

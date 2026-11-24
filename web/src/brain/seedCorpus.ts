@@ -42,8 +42,19 @@ import { RELATIONS_EN, RELATIONS_HU, RELATIONS_QA } from './seed/relations';
  *  combination questions.
  *  v16: more domains taught — DevOps (Docker/Kubernetes/Git/CI-CD), mobile (Android/iOS/
  *  Flutter), AI/ML (ML/neural nets/LLM), networking (HTTP/DNS/REST), security (encryption/
- *  auth), data (JSON/regex) — answerable knowledge + relations + self-build pool. */
-export const SEED_VERSION = 16;
+ *  auth), data (JSON/regex) — answerable knowledge + relations + self-build pool.
+ *  v17: PROGRAMMING-LANGUAGES pack (seed/languages*.ts) — from the basics (variable, if,
+ *  loop, function, array, OOP, compiler…) through HTML, CSS, JavaScript, TypeScript,
+ *  Python, Java, C, C++, C#, .NET 10 (+ WPF, MAUI), MUI, Bash, Linux, Windows/PowerShell,
+ *  iOS/Swift, Go, Rust, Kotlin, PHP, SQL, VPN and WPS: ~190 code examples (each a doc
+ *  neuron on its own tech hub in the 3D brain), bilingual knowledge + Q→A, and an EN/HU
+ *  concept corpus that grows the Programming lobe.
+ *  v18: CSS + VISUAL DESIGN pack (seed/design*.ts) — layout (flexbox, grid, position,
+ *  responsive), modern CSS (container queries, :has(), nesting, clamp, layers, subgrid,
+ *  view transitions, scroll-driven animations), typography, colour, contrast, spacing,
+ *  hierarchy, UI patterns, design systems, dark mode, motion: ~90 working recipes on a
+ *  new 'UI · design' hub, bilingual knowledge + Q→A, and an EN/HU design corpus. */
+export const SEED_VERSION = 19; // v19: Programing_Brain/ corpus (~45 languages + topics, explanations + commented code, Q→A)
 
 // Alphabets (incl. Hungarian digraphs/trigraph + German umlauts/ß) so the
 // character model + char-transition table fill on init.
@@ -216,11 +227,19 @@ export function seedProgramming(learner: BrainLearner): void {
  */
 export async function seedIngestedCorpora(learner: BrainLearner): Promise<void> {
   try {
-    const [prog, gen] = await Promise.all([
+    const [prog, gen, langs, design, pb] = await Promise.all([
       import('./seed/programming.ingested'),
       import('./seed/general.ingested'),
+      import('./seed/languages.corpus'),
+      import('./seed/design.corpus'),
+      import('./seed/programmingBrain.ingested'),
     ]);
     for (const c of prog.PROGRAMMING_CHUNKS) learner.observe(c.text, `seed:prog:${c.tech}`);
+    for (const c of langs.LANG_CHUNKS) learner.observe(c.text, `seed:prog:${c.tech}`);
+    for (const c of design.DESIGN_CHUNKS) learner.observe(c.text, `seed:prog:${c.tech}`);
+    // Programing_Brain/ (all languages + big topics; scripts/ingest-programming-brain.mjs)
+    for (const c of pb.PB_CHUNKS) learner.observe(c.text, `seed:prog:${c.tech}`);
+    for (const qa of pb.PB_QA) learner.observeTurn(qa.q, qa.a, `seed:prog:${qa.tech}`);
     for (const c of gen.GENERAL_CHUNKS) learner.observe(c.text, `seed:general:${c.lang ?? 'xx'}`);
   } catch {
     /* corpus chunk failed to load → the curated in-bundle seed still works */

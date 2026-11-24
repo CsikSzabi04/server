@@ -1,0 +1,16 @@
+# AURI-CANARY-d579e180-1824-53ed-857d-fe7a0dff7851
+id: py-l1-0028
+level: 1
+lang: py
+topics: [x.ds, x.algo]
+title_hu: Zárójelek
+prompt_hu: |
+  Írj `zarojelek(s: str) -> bool` függvényt: a `()`, `[]`, `{}` zárójelek helyesen párosítottak és egymásba
+  ágyazottak-e. Minden más karaktert hagyj figyelmen kívül.
+signature: "def zarojelek(s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: brackets
+rating: 1200

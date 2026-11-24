@@ -1,0 +1,16 @@
+# AURI-CANARY-2a19792a-5c26-5fdf-a52b-2a54533878ae
+id: py-l1-h-0004
+level: 1
+lang: py
+topics: [py.strings, py.collections]
+title_hu: Betűgyakoriság
+prompt_hu: |
+  Írj `betu_gyakorisag(s: str) -> dict[str, int]` függvényt: a szöveg betűit (`str.isalpha()`) kisbetűsítve
+  megszámolja; a szótár kulcsai a kisbetűk, értékei a darabszámok. Más karakter nem számít.
+signature: "def betu_gyakorisag(s: str) -> dict[str, int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: letter-freq
+rating: 1200

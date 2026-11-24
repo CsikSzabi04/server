@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auri preview</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #fff;
+        font-family: system-ui, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Auri code-preview frame (/code/<slug>). It runs ONLY inside the iframe that the
+      // run page sandboxes WITHOUT allow-same-origin → an opaque origin ("null") that
+      // cannot read Auri's localStorage, cookies or login session. It accepts exactly one
+      // message from its parent — the compiled project — and becomes that document.
+      // Opened directly (top-level) or framed without a sandbox, it refuses to run anything.
+      (function () {
+        var sandboxed = String(self.origin) === 'null';
+        if (window.parent === window || !sandboxed) {
+          document.body.textContent = 'This page only runs inside the Auri code preview.';
+          return;
+        }
+        window.addEventListener('message', function onMessage(e) {
+          if (e.source !== window.parent) return;
+          var d = e.data;
+          if (!d || d.type !== 'auri-run' || typeof d.html !== 'string') return;
+          window.removeEventListener('message', onMessage);
+          document.open();
+          document.write(d.html);
+          document.close();
+        });
+        // Ask for the page only once THIS bootstrap document has fully loaded — a
+        // document.open() while it is still loading would be ignored.
+        window.addEventListener('load', function () {
+          window.parent.postMessage({ type: 'auri-frame-ready' }, '*');
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+# AURI-CANARY-904ec899-da53-5876-b93c-95fd885a3a99
+id: ts-l1-h-0039
+level: 1
+lang: ts
+topics: [ts.strings, ts.errors]
+title_hu: Huszárlépések
+prompt_hu: |
+  Írj `huszar(mezo: string): string[]` függvényt: a sakktábla adott mezőjéről (pl. "b1": oszlop a–h kisbetűvel,
+  sor 1–8) a huszár által elérhető mezők ábécérendben. Érvénytelen mezőre dobj `RangeError`-t.
+signature: "export function huszar(mezo: string): string[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: knight
+rating: 1200

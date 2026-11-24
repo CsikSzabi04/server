@@ -12,7 +12,7 @@ export function buildApp() {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', true); // correct req.ip behind Cloudflare Tunnel / proxies
-  app.use(express.json({ limit: '2mb' }));
+  app.use(express.json({ limit: '8mb' })); // up to 4 compressed images per chat request
 
   // CORS only matters for browser callers; server-to-server needs none.
   if (config.allowedOrigins.length > 0) {
@@ -21,6 +21,7 @@ export function buildApp() {
         origin: config.allowedOrigins,
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+        exposedHeaders: ['X-Auri-Model'], // DIRECT-mode browsers may read which model answered
       }),
     );
   }

@@ -1,0 +1,17 @@
+# AURI-CANARY-8a54431f-3a1b-5c4f-a310-b56feb209d18
+id: py-l1-0017
+level: 1
+lang: py
+topics: [py.strings, x.algo]
+title_hu: TAJ-szám ellenőrzése
+prompt_hu: |
+  Írj `taj_ervenyes(s: str) -> bool` függvényt. Érvényes a TAJ-szám, ha pontosan 9 számjegy, vagy "ddd ddd ddd"
+  alakú (egy-egy szóközzel), és az első 8 számjegy súlyozott összegének (súlyok sorban: 3, 7, 3, 7, 3, 7, 3, 7)
+  10-es maradéka egyenlő a 9. számjeggyel. Minden más esetben `False`.
+signature: "def taj_ervenyes(s: str) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: checksum
+rating: 1200

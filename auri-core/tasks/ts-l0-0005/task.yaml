@@ -1,0 +1,15 @@
+# AURI-CANARY-a605c37e-b060-5b86-9596-9ab6e7c933e8
+id: ts-l0-0005
+level: 0
+lang: ts
+topics: [ts.basics]
+title_hu: Számjegyösszeg
+prompt_hu: |
+  Írj `szamjegyosszeg(n: number): number` függvényt, amely n abszolút értékének számjegyösszegét adja vissza.
+signature: "export function szamjegyosszeg(n: number): number"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: digits
+rating: 1000

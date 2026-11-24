@@ -1,0 +1,16 @@
+# AURI-CANARY-a191db31-329c-590c-8ff8-dfd1eba2ddef
+id: py-l0-h-0008
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Teljes négyzet
+prompt_hu: |
+  Írj `teljes_negyzet(n: int) -> bool` függvényt: igaz, ha n egy egész szám négyzete (a 0 is az). Negatív n-re
+  hamis.
+signature: "def teljes_negyzet(n: int) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: square
+rating: 1000

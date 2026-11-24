@@ -1,0 +1,17 @@
+# AURI-CANARY-fcec98ed-c3c0-5d8b-b4c0-bc2ac0a485d6
+id: py-l1-h-0031
+level: 1
+lang: py
+topics: [py.collections, py.errors]
+title_hu: Mátrix forgatása
+prompt_hu: |
+  Írj `matrix_forgat(m: list[list[int]]) -> list[list[int]]` függvényt: a mátrixot 90 fokkal az óramutató
+  járásával megegyezően elforgatva adja vissza. Üres mátrixra üres lista. Ha a sorok nem egyforma hosszúak, dobj
+  `ValueError`-t.
+signature: "def matrix_forgat(m: list[list[int]]) -> list[list[int]]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: rotate-matrix
+rating: 1200

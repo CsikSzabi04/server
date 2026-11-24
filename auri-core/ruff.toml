@@ -1,0 +1,19 @@
+# ruff config for auri-core (owner: AI-3). Run: .venv\Scripts\ruff check .
+target-version = "py312"
+line-length = 130
+extend-exclude = [".venv", "data"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "RUF", "SIM"]
+ignore = [
+  "RUF001", "RUF002", "RUF003",  # Hungarian text: „ ” – … are intentional
+  "SIM105",                      # contextlib.suppress vs try/except: either is fine
+  "SIM108",                      # nested ternaries are less readable than if/else
+  "E501",                        # long SQL / regex lines read better unbroken
+]
+
+[lint.per-file-ignores]
+"tests/**" = ["B011", "RUF059", "ASYNC109", "ASYNC110"]
+
+[lint.isort]
+known-first-party = ["auri_core"]

@@ -1,0 +1,16 @@
+# AURI-CANARY-73b5bca8-862b-59ef-bee9-ad7bd048a729
+id: py-l1-0008
+level: 1
+lang: py
+topics: [py.collections, x.algo]
+title_hu: Kilapítás
+prompt_hu: |
+  Írj `kilapit(xs: list) -> list` függvényt: tetszőleges mélységben egymásba ágyazott listák elemei egyetlen
+  listában, balról jobbra. Csak a `list` típust bontsd ki (egy tuple vagy szöveg elem marad).
+signature: "def kilapit(xs: list) -> list"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: flatten
+rating: 1200

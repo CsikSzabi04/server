@@ -1,0 +1,16 @@
+# AURI-CANARY-e1c4bca5-d440-5835-8842-0b701b506ffc
+id: py-l1-h-0015
+level: 1
+lang: py
+topics: [x.algo]
+title_hu: Tökéletes szám
+prompt_hu: |
+  Írj `tokeletes(n: int) -> bool` függvényt: igaz, ha n pozitív egész, és egyenlő a nála kisebb pozitív
+  osztóinak összegével (pl. 6 = 1 + 2 + 3). n ≤ 0 esetén hamis.
+signature: "def tokeletes(n: int) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: perfect
+rating: 1200

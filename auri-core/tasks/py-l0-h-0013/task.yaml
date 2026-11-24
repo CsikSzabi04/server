@@ -1,0 +1,16 @@
+# AURI-CANARY-ed5e3313-4689-570f-98ed-f9fe79dfae67
+id: py-l0-h-0013
+level: 0
+lang: py
+topics: [py.basics, py.errors]
+title_hu: Kettes számrendszer
+prompt_hu: |
+  Írj `binaris(n: int) -> str` függvényt, amely a nemnegatív n kettes számrendszerbeli alakját adja vissza
+  vezető nullák nélkül (0 → "0"). Negatív n-re dobj `ValueError`-t.
+signature: "def binaris(n: int) -> str"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: to-binary
+rating: 1000

@@ -1,0 +1,16 @@
+# AURI-CANARY-a0ca6f67-e0c7-5d8e-afc8-098b04e814d9
+id: ts-l1-0023
+level: 1
+lang: ts
+topics: [ts.collections]
+title_hu: Második legnagyobb
+prompt_hu: |
+  Írj `masodikLegnagyobb(xs: number[]): number | null` függvényt: a második legnagyobb KÜLÖNBÖZŐ érték; ha nincs
+  legalább két különböző érték, `null`.
+signature: "export function masodikLegnagyobb(xs: number[]): number | null"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: order-stat
+rating: 1200

@@ -1,0 +1,17 @@
+# AURI-CANARY-660c5b1a-dd4a-566b-95b3-c9b03d6e281c
+id: py-l1-0014
+level: 1
+lang: py
+topics: [py.strings, py.collections]
+title_hu: Karakterstatisztika
+prompt_hu: |
+  Írj `statisztika(s: str) -> dict[str, int]` függvényt, amely mindig a "betu", "szamjegy", "szokoz", "egyeb"
+  kulcsokkal tér vissza: betű = `str.isalpha()`, számjegy = `str.isdigit()`, szóköz = `str.isspace()`, egyéb =
+  minden más karakter.
+signature: "def statisztika(s: str) -> dict[str, int]"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: char-class
+rating: 1200

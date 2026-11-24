@@ -1,0 +1,17 @@
+# AURI-CANARY-5b72fbd1-5ccf-5d62-86fd-db5b5093bff4
+id: ts-l0-h-0007
+level: 0
+lang: ts
+topics: [ts.basics]
+title_hu: Háromszög-egyenlőtlenség
+prompt_hu: |
+  Írj `haromszog(a: number, b: number, c: number): boolean` függvényt: igaz, ha a három oldalhosszból (nem
+  elfajuló) háromszög szerkeszthető, vagyis mindhárom pozitív, és bármely kettő összege szigorúan nagyobb a
+  harmadiknál.
+signature: "export function haromszog(a: number, b: number, c: number): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: triangle
+rating: 1000

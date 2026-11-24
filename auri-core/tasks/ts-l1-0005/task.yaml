@@ -1,0 +1,16 @@
+# AURI-CANARY-e1f22bb1-13cd-5d54-bcdc-6654975996e0
+id: ts-l1-0005
+level: 1
+lang: ts
+topics: [ts.collections, x.algo]
+title_hu: Kilapítás
+prompt_hu: |
+  Írj `kilapit(xs: unknown[]): unknown[]` függvényt: tetszőleges mélységben egymásba ágyazott listák elemei
+  egyetlen tömbben, balról jobbra. Csak a tömböket bontsd ki (egy szöveg elem marad).
+signature: "export function kilapit(xs: unknown[]): unknown[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: flatten
+rating: 1200

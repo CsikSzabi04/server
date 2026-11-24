@@ -1,0 +1,16 @@
+# AURI-CANARY-88f3633a-699d-5964-8183-cd0951d9f7ea
+id: ts-l1-h-0021
+level: 1
+lang: ts
+topics: [ts.strings, x.algo]
+title_hu: Permutációk
+prompt_hu: |
+  Írj `permutaciok(s: string): string[]` függvényt: s karaktereinek összes KÜLÖNBÖZŐ sorrendje, karakterkód
+  szerint növekvő rendezésben. Üres szövegre [""].
+signature: "export function permutaciok(s: string): string[]"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: permutations
+rating: 1200

@@ -13,8 +13,32 @@ web/.vite/
 # ─── large local binaries — Ollama install + installer (never to git) ─────────
 PublicFreeAI/
 
+# ─── Jarvis: upstream referencia-klón (saját git repó, nem a miénk) ────────────
+jarvis-hectorg2211/
+
+# ─── auri-jarvis: lokális venv, letöltött modellek, PRIVÁT memória/adat ────────
+auri-jarvis/.venv/
+auri-jarvis/models/
+auri-jarvis/data/
+auri-jarvis/.cache/
+auri-jarvis/config/me.md
+auri-jarvis/installer/build/
+auri-jarvis/installer/dist/
+
 # ─── logs & OS junk ───────────────────────────────────────────────────────────
 *.log
 npm-debug.log*
 .DS_Store
 Thumbs.db
+
+# ─── auri-core (local data, venv) ─────────────────────────────────────────────
+auri-core/data/
+auri-core/.venv/
+
+# ─── Python/TS build caches ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.tsbuildinfo
+*.egg-info/

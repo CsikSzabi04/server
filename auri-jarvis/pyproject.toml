@@ -1,0 +1,26 @@
+[project]
+name = "auri-jarvis"
+version = "0.1.0"
+description = "Auri J.A.R.V.I.S. — local, free, voice-driven assistant daemon (Windows, CPU-first)"
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+# Runtime dependencies are pinned in requirements.txt (single source of truth, owner: AI-3).
+
+[project.scripts]
+auri-jarvis = "auri_jarvis.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["auri_jarvis*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-ra --import-mode=importlib -m \"not manual\""
+markers = [
+  "manual: real side effects (opens apps, speaks, calls ElevenLabs) — run by hand: pytest -m manual",
+  "slow: slower integration tests",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning:pkg_resources.*",
+]

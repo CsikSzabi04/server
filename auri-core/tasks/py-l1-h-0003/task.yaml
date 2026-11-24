@@ -1,0 +1,18 @@
+# AURI-CANARY-9cd25317-5484-5122-92fc-a966adb0b6d2
+id: py-l1-h-0003
+level: 1
+lang: py
+topics: [py.strings, py.errors]
+title_hu: Beolvasás b alapú számrendszerből
+prompt_hu: |
+  Írj `szamrendszerbol(s: str, b: int) -> int` függvényt: az s szöveget b alapú (2 ≤ b ≤ 36) nemnegatív számként
+  értelmezi; a jegyek 0–9, majd a–z (kis- és nagybetű egyaránt), és mindegyik értéke kisebb b-nél. Üres
+  szövegre, bármilyen más karakterre (előjel, szóköz, aláhúzás, előtag) vagy érvénytelen b-re dobj
+  `ValueError`-t.
+signature: "def szamrendszerbol(s: str, b: int) -> int"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: base-in
+rating: 1200

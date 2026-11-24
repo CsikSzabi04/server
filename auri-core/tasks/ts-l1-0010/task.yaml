@@ -1,0 +1,16 @@
+# AURI-CANARY-1a2c84ca-7892-5d7f-9af4-15f71a6c8d6a
+id: ts-l1-0010
+level: 1
+lang: ts
+topics: [ts.strings, ts.collections]
+title_hu: Anagramma
+prompt_hu: |
+  Írj `anagramma(a: string, b: string): boolean` függvényt: a két szöveg kis- és nagybetűtől (`toLowerCase()`)
+  és a szóköz jellegű karakterektől (`/\s/`) eltekintve ugyanazokból a karakterekből áll-e, ugyanannyiszor.
+signature: "export function anagramma(a: string, b: string): boolean"
+files: {visible: tests/visible.test.ts, hidden: tests/hidden.test.ts, reference: ref/solution.ts}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: dev
+family: anagram
+rating: 1200

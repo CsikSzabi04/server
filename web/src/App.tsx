@@ -20,6 +20,7 @@ import { useAuth } from './hooks/useAuth';
 import { useMemory } from './hooks/useMemory';
 import type { AuriState } from './lib/auriState';
 import { type ChatMessage, getEndpointLabel, getMode, streamChat } from './lib/api';
+import { fitHistory } from './lib/history';
 import { blip } from './lib/sound';
 import { cancel as voiceCancel, feed as voiceFeed, flush as voiceFlush } from './lib/voice';
 import {
@@ -33,9 +34,45 @@ import {
   setPinned,
 } from './lib/chatStore';
 import type { UIMessage } from './types';
+
+// ── Image turns: two steps (never shown in the chat) ──────────────────────────────────
+// 1) the vision model (local gemma4:e2b first) only READS the picture — it is small and
+//    gets maths/answers wrong, but it transcribes well;
+// 2) the normal text model gets that transcript + the question and ANSWERS it.
+// The picture itself never reaches the text model; nothing of the turn is learned.
+const IMAGE_READ =
+  'Írd ki pontosan, szó szerint a képen lévő összes szöveget (az eredeti nyelven, a sortöréseket megtartva). ' +
+  'Utána egyetlen rövid sorban írd le, mi látható a képen. A képen lévő kérdésekre NE válaszolj, csak írd ki őket.';
+const IMAGE_TASK =
+  'Ha a képen kérdés, feladat, teszt vagy hibaüzenet van, válaszold meg vagy oldd meg közvetlenül — ' +
+  'ne másold le a kérdést, a választ add meg. Ha nincs rajta kérdés, röviden foglald össze, mi látható rajta.';
+
+/** Step 1: the vision model reads the picture(s) → plain text (or an error message). */
+function readImages(images: string[], signal: AbortSignal): Promise<{ text: string } | { error: string }> {
+  return new Promise((resolve) => {
+    let acc = '';
+    void streamChat(
+      [
+        { role: 'system', content: 'Képolvasó vagy: csak azt írod le, ami a képen van, semmi mást.' },
+        { role: 'user', content: IMAGE_READ, images },
+      ],
+      {
+        onDelta: (d) => {
+          acc += d;
+        },
+        onDone: () =>
+          resolve(acc.trim() ? { text: acc.trim() } : { error: 'A képről nem sikerült semmit kiolvasni.' }),
+        onError: (msg) => resolve({ error: msg }),
+      },
+      signal,
+      { cache: false, temperature: 0.1, maxTokens: 1200 },
+    );
+  });
+}
 import { useBrainChat, localAnswerEnabled, setLocalAnswerEnabled } from './brain-bridge/brainChat';
 import { webSearchEnabled, setWebSearchEnabled, searchWeb, searchWebDeep, composeWebAnswer } from './brain-bridge/askPipeline';
 import { recordAnswer, alwaysLearn } from './autolearn';
+import { coreTurn, isCoreEnabled } from './core-client/coreTurn';
 
 let idCounter = 0;
 const newId = () => `m${++idCounter}`;
@@ -74,6 +111,9 @@ export default function App() {
   const [codeOpen, setCodeOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const convIdRef = useRef<string | null>(null);
+  // Bumped on every login / logout. Work started under an older epoch (a web search, the
+  // brain-answer typewriter, a model start) is dropped instead of landing in the new identity.
+  const identityEpoch = useRef(0);
 
   const auth = useAuth();
   const memory = useMemory(auth.user?.id ?? null);
@@ -95,6 +135,16 @@ export default function App() {
   useEffect(() => {
     const uid = auth.user?.id ?? null;
     let cancelled = false;
+    // PRIVACY: a reply still streaming for the previous identity must not land on the
+    // new identity's screen (e.g. right after logout) — stop it and its voice now, end
+    // the in-flight work of the old identity (epoch), unlock the input, and close the
+    // panels that show per-identity data (they reload for the new identity when opened).
+    identityEpoch.current++;
+    abortRef.current?.abort();
+    voiceCancel();
+    setState('idle');
+    setMemoryOpen(false);
+    setCodeOpen(false);
     void (async () => {
       const list = await listConversations(uid);
       if (cancelled) return;
@@ -166,24 +216,36 @@ export default function App() {
   );
 
   const send = useCallback(
-    (text: string) => {
-      if (!text.trim() || busy) return;
+    (text: string, images?: string[]) => {
+      if ((!text.trim() && !images?.length) || busy) return;
+      // A picture is read first (readImages), then answered by the text model: no BRAIN /
+      // web / Auri Core answer, and nothing from this turn is learned (a photo can hold personal data).
+      const hasImg = Boolean(images?.length);
+      const ask = text.trim() || IMAGE_TASK;
       blip('send');
       voiceCancel();
 
       const uid = auth.user?.id ?? null;
-      const userMsg: UIMessage = { id: newId(), role: 'user', content: text };
+      const epoch = identityEpoch.current;
+      const alive = () => identityEpoch.current === epoch; // still the same identity?
+      const userMsg: UIMessage = { id: newId(), role: 'user', content: text, ...(hasImg ? { images } : {}) };
       const auriId = newId();
       // Inject the BRAIN: persona + what Auri remembers that's relevant now, PLUS the
       // hybrid H1 grounding block (the brain's relevant knowledge) so the model answers
       // grounded in our brain — empty when the brain has nothing relevant.
-      const brainCtx = brainChat.groundContext(text, memory.memories);
-      const history: ChatMessage[] = [
-        { role: 'system', content: memory.systemMessage(text) },
-        { role: 'system', content: PROGRAMMER_SYSTEM },
-        ...(brainCtx ? [{ role: 'system' as const, content: brainCtx }] : []),
-        ...[...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
-      ];
+      const brainCtx = hasImg ? '' : brainChat.groundContext(text, memory.memories);
+      // fitHistory: drop the oldest turns so a long chat stays within the proxy's
+      // limits (100 messages / 120k chars) instead of failing with HTTP 400.
+      // Earlier image turns contribute what was read from them (modelContent), never the bytes.
+      const buildHistory = (userContent: string): ChatMessage[] =>
+        fitHistory([
+          { role: 'system', content: memory.systemMessage(ask) },
+          { role: 'system', content: PROGRAMMER_SYSTEM },
+          ...(brainCtx ? [{ role: 'system' as const, content: brainCtx }] : []),
+          ...messages.map((m) => ({ role: m.role, content: m.modelContent ?? m.content })),
+          { role: 'user', content: userContent },
+        ]);
+      const history = buildHistory(text);
 
       setMessages((prev) => [...prev, userMsg]);
       setState('thinking');
@@ -191,16 +253,19 @@ export default function App() {
       // Persist (everyone): ensure a conversation, save the user message.
       void (async () => {
         if (!convIdRef.current) {
-          const cid = await createConversation(uid, text);
+          const cid = await createConversation(uid, text.trim() || '📷 Kép');
           if (cid) setConv(cid);
         }
-        if (convIdRef.current) await saveMessage(uid, convIdRef.current, 'user', text);
+        // the image itself is never stored — only a note that there was one
+        const saved = hasImg ? `${text}\n[📷 ${images!.length} kép csatolva]`.trim() : text;
+        if (convIdRef.current) await saveMessage(uid, convIdRef.current, 'user', saved);
         void refreshConversations();
       })();
 
       // Render a local/web reply with a word-by-word typewriter (like the model path).
       // The total time is capped (~2.2s) so long code answers still arrive snappily.
       const finishLocal = (content: string, source: 'brain' | 'web') => {
+        if (!alive()) return;
         blip('recv');
         setState('speaking');
         setMessages((prev) => [
@@ -212,6 +277,7 @@ export default function App() {
         let acc = '';
         let i = 0;
         const finalize = () => {
+          if (!alive()) return; // logged in/out mid-typewriter → don't save or learn it
           setMessages((prev) =>
             prev.map((m) => (m.id === auriId ? { ...m, content, streaming: false } : m)),
           );
@@ -225,6 +291,7 @@ export default function App() {
           recordAnswer(source); // hit-rate metric → /brain "getting smarter" curve
         };
         const tick = () => {
+          if (!alive()) return;
           if (i >= tokens.length) return finalize();
           const tok = tokens[i++];
           acc += tok;
@@ -236,13 +303,14 @@ export default function App() {
       };
 
       // The model path (Ollama → Groq → Gemini), streamed.
-      const startModel = () => {
+      const startModel = (hist: ChatMessage[] = history) => {
+        if (!alive()) return;
         const ctrl = new AbortController();
         abortRef.current = ctrl;
         let created = false;
         let assistantText = '';
         void streamChat(
-          history,
+          hist,
           {
             onDelta: (delta) => {
               assistantText += delta;
@@ -263,6 +331,7 @@ export default function App() {
               }
             },
             onDone: ({ usage, latencyMs }) => {
+              if (!alive()) return;
               voiceFlush();
               setMessages((prev) => prev.map((m) => (m.id === auriId ? { ...m, streaming: false } : m)));
               if (usage) setTotalTokens((t) => t + usage.total_tokens);
@@ -273,7 +342,7 @@ export default function App() {
                   refreshConversations(),
                 );
               }
-              if (assistantText.trim()) {
+              if (assistantText.trim() && !hasImg) {
                 void memory.ingest(text, assistantText);
                 brainChat.distill(text, assistantText); // H2: learn the model's answer → offline next time
                 recordAnswer('model'); // hit-rate metric → /brain "getting smarter" curve
@@ -302,31 +371,73 @@ export default function App() {
       // Always-learn from the web in the BACKGROUND (opt-in via the 🌐 WEB toggle):
       // every turn searches + feeds the brain so it keeps growing — even when answered
       // from the brain. Fire-and-forget; rate-limited + cached + PII-redacted by AI-4.
-      if (webSearchEnabled()) {
-        void alwaysLearn(text, { search: searchWeb, ingest: brainChat.learnWebHits });
-      }
-
-      // 1) BRAIN first — offline, key-free.
-      const brainReply = brainChat.localAnswer(text, memory.memories);
-      if (brainReply) {
-        finishLocal(brainReply, 'brain');
+      if (hasImg) {
+        const ctrl = new AbortController();
+        abortRef.current = ctrl;
+        void readImages(images!, ctrl.signal).then((r) => {
+          if (!alive() || ctrl.signal.aborted) return;
+          if ('error' in r) {
+            blip('error');
+            setMessages((prev) => [...prev, { id: auriId, role: 'assistant', content: r.error, error: true }]);
+            setState('error');
+            window.setTimeout(() => setState((s) => (s === 'error' ? 'idle' : s)), 2800);
+            return;
+          }
+          const seen = `[A csatolt kép tartalma — helyben kiolvasva]\n${r.text}\n\n${ask}`;
+          setMessages((prev) => prev.map((m) => (m.id === userMsg.id ? { ...m, modelContent: seen } : m)));
+          startModel(buildHistory(seen));
+        });
         return;
       }
 
-      // 2) WEB search (opt-in) when the brain has nothing to say.
       if (webSearchEnabled()) {
-        void (async () => {
-          const { hits, pages } = await searchWebDeep(text); // deep: also fetch page text
-          if (hits.length) {
-            brainChat.learnWebHits(text, hits, pages); // store web knowledge + page essence
-            finishLocal(composeWebAnswer(text, hits), 'web');
-          } else startModel();
-        })();
-        return;
+        void alwaysLearn(text, {
+          search: searchWeb,
+          // results arriving after a login/logout belong to the previous identity → drop
+          ingest: (q: string, hits: Parameters<typeof brainChat.learnWebHits>[1]) => {
+            if (alive()) brainChat.learnWebHits(q, hits);
+          },
+        });
       }
 
-      // 3) MODEL fallback.
-      startModel();
+      const browserChain = () => {
+        // 1) BRAIN first — offline, key-free.
+        const brainReply = brainChat.localAnswer(text, memory.memories);
+        if (brainReply) {
+          finishLocal(brainReply, 'brain');
+          return;
+        }
+
+        // 2) WEB search (opt-in) when the brain has nothing to say.
+        if (webSearchEnabled()) {
+          void (async () => {
+            const { hits, pages } = await searchWebDeep(text); // deep: also fetch page text
+            if (!alive()) return; // the user logged in/out while we searched
+            if (hits.length) {
+              brainChat.learnWebHits(text, hits, pages); // store web knowledge + page essence
+              finishLocal(composeWebAnswer(text, hits), 'web');
+            } else startModel();
+          })();
+          return;
+        }
+
+        // 3) MODEL fallback.
+        startModel();
+      };
+
+      // 0) Auri Core (local thinking brain; opt-in `auri.brain.core` on /brain). Off, unreachable or
+      //    failed → the browser chain above runs exactly as before (AI-3, P1, 01/03 §7.4).
+      if (isCoreEnabled()) {
+        const ctrl = new AbortController();
+        abortRef.current = ctrl;
+        void coreTurn(text, ctrl.signal).then((reply) => {
+          if (!alive() || ctrl.signal.aborted) return;
+          if (reply) finishLocal(reply, 'brain');
+          else browserChain();
+        });
+        return;
+      }
+      browserChain();
     },
     [messages, busy, auth.user, memory, brainChat, setConv, refreshConversations],
   );
@@ -470,7 +581,9 @@ export default function App() {
 
         <section className="chat-stage">
           <ChatPanel messages={messages} thinking={state === 'thinking'} />
-          <InputBar disabled={busy} onSend={send} onTypingChange={onTypingChange} />
+          {/* !auth.ready: until the session is restored we don't know whose message this
+              is — sending now would store it under the guest (SECURITY.md §4.4) */}
+          <InputBar disabled={busy || !auth.ready} onSend={send} onTypingChange={onTypingChange} />
         </section>
 
         <SideWidgets

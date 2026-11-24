@@ -1,0 +1,16 @@
+# AURI-CANARY-27cb65f9-51da-5a06-98d4-0973c7279919
+id: py-l0-h-0005
+level: 0
+lang: py
+topics: [py.basics]
+title_hu: Szökőév
+prompt_hu: |
+  Írj `szokoev(ev: int) -> bool` függvényt a Gergely-naptár szerint: szökőév, ha osztható 4-gyel, kivéve a
+  100-zal oszthatókat, de a 400-zal oszthatók mégis szökőévek.
+signature: "def szokoev(ev: int) -> bool"
+files: {visible: tests/test_visible.py, hidden: tests/test_hidden.py, reference: ref/solution.py}
+source: {kind: own, license: own}
+limits: {wall_s: 20, mem_mb: 512}
+split: heldout
+family: leap-year
+rating: 1000

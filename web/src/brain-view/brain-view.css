@@ -1,14 +1,25 @@
-/* The /brain page — full-bleed 3D, minimal chrome (AuriGPT + hamburger only). */
+/* The /brain page — full-bleed 3D brain + a quiet HUD that shows what is really inside. */
 .brainx-root {
+  --bx-glass: rgba(5, 11, 20, 0.74);
+  --bx-line: rgba(130, 190, 230, 0.14);
+  --bx-ink: #d8ecf7;
+  --bx-dim: #7f9cb2;
+  --bx-faint: rgba(127, 156, 178, 0.6);
+  --bx-accent: #1fe5ff;
+  --bx-mono: 'Share Tech Mono', ui-monospace, monospace;
+  --bx-sans: 'Exo 2', system-ui, sans-serif;
   position: fixed;
   inset: 0;
-  background: #04080f;
+  background: #03060c;
   overflow: hidden;
+  color: var(--bx-ink);
 }
 .brainx-canvas {
   position: absolute;
   inset: 0;
 }
+
+/* ── top chrome ───────────────────────────────────────────────────────── */
 .brainx-chrome {
   position: absolute;
   top: 14px;
@@ -21,7 +32,7 @@
 .brainx-burger {
   background: transparent;
   border: 1px solid rgba(31, 229, 255, 0.35);
-  color: #1fe5ff;
+  color: var(--bx-accent);
   font-size: 1rem;
   line-height: 1;
   padding: 6px 11px;
@@ -30,45 +41,30 @@
   transition: all 0.2s;
 }
 .brainx-burger:hover {
-  border-color: #1fe5ff;
-  box-shadow: 0 0 14px rgba(31, 229, 255, 0.5);
+  border-color: var(--bx-accent);
+  box-shadow: 0 0 14px rgba(31, 229, 255, 0.4);
 }
 .brainx-brand {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--bx-mono);
   letter-spacing: 0.22em;
   font-size: 0.95rem;
-  color: #1fe5ff;
-  text-shadow: 0 0 12px rgba(31, 229, 255, 0.5);
+  color: var(--bx-accent);
+  text-shadow: 0 0 12px rgba(31, 229, 255, 0.4);
 }
 .brainx-brand-sub {
   color: #eaffff;
 }
-.brainx-tooltip {
-  position: fixed;
-  z-index: 20;
-  pointer-events: none;
-  max-width: 240px;
-  background: rgba(6, 16, 24, 0.95);
-  border: 1px solid rgba(31, 229, 255, 0.4);
-  border-radius: 4px;
-  padding: 7px 10px;
-  box-shadow: 0 0 18px rgba(31, 229, 255, 0.2);
+.bx-title {
+  font-family: var(--bx-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--bx-faint);
+  border-left: 1px solid var(--bx-line);
+  padding-left: 12px;
 }
-.brainx-tt-label {
-  color: #d6f7ff;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-.brainx-tt-meta {
-  color: #6fb7c9;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.66rem;
-  margin-top: 2px;
-}
-
-/* small "demo" badge when the graph is mock (signed-out / empty memory) */
 .brainx-demo {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--bx-mono);
   font-size: 0.55rem;
   letter-spacing: 0.18em;
   color: #04141a;
@@ -77,73 +73,636 @@
   border-radius: 8px;
   text-transform: uppercase;
 }
+.bx-tools {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bx-tools button {
+  font-family: var(--bx-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--bx-dim);
+  background: var(--bx-glass);
+  border: 1px solid var(--bx-line);
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.bx-tools button:hover {
+  color: var(--bx-ink);
+  border-color: rgba(31, 229, 255, 0.45);
+}
+.bx-only-mobile {
+  display: none;
+}
+.bx-hint {
+  font-family: var(--bx-mono);
+  font-size: 0.6rem;
+  color: var(--bx-faint);
+  margin-left: 6px;
+}
 
-/* click-to-select detail card (bottom-left, doesn't cover the top chrome) */
-.brainx-card {
+/* ── hover tooltip ────────────────────────────────────────────────────── */
+.brainx-tooltip {
   position: fixed;
   z-index: 20;
-  left: 16px;
-  bottom: 18px;
-  width: min(280px, 80vw);
-  background: rgba(6, 16, 24, 0.96);
-  border: 1px solid rgba(31, 229, 255, 0.4);
+  pointer-events: none;
+  max-width: 260px;
+  background: rgba(5, 12, 20, 0.94);
+  border: 1px solid var(--bx-line);
   border-radius: 6px;
-  padding: 14px 16px 13px;
-  box-shadow: 0 0 26px rgba(31, 229, 255, 0.2);
+  padding: 8px 11px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
-.brainx-card-x {
+.brainx-tt-label {
+  font-family: var(--bx-sans);
+  color: #f2fbff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+.brainx-tt-zone {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  font-family: var(--bx-mono);
+  font-size: 0.64rem;
+  color: var(--zc);
+}
+.brainx-tt-zone i,
+.bx-card-zone i,
+.bx-atlas-row i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--zc);
+  box-shadow: 0 0 8px var(--zc);
+  flex: none;
+}
+.brainx-tt-meta {
+  color: var(--bx-dim);
+  font-family: var(--bx-mono);
+  font-size: 0.62rem;
+  margin-top: 2px;
+}
+
+/* ── selected neuron card (top-right, below the tools) ────────────────── */
+.bx-card {
+  position: fixed;
+  z-index: 20;
+  right: 16px;
+  top: 54px;
+  width: min(320px, calc(100vw - 32px));
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  background: rgba(5, 12, 20, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bx-line);
+  border-top: 2px solid var(--zc);
+  border-radius: 8px;
+  padding: 14px 16px 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+.bx-card-x {
   position: absolute;
-  top: 7px;
-  right: 9px;
+  top: 8px;
+  right: 10px;
   background: none;
   border: none;
-  color: #6fb7c9;
+  color: var(--bx-dim);
   cursor: pointer;
   font-size: 0.85rem;
 }
-.brainx-card-x:hover {
-  color: #1fe5ff;
+.bx-card-x:hover {
+  color: var(--bx-ink);
 }
-.brainx-card-kind {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
+.bx-card-zone {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--bx-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--zc);
 }
-.brainx-card-label {
-  color: #eaffff;
-  font-size: 1.05rem;
+.bx-card-label {
+  font-family: var(--bx-sans);
+  color: #f4fbff;
+  font-size: 1.3rem;
   font-weight: 600;
-  margin: 3px 0 6px;
+  margin: 4px 0 4px;
   word-break: break-word;
 }
-.brainx-card-row {
-  color: #9fd6e6;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.66rem;
-}
-.brainx-card-src {
-  color: #6fb7c9;
-  font-family: 'Share Tech Mono', monospace;
+.bx-card-meta,
+.bx-card-src {
+  font-family: var(--bx-mono);
   font-size: 0.64rem;
-  margin-top: 5px;
+  color: var(--bx-dim);
 }
-.brainx-card-link {
+.bx-card-src {
+  margin-top: 2px;
+}
+.bx-card-link {
   display: inline-block;
-  margin-top: 6px;
+  margin-top: 7px;
   color: #ffd166;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--bx-mono);
   font-size: 0.66rem;
   text-decoration: none;
   border-bottom: 1px dashed rgba(255, 209, 102, 0.5);
-  transition: all 0.2s;
 }
-.brainx-card-link:hover {
+.bx-card-link:hover {
   color: #ffe6a8;
-  border-bottom-color: #ffd166;
-  text-shadow: 0 0 10px rgba(255, 209, 102, 0.5);
+}
+.bx-card-sec {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--bx-line);
+}
+.bx-card-sec h5 {
+  margin: 0 0 7px;
+  font-family: var(--bx-mono);
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bx-faint);
+}
+.bx-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.bx-chip {
+  font-family: var(--bx-mono);
+  font-size: 0.68rem;
+  color: var(--zc);
+  background: color-mix(in srgb, var(--zc) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--zc) 35%, transparent);
+  border-radius: 11px;
+  padding: 2px 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bx-chip:hover {
+  background: color-mix(in srgb, var(--zc) 20%, transparent);
+}
+.bx-card-says {
+  margin: 0;
+  font-family: var(--bx-sans);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #cfe6f2;
 }
 
-/* 2D fallback (no WebGL) */
+/* ── "/" search ───────────────────────────────────────────────────────── */
+.brainx-search {
+  position: fixed;
+  z-index: 30;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brainx-search-input {
+  width: min(360px, 60vw);
+  background: rgba(5, 12, 20, 0.95);
+  border: 1px solid rgba(31, 229, 255, 0.45);
+  color: var(--bx-ink);
+  font-family: var(--bx-mono);
+  font-size: 0.82rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+  outline: none;
+}
+.brainx-search-count {
+  color: var(--bx-dim);
+  font-family: var(--bx-mono);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+/* ── bottom HUD ───────────────────────────────────────────────────────── */
+.bx-hud {
+  position: fixed;
+  z-index: 15;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  display: grid;
+  grid-template-columns: minmax(230px, 270px) minmax(0, 1fr) minmax(230px, 270px);
+  gap: 16px;
+  align-items: end;
+  pointer-events: none; /* the canvas stays draggable between the panels */
+}
+.bx-hud > * {
+  pointer-events: auto;
+}
+.bx-panel {
+  background: var(--bx-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--bx-line);
+  border-radius: 8px;
+  padding: 10px 12px 10px;
+}
+.bx-panel h4 {
+  margin: 0 0 7px;
+  font-family: var(--bx-mono);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bx-accent);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bx-panel h4 span {
+  color: var(--bx-faint);
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+/* atlas */
+.bx-atlas-row {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  padding: 3px 5px;
+  margin: 0 -5px;
+  width: calc(100% + 10px);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--bx-mono);
+  transition: background 0.15s;
+}
+.bx-atlas-row:hover,
+.bx-atlas-row.is-on {
+  background: color-mix(in srgb, var(--zc) 12%, transparent);
+}
+.bx-atlas-row b {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--bx-ink);
+  white-space: nowrap;
+}
+.bx-atlas-row em {
+  font-style: normal;
+  font-size: 0.56rem;
+  color: var(--bx-faint);
+  white-space: nowrap;
+}
+.bx-atlas-row span {
+  font-size: 0.7rem;
+  color: var(--zc);
+  min-width: 42px;
+  text-align: right;
+}
+.bx-atlas-row.is-empty {
+  opacity: 0.5;
+}
+.bx-atlas-proto {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--bx-line);
+  font-family: var(--bx-mono);
+  font-size: 0.64rem;
+  color: var(--bx-dim);
+  cursor: pointer;
+}
+.bx-atlas-proto input {
+  accent-color: #5d6b85;
+  margin: 0;
+}
+.bx-atlas-proto em {
+  font-style: normal;
+  font-size: 0.56rem;
+  color: var(--bx-faint);
+}
+.bx-atlas-proto span {
+  color: #8c9ab3;
+  min-width: 42px;
+  text-align: right;
+}
+
+/* center: thought stream + answer + ask */
+.bx-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.bx-thought {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 6px;
+  max-width: 640px;
+  min-height: 26px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: rgba(5, 11, 20, 0.55);
+  border: 1px solid rgba(255, 209, 102, 0.14);
+}
+.bx-thought-tag {
+  white-space: nowrap;
+  font-family: var(--bx-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #ffd166;
+  margin-right: 4px;
+}
+.bx-thought-tag::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffd166;
+  margin-right: 6px;
+  vertical-align: 1px;
+  animation: bx-blink 1.4s ease-in-out infinite;
+}
+@keyframes bx-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+.bx-thought-idle {
+  font-family: var(--bx-mono);
+  font-size: 0.66rem;
+  color: var(--bx-faint);
+}
+.bx-thought-word {
+  white-space: nowrap;
+  font-family: var(--bx-sans);
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--zc);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  animation: bx-in 0.4s ease-out;
+}
+.bx-thought-word:last-child {
+  text-shadow: 0 0 12px color-mix(in srgb, var(--zc) 70%, transparent);
+}
+.bx-thought-word:hover {
+  text-decoration: underline;
+}
+@keyframes bx-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+.bx-arrow {
+  color: rgba(255, 209, 102, 0.45);
+  font-size: 0.7rem;
+}
+.bx-answer {
+  width: min(560px, 100%);
+  background: rgba(5, 12, 20, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--bx-line);
+  border-left: 2px solid #ffd166;
+  border-radius: 6px;
+  padding: 9px 13px;
+  color: #eaf6fc;
+  font-family: var(--bx-sans);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.bx-answer-q {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--bx-mono);
+  font-size: 0.64rem;
+  color: #ffd166;
+  margin-bottom: 4px;
+}
+.bx-answer-q button {
+  background: none;
+  border: 0;
+  color: var(--bx-dim);
+  cursor: pointer;
+}
+.bx-ask {
+  width: min(480px, 100%);
+}
+.bx-ask-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(5, 12, 20, 0.88);
+  border: 1px solid rgba(31, 229, 255, 0.3);
+  color: var(--bx-ink);
+  font-family: var(--bx-mono);
+  font-size: 0.8rem;
+  padding: 9px 14px;
+  border-radius: 20px;
+  outline: none;
+  text-align: center;
+  transition: all 0.2s;
+}
+.bx-ask-input:focus {
+  border-color: var(--bx-accent);
+  box-shadow: 0 0 16px rgba(31, 229, 255, 0.22);
+}
+.bx-ask-input::placeholder {
+  color: rgba(127, 156, 178, 0.6);
+}
+
+/* vitals */
+.bx-stages {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 7px;
+}
+.bx-stages i {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(127, 156, 178, 0.18);
+}
+.bx-stages i.on {
+  background: linear-gradient(90deg, #33d6f2, #b18cff);
+}
+.bx-auto {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--bx-mono);
+  font-size: 0.62rem;
+  color: var(--bx-dim);
+  margin-bottom: 8px;
+}
+.bx-auto b {
+  font-weight: 400;
+  color: var(--bx-ink);
+}
+.bx-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(127, 156, 178, 0.16);
+  overflow: hidden;
+}
+.bx-bar div {
+  height: 100%;
+  background: linear-gradient(90deg, #3fe0a0, #33d6f2);
+  transition: width 0.6s;
+}
+.bx-nums {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 12px;
+  margin: 0;
+}
+.bx-nums div {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  border-bottom: 1px dotted rgba(127, 156, 178, 0.14);
+  padding-bottom: 2px;
+}
+.bx-nums dt {
+  font-family: var(--bx-mono);
+  font-size: 0.58rem;
+  color: var(--bx-faint);
+  white-space: nowrap;
+}
+.bx-nums dd {
+  margin: 0;
+  font-family: var(--bx-mono);
+  font-size: 0.7rem;
+  color: var(--bx-ink);
+}
+.bx-nums dd.is-web {
+  color: #ff6fd8;
+}
+.bx-recent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 7px;
+  margin-top: 8px;
+  font-family: var(--bx-mono);
+  font-size: 0.64rem;
+}
+.bx-recent span {
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bx-faint);
+}
+.bx-recent em {
+  font-style: normal;
+  color: #ffd166;
+}
+
+/* ── labels projected INTO the 3D brain (created by BrainScene) ───────── */
+.bx3-ov {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+.bx3-ov > div {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+  white-space: nowrap;
+}
+.bx3-zl {
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3px 8px 2px;
+  border-radius: 5px;
+  background: rgba(3, 8, 14, 0.5);
+  border: 1px solid color-mix(in srgb, var(--zc) 22%, transparent);
+  transition: background 0.2s, border-color 0.2s;
+}
+.bx3-zl:hover,
+.bx3-zl.is-focus {
+  background: rgba(5, 12, 20, 0.82);
+  border-color: color-mix(in srgb, var(--zc) 60%, transparent);
+}
+.bx3-zl-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--zc);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.9);
+}
+.bx3-zl-name i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--zc);
+  box-shadow: 0 0 6px var(--zc);
+}
+.bx3-zl-meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.56rem;
+  color: rgba(190, 215, 232, 0.6);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+}
+.bx3-cl {
+  font-family: 'Exo 2', system-ui, sans-serif;
+  font-size: 0.66rem;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.95);
+}
+.bx3-tl {
+  font-family: 'Exo 2', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 9px;
+  background: rgba(20, 14, 2, 0.55);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  text-shadow: 0 0 10px rgba(255, 190, 80, 0.55);
+}
+.bx3-tl.is-sprout {
+  background: rgba(2, 16, 12, 0.55);
+  border-color: rgba(63, 224, 160, 0.4);
+  text-shadow: none;
+}
+
+/* ── 2D fallback (no WebGL) ───────────────────────────────────────────── */
 .brainx-fallback {
   position: absolute;
   inset: 0;
@@ -152,7 +711,7 @@
 }
 .brainx-fallback-note {
   color: #6fb7c9;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--bx-mono);
   font-size: 0.72rem;
   margin-bottom: 16px;
 }
@@ -160,7 +719,7 @@
   margin-bottom: 16px;
 }
 .brainx-fb-region h3 {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--bx-mono);
   font-size: 0.8rem;
   letter-spacing: 0.12em;
   margin: 0 0 7px;
@@ -175,133 +734,77 @@
   padding: 2px 9px;
   border-radius: 11px;
   font-size: 0.72rem;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--bx-mono);
 }
 
-/* "/" search overlay (top-center, minimal) */
-.brainx-search {
-  position: fixed;
-  z-index: 30;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* ── narrow screens: stack the HUD, keep the brain visible ────────────── */
+@media (max-width: 980px) {
+  .bx-hud {
+    grid-template-columns: 1fr 1fr;
+  }
+  .bx-center {
+    grid-column: 1 / -1;
+    order: -1;
+  }
+  .bx-hint {
+    display: none;
+  }
 }
-.brainx-search-input {
-  width: min(360px, 70vw);
-  background: rgba(6, 16, 24, 0.96);
-  border: 1px solid rgba(31, 229, 255, 0.45);
-  color: #d6f7ff;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.82rem;
-  padding: 8px 12px;
-  border-radius: 4px;
-  outline: none;
-  box-shadow: 0 0 18px rgba(31, 229, 255, 0.2);
-}
-.brainx-search-count {
-  color: #6fb7c9;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.68rem;
-  white-space: nowrap;
-}
-
-/* "speech area" — ask the brain, it answers from its own offline model (bottom-center) */
-.brainx-ask {
-  position: fixed;
-  z-index: 20;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  width: min(440px, 86vw);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  /* container is click-through so the 3D canvas stays fully draggable;
-     only the input/answer themselves capture pointer events. */
-  pointer-events: none;
-}
-.brainx-ask-input,
-.brainx-ask-answer {
-  pointer-events: auto;
-}
-.brainx-ask-input {
-  width: 100%;
-  background: rgba(6, 16, 24, 0.9);
-  border: 1px solid rgba(31, 229, 255, 0.35);
-  color: #d6f7ff;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.8rem;
-  padding: 8px 13px;
-  border-radius: 18px;
-  outline: none;
-  text-align: center;
-  transition: all 0.2s;
-}
-.brainx-ask-input:focus {
-  border-color: #1fe5ff;
-  box-shadow: 0 0 16px rgba(31, 229, 255, 0.3);
-}
-.brainx-ask-input::placeholder {
-  color: rgba(111, 183, 201, 0.55);
-}
-.brainx-ask-answer {
-  max-width: 100%;
-  background: rgba(6, 16, 24, 0.92);
-  border: 1px solid rgba(31, 229, 255, 0.28);
-  border-left: 2px solid #ffd166;
-  border-radius: 5px;
-  padding: 9px 13px;
-  color: #eaffff;
-  font-size: 0.86rem;
-  line-height: 1.4;
-  text-align: left;
-  box-shadow: 0 0 20px rgba(31, 229, 255, 0.12);
-}
-
-/* local-brain "speech area" readout (bottom-right, unobtrusive) */
-.brainx-vitals {
-  position: fixed;
-  z-index: 10;
-  right: 16px;
-  bottom: 14px;
-  max-width: 300px;
-  text-align: right;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-family: 'Share Tech Mono', monospace;
-}
-.brainx-vitals-stage {
-  font-size: 0.64rem;
-  letter-spacing: 0.12em;
-  color: #1fe5ff;
-}
-.brainx-vitals-row {
-  font-size: 0.56rem;
-  color: rgba(31, 229, 255, 0.6);
-}
-.brainx-vitals-recent {
-  font-size: 0.56rem;
-  color: #ffd166;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.brainx-vitals-babble {
-  font-size: 0.54rem;
-  font-style: italic;
-  color: rgba(170, 220, 235, 0.55);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.brainx-vitals-web {
-  font-size: 0.56rem;
-  color: #ff7ad9;
-  text-shadow: 0 0 10px rgba(255, 122, 217, 0.4);
+@media (max-width: 640px) {
+  .bx-tools .bx-only-mobile {
+    display: inline-block;
+  }
+  .brainx-brand,
+  .brainx-demo {
+    display: none;
+  }
+  .bx-tools {
+    gap: 6px;
+  }
+  .bx-tools button {
+    padding: 5px 8px;
+  }
+  .bx3-zl {
+    padding: 2px 5px 1px;
+  }
+  .bx3-zl-name {
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
+  }
+  .bx3-zl-meta,
+  .bx3-cl {
+    display: none;
+  }
+  .brainx-root:not(.show-panels) .bx-panel {
+    display: none;
+  }
+  .bx-thought {
+    max-width: 100%;
+  }
+  .bx-hud {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .bx-atlas-row em,
+  .bx-recent,
+  .bx-nums div:nth-child(n + 5) {
+    display: none;
+  }
+  .bx-atlas {
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .bx-vitals .bx-nums {
+    grid-template-columns: 1fr 1fr;
+  }
+  .bx-title {
+    display: none;
+  }
+  .bx-card {
+    top: 50px;
+    max-height: 40vh;
+  }
 }
